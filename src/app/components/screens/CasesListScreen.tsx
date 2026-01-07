@@ -1,59 +1,150 @@
-import { Search, Filter, Calendar, MapPin, FileText, Eye, Plus, Upload, Package } from 'lucide-react';
+import { useState } from 'react';
+import { Search, Filter, Calendar, FileText, Eye, Plus, Upload, Package, Trash2 } from 'lucide-react';
+import { useCaseStore } from '../../../store';
+import { CaseStatus } from '../../../types';
 
 interface CasesListScreenProps {
   onNavigate: (screen: string) => void;
 }
 
 export function CasesListScreen({ onNavigate }: CasesListScreenProps) {
-  const cases = [
-    { bo: 'BO 2025/123456', nature: 'Homicídio', date: '05/01/2025 14:30', address: 'Rua das Flores, 123 - Centro', status: 'Em rascunho', lastUpdate: 'Há 2 horas' },
-    { bo: 'BO 2025/123445', nature: 'Roubo', date: '04/01/2025 09:15', address: 'Av. Paulista, 1578 - Bela Vista', status: 'Em revisão', lastUpdate: 'Há 5 horas' },
-    { bo: 'BO 2025/123434', nature: 'Furto Qualificado', date: '03/01/2025 18:45', address: 'Rua Augusta, 2890 - Jardins', status: 'Finalizado', lastUpdate: 'Há 1 dia' },
-    { bo: 'BO 2025/123401', nature: 'Tráfico de Drogas', date: '02/01/2025 22:10', address: 'Rua do Comércio, 456 - Brás', status: 'Em rascunho', lastUpdate: 'Há 2 dias' },
-  ];
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [naturezaFilter, setNaturezaFilter] = useState<string>('all');
+  const [showNewCaseModal, setShowNewCaseModal] = useState(false);
+  const [newCaseBO, setNewCaseBO] = useState('');
+  const [newCaseNatureza, setNewCaseNatureza] = useState('');
 
-  const getStatusColor = (status: string) => {
+  const { cases, selectCase, createCase, deleteCase } = useCaseStore();
+
+  // Filtrar casos
+  const filteredCases = cases.filter((caso) => {
+    // Filtro de busca
+    const searchLower = searchQuery.toLowerCase();
+    const matchesSearch =
+      searchQuery === '' ||
+      caso.bo.toLowerCase().includes(searchLower) ||
+      caso.natureza.toLowerCase().includes(searchLower) ||
+      caso.endereco.toLowerCase().includes(searchLower);
+
+    // Filtro de status
+    const matchesStatus = statusFilter === 'all' || caso.status === statusFilter;
+
+    // Filtro de natureza
+    const matchesNatureza = naturezaFilter === 'all' || caso.natureza === naturezaFilter;
+
+    return matchesSearch && matchesStatus && matchesNatureza;
+  });
+
+  const getStatusLabel = (status: CaseStatus) => {
     switch (status) {
-      case 'Em rascunho':
+      case 'rascunho':
+        return 'Em rascunho';
+      case 'em_revisao':
+        return 'Em revisão';
+      case 'finalizado':
+        return 'Finalizado';
+      default:
+        return status;
+    }
+  };
+
+  const getStatusColor = (status: CaseStatus) => {
+    switch (status) {
+      case 'rascunho':
         return 'bg-yellow-100 text-yellow-800';
-      case 'Em revisão':
+      case 'em_revisao':
         return 'bg-blue-100 text-blue-800';
-      case 'Finalizado':
+      case 'finalizado':
         return 'bg-green-100 text-green-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
 
+  const formatDate = (isoDate: string) => {
+    const date = new Date(isoDate);
+    return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const getRelativeTime = (isoDate: string) => {
+    const date = new Date(isoDate);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffHours < 1) return 'Agora mesmo';
+    if (diffHours < 24) return `Há ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
+    return `Há ${diffDays} dia${diffDays > 1 ? 's' : ''}`;
+  };
+
+  const handleOpenCase = (caseId: string) => {
+    selectCase(caseId);
+    onNavigate('workspace');
+  };
+
+  const handleCreateCase = () => {
+    if (!newCaseBO.trim()) return;
+
+    const caseId = createCase(newCaseBO.trim(), newCaseNatureza.trim() || undefined);
+    selectCase(caseId);
+    setShowNewCaseModal(false);
+    setNewCaseBO('');
+    setNewCaseNatureza('');
+    onNavigate('workspace');
+  };
+
+  const generateBO = () => {
+    const year = new Date().getFullYear();
+    const random = Math.floor(Math.random() * 900000) + 100000;
+    setNewCaseBO(`${year}/${random}`);
+  };
+
+  // Naturezas únicas para o filtro
+  const uniqueNaturezas = [...new Set(cases.map((c) => c.natureza).filter((n) => n))];
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl mb-4">Casos</h1>
-        
+
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-4">
           <div className="relative flex-1 min-w-[200px] max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar por BO, endereço..."
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
 
-          <select className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-            <option>Todos os Status</option>
-            <option>Em rascunho</option>
-            <option>Em revisão</option>
-            <option>Finalizado</option>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          >
+            <option value="all">Todos os Status</option>
+            <option value="rascunho">Em rascunho</option>
+            <option value="em_revisao">Em revisão</option>
+            <option value="finalizado">Finalizado</option>
           </select>
 
-          <select className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-            <option>Todas as Naturezas</option>
-            <option>Homicídio</option>
-            <option>Roubo</option>
-            <option>Furto</option>
+          <select
+            value={naturezaFilter}
+            onChange={(e) => setNaturezaFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          >
+            <option value="all">Todas as Naturezas</option>
+            {uniqueNaturezas.map((natureza) => (
+              <option key={natureza} value={natureza}>
+                {natureza}
+              </option>
+            ))}
           </select>
 
           <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
@@ -85,26 +176,48 @@ export function CasesListScreen({ onNavigate }: CasesListScreenProps) {
                 </tr>
               </thead>
               <tbody>
-                {cases.map((caso, index) => (
-                  <tr key={index} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-3 text-sm text-gray-900">{caso.bo}</td>
-                    <td className="px-4 py-3 text-sm text-gray-700">{caso.nature}</td>
-                    <td className="px-4 py-3 text-sm text-gray-600 hidden md:table-cell">{caso.date}</td>
-                    <td className="px-4 py-3 text-sm text-gray-600 hidden lg:table-cell">{caso.address}</td>
+                {filteredCases.map((caso) => (
+                  <tr key={caso.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-3 text-sm text-gray-900 font-medium">BO {caso.bo}</td>
+                    <td className="px-4 py-3 text-sm text-gray-700">{caso.natureza || '-'}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600 hidden md:table-cell">
+                      {formatDate(caso.dataHoraFato)}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600 hidden lg:table-cell max-w-xs truncate">
+                      {caso.endereco || '-'}
+                    </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${getStatusColor(caso.status)}`}>
-                        {caso.status}
+                      <span
+                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${getStatusColor(
+                          caso.status
+                        )}`}
+                      >
+                        {getStatusLabel(caso.status)}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500 hidden xl:table-cell">{caso.lastUpdate}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500 hidden xl:table-cell">
+                      {getRelativeTime(caso.updatedAt)}
+                    </td>
                     <td className="px-4 py-3">
-                      <button
-                        onClick={() => onNavigate('workspace')}
-                        className="flex items-center gap-1 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                      >
-                        <Eye className="w-4 h-4" />
-                        Abrir
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleOpenCase(caso.id)}
+                          className="flex items-center gap-1 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                        >
+                          <Eye className="w-4 h-4" />
+                          Abrir
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm('Tem certeza que deseja excluir este caso?')) {
+                              deleteCase(caso.id);
+                            }
+                          }}
+                          className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -112,7 +225,7 @@ export function CasesListScreen({ onNavigate }: CasesListScreenProps) {
             </table>
 
             {/* Empty State */}
-            {cases.length === 0 && (
+            {filteredCases.length === 0 && (
               <div className="py-12 text-center">
                 <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                 <h3 className="text-sm text-gray-600 mb-1">Nenhum caso encontrado</h3>
@@ -127,7 +240,10 @@ export function CasesListScreen({ onNavigate }: CasesListScreenProps) {
           <div className="bg-white rounded-lg border border-gray-200 p-4">
             <h3 className="text-sm mb-3">Atalhos</h3>
             <div className="space-y-2">
-              <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors">
+              <button
+                onClick={() => setShowNewCaseModal(true)}
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+              >
                 <Plus className="w-4 h-4 text-blue-600" />
                 Criar Caso
               </button>
@@ -141,8 +257,105 @@ export function CasesListScreen({ onNavigate }: CasesListScreenProps) {
               </button>
             </div>
           </div>
+
+          {/* Stats */}
+          <div className="bg-white rounded-lg border border-gray-200 p-4 mt-4">
+            <h3 className="text-sm mb-3">Estatísticas</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Total de casos</span>
+                <span className="font-medium">{cases.length}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Em rascunho</span>
+                <span className="font-medium text-yellow-600">
+                  {cases.filter((c) => c.status === 'rascunho').length}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Em revisão</span>
+                <span className="font-medium text-blue-600">
+                  {cases.filter((c) => c.status === 'em_revisao').length}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Finalizados</span>
+                <span className="font-medium text-green-600">
+                  {cases.filter((c) => c.status === 'finalizado').length}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Modal de Novo Caso */}
+      {showNewCaseModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setShowNewCaseModal(false)} />
+          <div className="relative bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+            <h2 className="text-lg font-medium mb-4">Criar Novo Caso</h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">Boletim de Ocorrência (BO) *</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newCaseBO}
+                    onChange={(e) => setNewCaseBO(e.target.value)}
+                    placeholder="Ex: 2025/123456"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    autoFocus
+                  />
+                  <button
+                    onClick={generateBO}
+                    type="button"
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+                  >
+                    Gerar
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">Natureza</label>
+                <select
+                  value={newCaseNatureza}
+                  onChange={(e) => setNewCaseNatureza(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value="">Selecione...</option>
+                  <option value="Homicídio">Homicídio</option>
+                  <option value="Roubo">Roubo</option>
+                  <option value="Furto">Furto</option>
+                  <option value="Latrocínio">Latrocínio</option>
+                  <option value="Lesão Corporal">Lesão Corporal</option>
+                  <option value="Acidente de Trânsito">Acidente de Trânsito</option>
+                  <option value="Incêndio">Incêndio</option>
+                  <option value="Outros">Outros</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowNewCaseModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleCreateCase}
+                disabled={!newCaseBO.trim()}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Criar e Abrir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
