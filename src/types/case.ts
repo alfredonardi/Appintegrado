@@ -299,7 +299,7 @@ export const createEmptyCase = (id: string, bo: string): Case => ({
   investigationReport: {
     blocks: [
       {
-        id: 'resumo',
+        id: 'summary',
         title: 'Resumo Executivo',
         content: '',
         status: 'empty',
@@ -309,7 +309,7 @@ export const createEmptyCase = (id: string, bo: string): Case => ({
         lastUpdated: new Date().toISOString(),
       },
       {
-        id: 'dinamica',
+        id: 'dynamics',
         title: 'Dinâmica dos Fatos',
         content: '',
         status: 'empty',
@@ -319,7 +319,7 @@ export const createEmptyCase = (id: string, bo: string): Case => ({
         lastUpdated: new Date().toISOString(),
       },
       {
-        id: 'vitimas',
+        id: 'victims',
         title: 'Vítimas e Envolvidos',
         content: '',
         status: 'empty',
@@ -329,7 +329,7 @@ export const createEmptyCase = (id: string, bo: string): Case => ({
         lastUpdated: new Date().toISOString(),
       },
       {
-        id: 'acao-policial',
+        id: 'police',
         title: 'Ação Policial',
         content: '',
         status: 'empty',
@@ -339,7 +339,7 @@ export const createEmptyCase = (id: string, bo: string): Case => ({
         lastUpdated: new Date().toISOString(),
       },
       {
-        id: 'procedimentos',
+        id: 'procedures',
         title: 'Procedimentos Realizados',
         content: '',
         status: 'empty',
@@ -359,7 +359,7 @@ export const createEmptyCase = (id: string, bo: string): Case => ({
         lastUpdated: new Date().toISOString(),
       },
       {
-        id: 'conclusao',
+        id: 'conclusion',
         title: 'Conclusão',
         content: '',
         status: 'empty',
