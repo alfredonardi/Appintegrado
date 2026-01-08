@@ -16,17 +16,4 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  build: {
-    rollupOptions: {
-      external: ['react/jsx-runtime', 'react-dom/client', 'react', 'react-dom'],
-      output: {
-        globals: {
-          'react/jsx-runtime': 'jsxRuntime',
-          'react-dom/client': 'ReactDOM',
-          'react': 'React',
-          'react-dom': 'ReactDOM',
-        },
-      },
-    },
-  },
 })
