@@ -6,6 +6,64 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 
 ## [Não Lançado]
 
+### ETAPA 7 ✅ - Primeiro Vertical Slice (CRUD Clientes)
+**Data**: 2026-01-08
+
+#### Adicionado
+- **Store de Clientes** (`src/state/clientsStore.ts`):
+  - Zustand store com persistência em localStorage
+  - Actions: fetchClients, createClient, updateClient, deleteClient
+  - Seletores: selectedClient(), getClientById()
+  - Estado: clients[], selectedClientId, loading
+  - Integração automática com clientsService
+
+- **Páginas de Clientes** (`src/pages/Clients/`):
+  - `List.tsx`: Listagem de clientes com filtros por status
+    - Cartões com informações (nome, email, telefone, documento, localização)
+    - Botões: Novo Cliente, Editar, Deletar
+    - Confirmação antes de deletar
+    - Estados: vazio, carregando, com dados
+
+  - `Create.tsx`: Formulário para criar novo cliente
+    - Campos: nome, email, telefone, tipo documento (CPF/CNPJ)
+    - Campos adicionais: endereço, CEP, cidade, estado, país
+    - Status: ativo, inativo, bloqueado
+    - Validação de campos obrigatórios
+    - Navegação automática após sucesso
+
+  - `Edit.tsx`: Formulário para editar cliente existente
+    - Carrega dados automaticamente
+    - Mesmo layout que Create
+    - Salva alterações e retorna à lista
+    - Mensagem de erro se cliente não encontrado
+
+- **Rotas de Clientes** (`src/routes/AppRouter.tsx`):
+  - `/clients` → ClientsList (listagem)
+  - `/clients/new` → ClientsCreate (criar)
+  - `/clients/:clientId/edit` → ClientsEdit (editar)
+  - Todas condicionadas por `FEATURE_FLAGS.clientsModule`
+  - Menu item já presente no Sidebar
+
+- **Ativação de Feature Flag** (`src/config/features.ts`):
+  - `clientsModule: true` (antes estava false)
+  - Habilita rotas e menu item automaticamente
+
+#### Status
+- ✅ Build production: `npm run build` - SUCCESS
+- ✅ Dev server: `npm run dev` - SUCCESS
+- ✅ CRUD completo para clientes funcional
+- ✅ Store sincronizado com service layer
+- ✅ Mock data funcionando (3 clientes de exemplo)
+- ✅ Feature flag ativada
+- ✅ Menu item visível no Sidebar
+- ✅ Exemplo pronto para próximos CRUDs
+
+#### Próximo
+- Implementar módulos adicionais (Relatórios, Analytics, etc)
+- Integrar com API real (trocar VITE_USE_MOCK_API)
+
+---
+
 ### ETAPA 6 ✅ - Camada de API + Mocks Alternável
 **Data**: 2026-01-08
 

@@ -10,7 +10,7 @@ Bundle exportado do Figma transformado em uma aplicação React/Vite escalável,
 - ✅ **ETAPA 4**: Auth mock + proteção de rotas
 - ✅ **ETAPA 5**: Feature flags
 - ✅ **ETAPA 6**: Camada de API + mocks alternável
-- ⏳ **ETAPA 7**: Primeiro CRUD (Clientes)
+- ✅ **ETAPA 7**: Primeiro CRUD (Clientes)
 
 Veja `docs/roadmap.md` para detalhes de cada etapa.
 
@@ -142,9 +142,17 @@ src/
 - **API Client** centralizado com suporte a mock/real (ETAPA 6)
 - **Services abstratos** para Casos, Clientes, Autenticação (ETAPA 6)
 - **Mock Data** com 2 casos, 3 clientes, 5 usuários (ETAPA 6)
+- **Módulo CRUD Completo de Clientes** (ETAPA 7):
+  - Listagem com filtros por status
+  - Criação de novo cliente
+  - Edição de cliente existente
+  - Deletação com confirmação
+  - Store Zustand com persistência
+  - Integrado com services layer
 
-### 🔲 Planejados (Próximas ETAPAs)
-- **Módulo CRUD** simples (Clientes) como exemplo (ETAPA 7)
+### 🔲 Próximas Implementações
+- Implementar outros módulos (Relatórios, Analytics, etc)
+- Integrar com API real (trocar `VITE_USE_MOCK_API=false`)
 
 ---
 
@@ -430,19 +438,40 @@ Veja `package.json` para lista completa.
 
 ## 📚 Próximos Passos
 
-1. **Fazer ETAPA 7** (Primeiro CRUD - Clientes)
-   - Módulo vertical slice completo
-   - Pages: List, Create, Edit
-   - Store/state para Clientes
-   - Rotas e menu items com feature flag
-   - Exemplo para futuros módulos
+### Desenvolvimento Futuro
 
-Cada ETAPA termina com:
-- ✅ `npm run dev` rodando
-- ✅ Nenhuma quebra de funcionalidade
-- ✅ Novo recurso implementado
-- ✅ Documentação atualizada
-- ✅ Build production (`npm run build`) com sucesso
+1. **Implementar Módulos Adicionais**
+   - Relatórios (reportsModule)
+   - Analytics (analyticsModule)
+   - Seguir mesmo padrão da ETAPA 7 (Pages, Store, Services)
+
+2. **Integrar com API Real**
+   - Criar arquivo `.env` com `VITE_USE_MOCK_API=false`
+   - Implementar endpoints da API backend
+   - Substituir mock data por chamadas HTTP reais
+
+3. **Melhorias de UX/Design**
+   - Adicionar paginação nas listas
+   - Implementar busca e filtros avançados
+   - Validação de CPF/CNPJ
+   - Loading states mais elaborados
+
+4. **Testing**
+   - Testes unitários dos stores
+   - Testes de componentes
+   - Testes de integração
+
+### Padrão de Desenvolvimento
+
+Cada novo módulo/CRUD deve seguir o padrão estabelecido:
+1. Criar tipos em `src/types/`
+2. Criar mock data em `src/services/mock/`
+3. Criar service em `src/services/`
+4. Criar store em `src/state/`
+5. Criar páginas em `src/pages/`
+6. Adicionar rotas em `src/routes/AppRouter.tsx`
+7. Ativar feature flag em `src/config/features.ts`
+8. Adicionar menu item em `src/components/layout/Sidebar.tsx`
 
 ---
 
@@ -461,4 +490,4 @@ Este projeto é um bundle exportado do Figma com transformações de arquitetura
 ---
 
 **Última atualização**: 2026-01-08
-**Status**: ETAPA 6 ✅ Completa | ETAPA 7 ⏳ Próximo
+**Status**: ETAPA 7 ✅ Completa | Aplicação com 7 ETAPAs Concluídas
