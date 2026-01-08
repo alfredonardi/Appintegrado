@@ -1,35 +1,54 @@
-import { 
-  Folder, 
-  Camera, 
-  FileText, 
-  Image, 
-  FileSearch, 
-  Package, 
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import {
+  Folder,
+  Camera,
+  FileText,
+  Image,
+  FileSearch,
+  Package,
   Settings,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
 
-interface SidebarProps {
-  currentScreen: string;
-  onNavigate: (screen: string) => void;
-  isCollapsed: boolean;
-  onToggleCollapse: () => void;
-}
+/**
+ * Sidebar - Menu lateral com navegação
+ * Usa React Router para navegação e detecção de rota ativa
+ */
+export function Sidebar() {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const params = useParams();
+  const caseId = params.caseId;
 
-export function Sidebar({ currentScreen, onNavigate, isCollapsed, onToggleCollapse }: SidebarProps) {
+  // Definir menu items
+  // Para rotas que precisam de caseId, não mostrar se não houver caso selecionado
   const menuItems = [
-    { id: 'cases', label: 'Casos', icon: Folder },
-    { id: 'capture', label: 'Captura & IA', icon: Camera },
-    { id: 'recognition', label: 'Reconhecimento', icon: FileText },
-    { id: 'photo-report', label: 'Relatório Fotográfico', icon: Image },
-    { id: 'investigation-report', label: 'Relatório de Investigação', icon: FileSearch },
-    { id: 'export', label: 'Exportar Pacote', icon: Package },
-    { id: 'settings', label: 'Configurações', icon: Settings },
+    { id: 'cases', label: 'Casos', icon: Folder, path: '/cases' },
+    { id: 'capture', label: 'Captura & IA', icon: Camera, path: caseId ? `/cases/${caseId}/capture` : null },
+    { id: 'recognition', label: 'Reconhecimento', icon: FileText, path: caseId ? `/cases/${caseId}/recognition` : null },
+    { id: 'photo-report', label: 'Relatório Fotográfico', icon: Image, path: caseId ? `/cases/${caseId}/photo-report` : null },
+    { id: 'investigation-report', label: 'Relatório de Investigação', icon: FileSearch, path: caseId ? `/cases/${caseId}/investigation` : null },
+    { id: 'export', label: 'Exportar Pacote', icon: Package, path: caseId ? `/cases/${caseId}/export` : null },
+    { id: 'settings', label: 'Configurações', icon: Settings, path: '/settings' },
   ];
 
+  // Determinar se a rota está ativa
+  const isActive = (path: string | null): boolean => {
+    if (!path) return false;
+    return location.pathname === path;
+  };
+
+  const handleNavigate = (path: string | null) => {
+    if (!path) return;
+    navigate(path);
+  };
+
   return (
-    <aside 
+    <aside
       className={`${
         isCollapsed ? 'w-16' : 'w-64'
       } bg-gray-900 text-white flex flex-col transition-all duration-300 relative`}
@@ -45,8 +64,9 @@ export function Sidebar({ currentScreen, onNavigate, isCollapsed, onToggleCollap
 
       {/* Toggle Button */}
       <button
-        onClick={onToggleCollapse}
+        onClick={() => setIsCollapsed(!isCollapsed)}
         className="absolute -right-3 top-20 bg-gray-900 border border-gray-700 rounded-full p-1 hover:bg-gray-800 transition-colors"
+        title={isCollapsed ? 'Expandir' : 'Recolher'}
       >
         {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </button>
@@ -54,16 +74,19 @@ export function Sidebar({ currentScreen, onNavigate, isCollapsed, onToggleCollap
       {/* Menu Items */}
       <nav className="flex-1 py-4 overflow-y-auto">
         {menuItems.map((item) => {
+          // Pular itens sem path (caso não selecionado)
+          if (!item.path) return null;
+
           const Icon = item.icon;
-          const isActive = currentScreen === item.id;
-          
+          const active = isActive(item.path);
+
           return (
             <button
               key={item.id}
-              onClick={() => onNavigate(item.id)}
+              onClick={() => handleNavigate(item.path)}
               className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${
-                isActive 
-                  ? 'bg-blue-600 text-white' 
+                active
+                  ? 'bg-blue-600 text-white'
                   : 'text-gray-300 hover:bg-gray-800 hover:text-white'
               }`}
               title={isCollapsed ? item.label : ''}

@@ -1,12 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Edit2, Clock, AlertTriangle, CheckCircle, XCircle, ArrowRight, Info, Save } from 'lucide-react';
 import { useCaseStore, useSelectedCase } from '../state';
 
-interface CaseWorkspaceScreenProps {
-  onNavigate: (screen: string) => void;
-}
 
-export function CaseWorkspaceScreen({ onNavigate }: CaseWorkspaceScreenProps) {
+
+export function CaseWorkspaceScreen() {
   const selectedCase = useSelectedCase();
   const {
     calculateRecognitionProgress,
@@ -16,6 +15,7 @@ export function CaseWorkspaceScreen({ onNavigate }: CaseWorkspaceScreenProps) {
     updateCase,
   } = useCaseStore();
 
+  const navigate = useNavigate();
   const [isEditingCase, setIsEditingCase] = useState(false);
   const [editForm, setEditForm] = useState({
     bo: '',
@@ -425,21 +425,21 @@ export function CaseWorkspaceScreen({ onNavigate }: CaseWorkspaceScreenProps) {
             <h2 className="text-sm font-medium mb-4">Ações Rápidas</h2>
             <div className="space-y-2">
               <button
-                onClick={() => onNavigate('capture')}
+                onClick={() => navigate(`/cases/${caseId}/capture`)}
                 className="w-full px-4 py-2 text-sm text-left hover:bg-gray-50 rounded flex items-center gap-2"
               >
                 <span className="w-2 h-2 bg-blue-600 rounded-full" />
                 Importar mais fotos
               </button>
               <button
-                onClick={() => onNavigate('recognition')}
+                onClick={() => navigate(`/cases/${caseId}/recognition`)}
                 className="w-full px-4 py-2 text-sm text-left hover:bg-gray-50 rounded flex items-center gap-2"
               >
                 <span className="w-2 h-2 bg-blue-600 rounded-full" />
                 Confirmar sugestões IA
               </button>
               <button
-                onClick={() => onNavigate('export')}
+                onClick={() => navigate(`/cases/${caseId}/export`)}
                 className="w-full px-4 py-2 text-sm text-left hover:bg-gray-50 rounded flex items-center gap-2"
               >
                 <span className="w-2 h-2 bg-blue-600 rounded-full" />

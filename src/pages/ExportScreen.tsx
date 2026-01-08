@@ -3,9 +3,7 @@ import { useState, useMemo } from 'react';
 import { useCaseStore, useSelectedCase } from '../state';
 import { downloadExportPackage, ExportOptions } from '../services/exportService';
 
-interface ExportScreenProps {
-  onNavigate: (screen: string) => void;
-}
+
 
 interface ExportItem {
   id: string;
@@ -15,10 +13,11 @@ interface ExportItem {
   optionKey: keyof ExportOptions;
 }
 
-export function ExportScreen({ onNavigate }: ExportScreenProps) {
+export function ExportScreen() {
   const selectedCase = useSelectedCase();
   const { addAuditEvent, calculateRecognitionProgress, calculatePhotoReportProgress, calculateInvestigationProgress } = useCaseStore();
 
+  const navigate = useNavigate();
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
   const [packageName, setPackageName] = useState('');
@@ -37,7 +36,7 @@ export function ExportScreen({ onNavigate }: ExportScreenProps) {
           <h2 className="text-lg text-gray-600 mb-2">Nenhum caso selecionado</h2>
           <p className="text-sm text-gray-500 mb-4">Selecione um caso para exportar.</p>
           <button
-            onClick={() => onNavigate('cases')}
+            onClick={() => navigate('/cases')}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
           >
             Ir para Lista de Casos
