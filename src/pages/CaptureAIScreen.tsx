@@ -1,8 +1,8 @@
 import { Upload, Camera, Grid3x3, Filter, Check, Edit, X, Eye, Sparkles, Info, Trash2 } from 'lucide-react';
 import { useState, useRef, useCallback } from 'react';
-import { useCaseStore, useSelectedCase } from '../../../store';
-import { PhotoCategory, PhotoEvidence } from '../../../types';
-import { getFieldByKey } from '../../../types/fieldRegistry';
+import { useCaseStore, useSelectedCase } from '../state';
+import { PhotoCategory, PhotoEvidence } from '../types';
+import { getFieldByKey } from '../types/fieldRegistry';
 
 interface CaptureAIScreenProps {
   onNavigate: (screen: string) => void;

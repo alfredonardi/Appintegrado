@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Search, Plus, User, Building2, CheckCircle2 } from 'lucide-react';
-import { useCaseStore, useSelectedCase } from '../../store';
+import { useCaseStore, useSelectedCase } from '../../state';
 
 interface TopbarProps {
   onNavigate: (screen: string) => void;

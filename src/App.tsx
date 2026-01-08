@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { Sidebar } from './components/Sidebar';
-import { Topbar } from './components/Topbar';
-import { CasesListScreen } from './components/screens/CasesListScreen';
-import { CaseWorkspaceScreen } from './components/screens/CaseWorkspaceScreen';
-import { CaptureAIScreen } from './components/screens/CaptureAIScreen';
-import { RecognitionScreen } from './components/screens/RecognitionScreen';
-import { PhotoReportScreen } from './components/screens/PhotoReportScreen';
-import { InvestigationReportScreen } from './components/screens/InvestigationReportScreen';
-import { ExportScreen } from './components/screens/ExportScreen';
-import { useCaseStore } from '../store';
+import { Sidebar } from './components/layout/Sidebar';
+import { Topbar } from './components/layout/Topbar';
+import { CasesListScreen } from './pages/CasesListScreen';
+import { CaseWorkspaceScreen } from './pages/CaseWorkspaceScreen';
+import { CaptureAIScreen } from './pages/CaptureAIScreen';
+import { RecognitionScreen } from './pages/RecognitionScreen';
+import { PhotoReportScreen } from './pages/PhotoReportScreen';
+import { InvestigationReportScreen } from './pages/InvestigationReportScreen';
+import { ExportScreen } from './pages/ExportScreen';
+import { useCaseStore } from './state';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('cases');

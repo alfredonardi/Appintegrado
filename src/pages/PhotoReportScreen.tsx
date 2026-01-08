@@ -1,9 +1,9 @@
 import { FileDown, Save, Plus, GripVertical, Settings2, Layout, FileText, Eye, X, Check, Image } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { useState } from 'react';
-import { useCaseStore, useSelectedCase } from '../../../store';
-import { generatePhotoReportPDF } from '../../../services/pdfService';
-import { PhotoEvidence } from '../../../types/case';
+import { useCaseStore, useSelectedCase } from '../state';
+import { generatePhotoReportPDF } from '../services/pdfService';
+import { PhotoEvidence } from '../types/case';
 
 interface PhotoReportScreenProps {
   onNavigate: (screen: string) => void;
