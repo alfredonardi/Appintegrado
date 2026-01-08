@@ -41,8 +41,8 @@ const DEFAULT_FEATURES: Record<FeatureFlagKey, boolean> = {
   dashboard: true,
   casesModule: true,
 
-  // Módulos opcionais (desativados por padrão)
-  clientsModule: false,
+  // Módulos opcionais
+  clientsModule: true, // Ativado em ETAPA 7
   reportsModule: false,
   settingsModule: true,
   analyticsModule: false,
