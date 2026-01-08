@@ -7,8 +7,8 @@ Bundle exportado do Figma transformado em uma aplicação React/Vite escalável,
 - ✅ **ETAPA 1**: Diagnóstico inicial e plano
 - ✅ **ETAPA 2**: Estrutura app-ready (pages, components, services)
 - ✅ **ETAPA 3**: React Router + Layout base
-- ⏳ **ETAPA 4**: Auth mock + proteção de rotas (próximo)
-- ⏳ **ETAPA 5**: Feature flags
+- ✅ **ETAPA 4**: Auth mock + proteção de rotas
+- ⏳ **ETAPA 5**: Feature flags (próximo)
 - ⏳ **ETAPA 6**: Camada de API + mocks alternável
 - ⏳ **ETAPA 7**: Primeiro CRUD (Clientes)
 
