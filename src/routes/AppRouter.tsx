@@ -2,20 +2,15 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
 import { PrivateRoute } from '../components/routes/PrivateRoute';
 import { FEATURE_FLAGS } from '../config/features';
+import { CaseRouter } from './CaseRouter';
 
 // Pages - Login
 import { Login } from '../pages/Login';
 
-// Pages - Cases (ETAPA 8 - CRUD)
+// Pages - Cases (ETAPA 8 - CRUD, ETAPA 9 - Submódulos)
 import { CasesListScreen } from '../pages/CasesListScreen';
 import { CasesList } from '../pages/Cases/List';
 import { CasesEdit } from '../pages/Cases/Edit';
-import { CaseWorkspaceScreen } from '../pages/CaseWorkspaceScreen';
-import { CaptureAIScreen } from '../pages/CaptureAIScreen';
-import { RecognitionScreen } from '../pages/RecognitionScreen';
-import { PhotoReportScreen } from '../pages/PhotoReportScreen';
-import { InvestigationReportScreen } from '../pages/InvestigationReportScreen';
-import { ExportScreen } from '../pages/ExportScreen';
 
 // Pages - Clients (ETAPA 7)
 import { ClientsList } from '../pages/Clients/List';
@@ -23,7 +18,7 @@ import { ClientsCreate } from '../pages/Clients/Create';
 import { ClientsEdit } from '../pages/Clients/Edit';
 
 /**
- * AppRouter - Configuração central de rotas da aplicação
+ * AppRouter - Configuração central de rotas da aplicação (ETAPA 9 - Submódulos)
  *
  * Rotas Públicas:
  * /login                   → Login (autenticação mock)
@@ -32,19 +27,24 @@ import { ClientsEdit } from '../pages/Clients/Edit';
  * /                        → Redireciona para /cases
  * /cases                   → Listagem de casos (se casesModule ativado)
  * /cases/new               → Criar novo caso (ETAPA 8)
- * /cases/:caseId           → Workspace/editor do caso
+ * /cases/:caseId           → Redireciona para primeiro módulo ativo (ETAPA 9)
  * /cases/:caseId/edit      → Editar caso (ETAPA 8)
- * /cases/:caseId/capture       → Tela de captura com IA
- * /cases/:caseId/recognition   → Tela de reconhecimento
- * /cases/:caseId/photo-report  → Relatório fotográfico
- * /cases/:caseId/investigation → Relatório de investigação
- * /cases/:caseId/export        → Exportação e geração de PDF
+ * /cases/:caseId/capture             → Submódulo de captura e IA (com feature guard)
+ * /cases/:caseId/recognition         → Submódulo de reconhecimento (com feature guard)
+ * /cases/:caseId/photo-report        → Submódulo de relatório fotográfico (com feature guard)
+ * /cases/:caseId/investigation       → Submódulo de relatório de investigação (com feature guard)
+ * /cases/:caseId/export              → Submódulo de exportação (com feature guard)
  * /clients                 → Listagem de clientes (se clientsModule ativado - ETAPA 7)
  * /clients/new             → Criar novo cliente
  * /clients/:clientId/edit  → Editar cliente
  *
  * Feature Flags:
  * - casesModule: ativa /cases e sub-rotas
+ * - captureModule: ativa submódulo de captura
+ * - recognitionModule: ativa submódulo de reconhecimento
+ * - photoReportModule: ativa submódulo de relatório fotográfico
+ * - investigationModule: ativa submódulo de relatório de investigação
+ * - exportModule: ativa submódulo de exportação
  * - clientsModule: ativa /clients e sub-rotas (ETAPA 7)
  */
 export function AppRouter() {
@@ -60,30 +60,16 @@ export function AppRouter() {
       <Route element={<PrivateRoute />}>
         {/* Layout wrapper que contém Sidebar e Header */}
         <Route element={<AppLayout />}>
-          {/* Casos - condicionado por feature flag */}
+          {/* Casos - condicionado por feature flag (ETAPA 9 - Submódulos) */}
           {FEATURE_FLAGS.casesModule && (
             <>
+              {/* Listagem de casos */}
               <Route path="/cases" element={<CasesListScreen />} />
               <Route path="/cases/new" element={<CasesList />} />
-              <Route path="/cases/:caseId" element={<CaseWorkspaceScreen />} />
               <Route path="/cases/:caseId/edit" element={<CasesEdit />} />
 
-              {/* Submódulos de Casos com feature flags individuais (ETAPA 8) */}
-              {FEATURE_FLAGS.captureModule && (
-                <Route path="/cases/:caseId/capture" element={<CaptureAIScreen />} />
-              )}
-              {FEATURE_FLAGS.recognitionModule && (
-                <Route path="/cases/:caseId/recognition" element={<RecognitionScreen />} />
-              )}
-              {FEATURE_FLAGS.photoReportModule && (
-                <Route path="/cases/:caseId/photo-report" element={<PhotoReportScreen />} />
-              )}
-              {FEATURE_FLAGS.investigationModule && (
-                <Route path="/cases/:caseId/investigation" element={<InvestigationReportScreen />} />
-              )}
-              {FEATURE_FLAGS.exportModule && (
-                <Route path="/cases/:caseId/export" element={<ExportScreen />} />
-              )}
+              {/* Workspace do caso com rotas aninhadas e submódulos (ETAPA 9) */}
+              <Route path="/cases/:caseId/*" element={<CaseRouter />} />
             </>
           )}
 

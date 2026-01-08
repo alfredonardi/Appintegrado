@@ -6,6 +6,122 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 
 ## [Não Lançado]
 
+### ETAPA 9 ✅ - Submódulos de Caso com Feature Flags (Roteamento Aninhado)
+**Data**: 2026-01-08
+
+#### Adicionado
+- **Configuração de Módulos de Caso** (`src/config/caseModules.ts`):
+  - `CASE_MODULES` array com metadados de cada módulo
+  - Cada módulo tem: id, label, description, path, icon, featureFlag, order
+  - Funções helpers:
+    - `getActiveModules()` - retorna módulos ativos por feature flag
+    - `getFirstActiveModule()` - retorna primeiro módulo ativo (para redirecionamento)
+    - `isModuleActive(moduleId)` - verifica se módulo está ativo
+    - `getModuleById(moduleId)` - obtém módulo por ID
+    - `getNextActiveModule(currentModuleId)` - próximo módulo na sequência
+
+- **CaseRouter.tsx** (`src/routes/CaseRouter.tsx`):
+  - Rotas aninhadas para submódulos do caso: `/cases/:caseId/*`
+  - `CaseModuleGuard` - wrapper que redireciona se módulo desativado
+  - Rota raiz `/cases/:caseId` → redireciona para primeiro módulo ativo
+  - Se nenhum módulo ativo → redireciona para `/cases`
+  - Integra submódulos com proteção por feature flags:
+    - `/capture` → CaptureAIScreen
+    - `/recognition` → RecognitionScreen
+    - `/photo-report` → PhotoReportScreen
+    - `/investigation` → InvestigationReportScreen
+    - `/export` → ExportScreen
+
+- **Páginas Placeholder** (`src/pages/CaseModules/`):
+  - `Capture.tsx` - Submódulo de Captura & IA
+  - `Recognition.tsx` - Submódulo de Reconhecimento
+  - `PhotoReport.tsx` - Submódulo de Relatório Fotográfico
+  - `Investigation.tsx` - Submódulo de Relatório de Investigação
+  - `Export.tsx` - Submódulo de Exportação
+  - Cada página mostra o caseId e informações do módulo
+
+- **CaseSidebar.tsx** (`src/components/case/CaseSidebar.tsx`):
+  - Sidebar dinâmico que renderiza apenas módulos ativos
+  - Menu items com ícones e descrição
+  - Destaque do módulo atualmente ativo
+  - `CaseSidebar` - versão desktop (w-64, full descriptions)
+  - `CaseSidebarMobile` - versão mobile (botões compactos)
+
+#### Mudanças
+- **AppRouter.tsx** (refatorizado):
+  - Importa `CaseRouter` do novo arquivo
+  - Remove imports de CaptureAIScreen, RecognitionScreen, PhotoReportScreen, etc
+  - Remove imports de CaseWorkspaceScreen (já movido para dentro de CaseRouter)
+  - Rota `/cases/:caseId/*` agora usa `<CaseRouter />`
+  - Simplifica lógica de rotas de casos
+  - Atualiza comentários de documentação com ETAPA 9
+
+#### Feature Flags (já existentes, apenas confirmadas)
+- `captureModule` (default true)
+- `recognitionModule` (default true)
+- `photoReportModule` (default true)
+- `investigationModule` (default true)
+- `exportModule` (default true)
+
+Override via `.env`:
+```
+VITE_FEATURE_CAPTURE_MODULE=true
+VITE_FEATURE_RECOGNITION_MODULE=false
+VITE_FEATURE_PHOTO_REPORT_MODULE=true
+VITE_FEATURE_INVESTIGATION_MODULE=false
+VITE_FEATURE_EXPORT_MODULE=true
+```
+
+#### Redirecionamento Inteligente
+1. Acessar `/cases/:caseId` sem módulo específico → redireciona para primeiro ativo
+2. Tentar acessar módulo desativado → `CaseModuleGuard` redireciona para primeiro ativo
+3. Se nenhum módulo ativo → redireciona para `/cases` (lista de casos)
+4. URL inválida em `/cases/:caseId/*` → redireciona para primeiro ativo
+
+#### Status
+- ✅ Build production: `npm run build` - SUCCESS
+- ✅ Dev server: `npm run dev` - Pronto para testar
+- ✅ Rotas aninhadas funcionando
+- ✅ Feature flags protegendo rotas
+- ✅ Redirecionamento inteligente implementado
+- ✅ Sidebar dinâmico renderizando apenas módulos ativos
+- ✅ Nenhum erro de compilação
+
+#### Testes Manuais Obrigatórios
+1. Desligar todos os submódulos (VITE_FEATURE_*_MODULE=false)
+   - Acessar `/cases/:id` → deve ir para `/cases`
+
+2. Ligar apenas capture
+   - Acessar `/cases/:id` → deve ir para `/cases/:id/capture`
+   - Sidebar mostra apenas "Captura & IA"
+
+3. Desligar capture, ligar recognition
+   - `/cases/:id` → vai para `/cases/:id/recognition`
+   - Tentar acessar `/cases/:id/capture` → redireciona para recognition
+
+4. Submódulos múltiplos
+   - Capture + recognition + export (outros desligados)
+   - Menu mostra só esses 3 em ordem correta
+   - Navegação entre eles funciona
+
+#### Arquivos Criados/Modificados
+- ✅ src/config/caseModules.ts (novo)
+- ✅ src/routes/CaseRouter.tsx (novo)
+- ✅ src/pages/CaseModules/Capture.tsx (novo)
+- ✅ src/pages/CaseModules/Recognition.tsx (novo)
+- ✅ src/pages/CaseModules/PhotoReport.tsx (novo)
+- ✅ src/pages/CaseModules/Investigation.tsx (novo)
+- ✅ src/pages/CaseModules/Export.tsx (novo)
+- ✅ src/components/case/CaseSidebar.tsx (novo)
+- ✅ src/routes/AppRouter.tsx (refactorizado)
+
+#### Próximo
+- Integrar CaseSidebar nas páginas/layouts de caso
+- Testes de feature flags com diferentes combinações
+- Deploy em staging
+
+---
+
 ### ETAPA 8 ✅ - CRUD de Casos (Consolidação Final)
 **Data**: 2026-01-08
 
