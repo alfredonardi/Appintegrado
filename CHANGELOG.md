@@ -6,6 +6,73 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 
 ## [Não Lançado]
 
+### ETAPA 3 ✅ - React Router + Layout Base
+**Data**: 2026-01-08
+
+#### Adicionado
+- **React Router DOM** instalado (`npm install react-router-dom`)
+- `src/routes/AppRouter.tsx` - Configuração central de rotas:
+  - `/` → Redireciona para `/cases`
+  - `/cases` → Listagem de casos
+  - `/cases/:caseId` → Workspace do caso
+  - `/cases/:caseId/capture` → Tela de captura
+  - `/cases/:caseId/recognition` → Tela de reconhecimento
+  - `/cases/:caseId/photo-report` → Relatório fotográfico
+  - `/cases/:caseId/investigation` → Relatório de investigação
+  - `/cases/:caseId/export` → Exportação/PDF
+
+- `src/components/layout/AppLayout.tsx` - Layout wrapper com:
+  - Sidebar (menu lateral)
+  - Header (barra superior)
+  - Outlet para renderizar rotas
+
+- `src/components/layout/Header.tsx` - Refatorado do Topbar:
+  - Usa `useNavigate()` para navegação
+  - Remove dependência de `onNavigate` prop
+  - Cria novo caso e navega automaticamente
+
+- **Sidebar refatorado** (`src/components/layout/Sidebar.tsx`):
+  - Usa `useLocation()` para detectar rota ativa
+  - Usa `useNavigate()` para navegação
+  - Menu items condicionados por caso selecionado (caseId)
+  - Highlight automático de item ativo
+
+#### Mudanças
+- `src/App.tsx` refatorado:
+  - Remove navegação manual com estado
+  - Envolve app com `<BrowserRouter>`
+  - Renderiza `<AppRouter />`
+
+- Todas as 7 páginas refatoradas:
+  - Removida interface Props com `onNavigate`
+  - Removido parâmetro `onNavigate` das funções
+  - Adicionado import `useNavigate` do React Router
+  - Adicionado `const navigate = useNavigate()` em cada página
+  - Substituídas chamadas `onNavigate()` por `navigate()` com URLs reais
+
+#### Páginas Refatoradas
+- `src/pages/CasesListScreen.tsx` - Lista de casos
+- `src/pages/CaseWorkspaceScreen.tsx` - Workspace do caso
+- `src/pages/CaptureAIScreen.tsx` - Captura com IA
+- `src/pages/RecognitionScreen.tsx` - Reconhecimento
+- `src/pages/PhotoReportScreen.tsx` - Relatório fotográfico
+- `src/pages/InvestigationReportScreen.tsx` - Relatório de investigação
+- `src/pages/ExportScreen.tsx` - Exportação
+
+#### Status
+- ✅ Build production: `npm run build` - SUCCESS
+- ✅ Dev server: `npm run dev` - RUNNING em http://localhost:5173/
+- ✅ URLs funcionais: `/cases` → `/cases/123` → etc
+- ✅ Layout aparece em todas as páginas
+- ✅ Menu Sidebar detecta rota ativa automaticamente
+- ✅ Browser back/forward funciona
+- ✅ Refresh mantém a rota
+
+#### Próximo
+- ETAPA 4: Auth mock + proteção de rotas
+
+---
+
 ### ETAPA 1 ✅ - Diagnóstico Inicial e Plano
 **Data**: 2026-01-08
 

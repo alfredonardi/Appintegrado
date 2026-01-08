@@ -1,5 +1,6 @@
 import { FileDown, Save, Check, Sparkles, Eye, Link, Edit2, X } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCaseStore, useSelectedCase } from '../state';
 import {
   RECOGNITION_SECTIONS,
@@ -10,14 +11,13 @@ import {
 import { generateRecognitionPDF } from '../services/pdfService';
 import { FieldStatus } from '../types/case';
 
-interface RecognitionScreenProps {
-  onNavigate: (screen: string) => void;
-}
 
-export function RecognitionScreen({ onNavigate }: RecognitionScreenProps) {
+
+export function RecognitionScreen() {
   const selectedCase = useSelectedCase();
   const { setFieldValue, confirmField, editField, addAuditEvent } = useCaseStore();
 
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('preliminary');
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');

@@ -1,14 +1,13 @@
 import { FileDown, Save, Plus, Sparkles, Tag, Image, FileText, Calendar, User, Check, X, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCaseStore, useSelectedCase } from '../state';
 import { generateInvestigationReportPDF } from '../services/pdfService';
 import { getFieldByKey } from '../types/fieldRegistry';
 
-interface InvestigationReportScreenProps {
-  onNavigate: (screen: string) => void;
-}
 
-export function InvestigationReportScreen({ onNavigate }: InvestigationReportScreenProps) {
+
+export function InvestigationReportScreen() {
   const selectedCase = useSelectedCase();
   const {
     updateReportBlock,
@@ -19,6 +18,7 @@ export function InvestigationReportScreen({ onNavigate }: InvestigationReportScr
     currentUser,
   } = useCaseStore();
 
+  const navigate = useNavigate();
   const [activeBlock, setActiveBlock] = useState('summary');
   const [isGenerating, setIsGenerating] = useState(false);
   const [showAddReferenceModal, setShowAddReferenceModal] = useState(false);

@@ -1,15 +1,14 @@
 import { FileDown, Save, Plus, GripVertical, Settings2, Layout, FileText, Eye, X, Check, Image } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCaseStore, useSelectedCase } from '../state';
 import { generatePhotoReportPDF } from '../services/pdfService';
 import { PhotoEvidence } from '../types/case';
 
-interface PhotoReportScreenProps {
-  onNavigate: (screen: string) => void;
-}
 
-export function PhotoReportScreen({ onNavigate }: PhotoReportScreenProps) {
+
+export function PhotoReportScreen() {
   const selectedCase = useSelectedCase();
   const {
     setPhotoReportSelection,
@@ -19,6 +18,7 @@ export function PhotoReportScreen({ onNavigate }: PhotoReportScreenProps) {
     addAuditEvent,
   } = useCaseStore();
 
+  const navigate = useNavigate();
   const [showAddModal, setShowAddModal] = useState(false);
 
   if (!selectedCase) {

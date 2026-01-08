@@ -4,9 +4,7 @@ import { useCaseStore, useSelectedCase } from '../state';
 import { PhotoCategory, PhotoEvidence } from '../types';
 import { getFieldByKey } from '../types/fieldRegistry';
 
-interface CaptureAIScreenProps {
-  onNavigate: (screen: string) => void;
-}
+
 
 // Simular extrações de IA para fotos (MVP sem backend)
 const simulateAIExtractions = () => {
@@ -42,7 +40,7 @@ const categoryLabels: Record<PhotoCategory, string> = {
   outros: 'Outros',
 };
 
-export function CaptureAIScreen({ onNavigate }: CaptureAIScreenProps) {
+export function CaptureAIScreen() {
   const selectedCase = useSelectedCase();
   const {
     addPhoto,
@@ -56,6 +54,7 @@ export function CaptureAIScreen({ onNavigate }: CaptureAIScreenProps) {
     editField,
   } = useCaseStore();
 
+  const navigate = useNavigate();
   const [showOnlyConfirmed, setShowOnlyConfirmed] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null);

@@ -1,13 +1,13 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Calendar, FileText, Eye, Plus, Upload, Package, Trash2 } from 'lucide-react';
 import { useCaseStore } from '../state';
 import { CaseStatus } from '../types';
 
-interface CasesListScreenProps {
-  onNavigate: (screen: string) => void;
-}
 
-export function CasesListScreen({ onNavigate }: CasesListScreenProps) {
+
+export function CasesListScreen() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [naturezaFilter, setNaturezaFilter] = useState<string>('all');
@@ -81,7 +81,7 @@ export function CasesListScreen({ onNavigate }: CasesListScreenProps) {
 
   const handleOpenCase = (caseId: string) => {
     selectCase(caseId);
-    onNavigate('workspace');
+    navigate('/cases/${caseId}');
   };
 
   const handleCreateCase = () => {
@@ -92,7 +92,7 @@ export function CasesListScreen({ onNavigate }: CasesListScreenProps) {
     setShowNewCaseModal(false);
     setNewCaseBO('');
     setNewCaseNatureza('');
-    onNavigate('workspace');
+    navigate('/cases/${caseId}');
   };
 
   const generateBO = () => {
