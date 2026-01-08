@@ -206,27 +206,55 @@ Implementar um vertical slice completo do submódulo Capture com funcionalidade 
   - `clearCaseImages(caseId)`: Limpa todas as imagens de um caso
 - State: `imagesByCaseId: Record<string, CaptureImage[]>`
 
+**Service com Routing de Providers** (`src/services/captureService.ts` - novo):
+- `CaptureService` class com métodos:
+  - `uploadCaseImages(caseId, files)`: Upload múltiplo com routing provider
+  - `listCaseImages(caseId)`: Listar imagens por caso
+  - `deleteCaseImage(caseId, imageId, storagePath)`: Remover imagem individual
+  - `deleteCaseAllImages(caseId)`: Remover todas imagens do caso
+- Routing automático:
+  - Supabase provider → `captureServiceSupabase` (Storage + bucket case-images)
+  - Mock provider → `mockCapture` (memória local)
+  - HTTP provider → API calls para `/api/cases/:caseId/images`
+- Singleton export: `export const captureService = new CaptureService()`
+
+**Mock Data** (`src/services/mock/mockCapture.ts` - novo):
+- `getMockCaseImages(caseId)`: Retorna imagens armazenadas em memória
+- `mockUploadCaseImages(caseId, files)`: Simula upload com Data URLs
+- `mockDeleteCaseImage(caseId, imageId)`: Remove da memória
+- `mockDeleteCaseAllImages(caseId)`: Limpa caso
+- Validação: tipo imagem + tamanho máx 10MB
+- Suporta modo mock sem Internet/Supabase
+
+**Supabase Storage Integration** (`src/services/supabase/captureServiceSupabase.ts` - existente):
+- `uploadCaseImages(caseId, files)`: Upload para bucket `case-images`
+- `listCaseImages(caseId)`: Lista arquivos e metadados
+- `deleteCaseImage(imageId, storagePath)`: Remove arquivo
+- `deleteCaseAllImages(caseId)`: Remove tudo do caso
+- Path format: `cases/{caseId}/{imageId}-{originalName}`
+- Validação: tipos JPEG/PNG/WebP/GIF, máx 10MB
+- Retorna URLs públicas para preview
+
 **Componentes UI** (`src/components/capture/` - novos):
 - `CaptureUploader.tsx`:
-  - Input file com multiple + accept="image/*"
-  - Suporta drag-and-drop
-  - Valida tipos (PNG, JPG, WebP)
-  - Feedback visual durante upload
+  - Input file com multiple + accept image types
+  - Drag-and-drop funcional
+  - Validação visual (tipos aceitos, tamanho máx)
+  - Feedback de sucesso/erro com mensagens claras
   - Acessível (aria-labels)
 
 - `CaptureGrid.tsx`:
-  - Grid responsivo (1, 2 ou 4 colunas conforme viewport)
+  - Grid responsivo (1, 2, 3, 4 colunas conforme viewport)
   - Exibe contagem de imagens e tamanho total
-  - Estado vazio com ilustração
-  - Loading skeleton
-  - Chama onRemoveImage para cada imagem
+  - Estado vazio com ícone
+  - Loading com spinner
+  - Fade out ao deletar
 
 - `CaptureCard.tsx`:
-  - Preview da imagem (aspect-ratio quadrado)
-  - Metadados: nome, tamanho formatado, tipo, data
-  - Botão remover com overlay no hover
-  - Títulos (title) para truncate
-  - Acessível
+  - Preview da imagem (aspect-square)
+  - Metadados: nome (truncado), tamanho formatado, tipo (extensão), data localizada
+  - Botão deletar com overlay ao hover
+  - Fallback para arquivos não-imagem
 
 - `index.ts`: Re-exports dos 3 componentes
 
@@ -297,13 +325,17 @@ Implementar um vertical slice completo do submódulo Capture com funcionalidade 
 
 #### Arquivos Criados/Modificados
 - ✅ src/types/capture.ts (novo)
-- ✅ src/types/index.ts (modificado - adicionado export)
 - ✅ src/state/captureStore.ts (novo)
+- ✅ src/services/captureService.ts (novo - provider routing)
+- ✅ src/services/mock/mockCapture.ts (novo - mock data)
+- ✅ src/services/supabase/captureServiceSupabase.ts (já existente)
 - ✅ src/components/capture/CaptureUploader.tsx (novo)
 - ✅ src/components/capture/CaptureGrid.tsx (novo)
 - ✅ src/components/capture/CaptureCard.tsx (novo)
-- ✅ src/components/capture/index.ts (novo)
-- ✅ src/pages/CaseModules/Capture.tsx (refatorizado)
+- ✅ src/components/capture/index.ts (novo - exports)
+- ✅ src/pages/CaseModules/Capture.tsx (refatorizado com componentes)
+- ✅ vite.config.ts (modificado - remover external @supabase/supabase-js)
+- ✅ package.json (modificado - @supabase/supabase-js adicionado)
 
 #### Próximo
 - Integração com IA para classificação de fotos

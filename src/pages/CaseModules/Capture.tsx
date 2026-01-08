@@ -10,8 +10,7 @@
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCallback, useState } from 'react';
-import { Camera, ArrowLeft } from 'lucide-react';
-import { Button } from '../../components/ui/button';
+import { Camera, ArrowLeft, Upload, ImageIcon } from 'lucide-react';
 import { CaptureUploader, CaptureGrid } from '../../components/capture';
 import { useCaptureStore } from '../../state/captureStore';
 
@@ -94,7 +93,7 @@ export function CaptureModule() {
         {/* Seção de Galeria */}
         <section className="bg-white rounded-lg border border-gray-200 p-6">
           <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-            <Gallery size={20} className="text-blue-600" />
+            <ImageIcon size={20} className="text-blue-600" />
             Galeria de Imagens
           </h2>
           <CaptureGrid
@@ -118,40 +117,3 @@ export function CaptureModule() {
     </div>
   );
 }
-
-// Ícones inline (fallback se não importado)
-const Upload = ({ size = 24, className = '' }: { size?: number; className?: string }) => (
-  <svg
-    width={size}
-    height={size}
-    className={className}
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-    />
-  </svg>
-);
-
-const Gallery = ({ size = 24, className = '' }: { size?: number; className?: string }) => (
-  <svg
-    width={size}
-    height={size}
-    className={className}
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-    />
-  </svg>
-);
