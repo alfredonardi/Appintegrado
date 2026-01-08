@@ -1,0 +1,45 @@
+# Netlify Configuration for Appintegrado
+
+[build]
+command = "npm run build"
+functions = "netlify/functions"
+publish = "dist"
+
+[build.environment]
+# Node version
+NODE_VERSION = "18"
+# Use legacy peer deps to avoid conflicts
+NPM_FLAGS = "--legacy-peer-deps"
+
+# Environment variables
+[env]
+[env.production]
+VITE_API_BASE_URL = "https://api.appintegrado.com"
+VITE_USE_MOCK_API = "false"
+
+[env.preview]
+VITE_API_BASE_URL = "http://localhost:3000"
+VITE_USE_MOCK_API = "true"
+
+[env.develop]
+VITE_API_BASE_URL = "http://localhost:3000"
+VITE_USE_MOCK_API = "true"
+
+# Redirects
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+
+# Headers for security
+[[headers]]
+for = "/*"
+[headers.values]
+X-Frame-Options = "SAMEORIGIN"
+X-Content-Type-Options = "nosniff"
+X-XSS-Protection = "1; mode=block"
+
+[[headers]]
+for = "/assets/*"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"

@@ -1,0 +1,10 @@
+# ESLint ignore file
+node_modules/
+dist/
+build/
+.vite/
+.next/
+out/
+coverage/
+*.min.js
+ETAPA9_SUBMODULOS.md
