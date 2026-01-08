@@ -3,7 +3,7 @@ import { AppLayout } from '../components/layout/AppLayout';
 import { PrivateRoute } from '../components/routes/PrivateRoute';
 import { FEATURE_FLAGS } from '../config/features';
 
-// Pages
+// Pages - Cases
 import { Login } from '../pages/Login';
 import { CasesListScreen } from '../pages/CasesListScreen';
 import { CaseWorkspaceScreen } from '../pages/CaseWorkspaceScreen';
@@ -12,6 +12,11 @@ import { RecognitionScreen } from '../pages/RecognitionScreen';
 import { PhotoReportScreen } from '../pages/PhotoReportScreen';
 import { InvestigationReportScreen } from '../pages/InvestigationReportScreen';
 import { ExportScreen } from '../pages/ExportScreen';
+
+// Pages - Clients (ETAPA 7)
+import { ClientsList } from '../pages/Clients/List';
+import { ClientsCreate } from '../pages/Clients/Create';
+import { ClientsEdit } from '../pages/Clients/Edit';
 
 /**
  * AppRouter - Configuração central de rotas da aplicação
@@ -28,10 +33,13 @@ import { ExportScreen } from '../pages/ExportScreen';
  * /cases/:caseId/photo-report  → Relatório fotográfico
  * /cases/:caseId/investigation → Relatório de investigação
  * /cases/:caseId/export        → Exportação e geração de PDF
+ * /clients                 → Listagem de clientes (se clientsModule ativado - ETAPA 7)
+ * /clients/new             → Criar novo cliente
+ * /clients/:clientId/edit  → Editar cliente
  *
  * Feature Flags:
  * - casesModule: ativa /cases e sub-rotas
- * - clientsModule: ativa /clients (ETAPA 7)
+ * - clientsModule: ativa /clients e sub-rotas (ETAPA 7)
  */
 export function AppRouter() {
   return (
@@ -56,6 +64,15 @@ export function AppRouter() {
               <Route path="/cases/:caseId/photo-report" element={<PhotoReportScreen />} />
               <Route path="/cases/:caseId/investigation" element={<InvestigationReportScreen />} />
               <Route path="/cases/:caseId/export" element={<ExportScreen />} />
+            </>
+          )}
+
+          {/* Clientes - condicionado por feature flag (ETAPA 7) */}
+          {FEATURE_FLAGS.clientsModule && (
+            <>
+              <Route path="/clients" element={<ClientsList />} />
+              <Route path="/clients/new" element={<ClientsCreate />} />
+              <Route path="/clients/:clientId/edit" element={<ClientsEdit />} />
             </>
           )}
         </Route>
