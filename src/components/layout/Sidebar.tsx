@@ -39,40 +39,41 @@ export function Sidebar() {
       path: '/cases',
       featureFlag: 'casesModule' as const,
     },
+    // Submódulos de Casos com feature flags individuais (ETAPA 8)
     {
       id: 'capture',
       label: 'Captura & IA',
       icon: Camera,
       path: caseId ? `/cases/${caseId}/capture` : null,
-      featureFlag: 'casesModule' as const,
+      featureFlag: 'captureModule' as const,
     },
     {
       id: 'recognition',
       label: 'Reconhecimento',
       icon: FileText,
       path: caseId ? `/cases/${caseId}/recognition` : null,
-      featureFlag: 'casesModule' as const,
+      featureFlag: 'recognitionModule' as const,
     },
     {
       id: 'photo-report',
       label: 'Relatório Fotográfico',
       icon: Image,
       path: caseId ? `/cases/${caseId}/photo-report` : null,
-      featureFlag: 'casesModule' as const,
+      featureFlag: 'photoReportModule' as const,
     },
     {
       id: 'investigation-report',
       label: 'Relatório de Investigação',
       icon: FileSearch,
       path: caseId ? `/cases/${caseId}/investigation` : null,
-      featureFlag: 'casesModule' as const,
+      featureFlag: 'investigationModule' as const,
     },
     {
       id: 'export',
       label: 'Exportar Pacote',
       icon: Package,
       path: caseId ? `/cases/${caseId}/export` : null,
-      featureFlag: 'casesModule' as const,
+      featureFlag: 'exportModule' as const,
     },
     // Clientes (condicionado por FEATURE_FLAGS.clientsModule - ETAPA 7)
     {
