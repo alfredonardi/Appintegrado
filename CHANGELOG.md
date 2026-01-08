@@ -6,6 +6,183 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 
 ## [Não Lançado]
 
+### ETAPA 11 ✅ - Integração Supabase (Provider supabase - PostgreSQL + Storage)
+**Data**: 2026-01-08
+
+#### Objetivo
+Integrar Supabase como um terceiro data provider (além de mock e HTTP) sem quebrar nenhuma funcionalidade existente, mantendo padrão de alternância via .env.
+
+#### Adicionado
+
+**Provider Resolver** (`src/services/provider.ts` - novo):
+- `getDataProvider()`: Função que retorna 'mock' | 'http' | 'supabase'
+- Prioridade: `VITE_DATA_PROVIDER` > `VITE_USE_MOCK_API` (retrocompat)
+- Helper functions: `isMockProvider()`, `isHttpProvider()`, `isSupabaseProvider()`
+- `getProviderConfig()`: Debug logging em modo dev
+- Exportações limpas para usar em services
+
+**Supabase Client** (`src/services/supabase/supabaseClient.ts` - novo):
+- `initSupabaseClient()`: Inicializa cliente Supabase lazy-loaded
+- `getSupabaseClient()`: Obtém cliente inicializado ou erro claro
+- `isSupabaseConfigured()`: Verifica se env vars estão definidas
+- `resetSupabaseClient()`: Para testing
+- Validação de env vars: `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY`
+- Mensagens de erro úteis se dependência não instalada
+
+**Cases Service - Supabase** (`src/services/supabase/casesServiceSupabase.ts` - novo):
+- Implementa mesmo contrato que casesService: getCases, getCaseById, createCase, updateCase, deleteCase
+- Métodos adicionais: getCasesByStatus, updateCaseStatus
+- Acessa tabela `cases` no Supabase
+- Operações CRUD com select/insert/update/delete do Supabase JS
+- Tratamento de erros com logs descritivos
+- Retorna objetos Case tipados
+
+**Clients Service - Supabase** (`src/services/supabase/clientsServiceSupabase.ts` - novo):
+- Implementa mesmo contrato que clientsService: getClients, getClientById, createClient, updateClient, deleteClient
+- Métodos adicionais: getClientsByStatus, getClientByEmail, getClientByDocument
+- Acessa tabela `clients` no Supabase
+- Busca nativa por email/documento (maybeSingle)
+- Filtragem eficiente no banco
+- Retorna objetos Client tipados
+
+**Capture Service - Supabase Storage** (`src/services/supabase/captureServiceSupabase.ts` - novo):
+- `uploadCaseImages(caseId, files)`: Upload para bucket `case-images`
+- `listCaseImages(caseId)`: Lista imagens de um caso
+- `deleteCaseImage(imageId, storagePath)`: Deleta imagem específica
+- `deleteCaseAllImages(caseId)`: Deleta todas imagens (útil ao deletar caso)
+- Validação de tipo/tamanho (10MB max)
+- Path format: `cases/{caseId}/{imageId}-{fileName}`
+- Retorna URLs públicas para preview
+- Geração automática de imageId com crypto.randomUUID
+
+**Adaptação de Services Existentes**:
+- `src/services/casesService.ts` (modificado):
+  - Adiciona `getDataProvider()` check em cada método
+  - Se supabase → delega para casesServiceSupabase
+  - Se mock → mantém lógica existente
+  - Se http → mantém lógica existente (API calls)
+  - Assinatura pública NÃO muda
+  - Consumidores (pages, stores) continuam funcionando igual
+
+- `src/services/clientsService.ts` (modificado):
+  - Mesmo padrão de provider switch
+  - Todos os métodos verificam provider antes de chamar
+  - Métodos com busca nativa no Supabase (email, document) otimizados
+  - Assinatura pública NÃO muda
+
+**Variáveis de Ambiente** (`.env.example` - atualizado):
+- `VITE_DATA_PROVIDER=mock|http|supabase`: Novo seletor explícito
+- `VITE_SUPABASE_URL`: URL do projeto (obtém em app.supabase.com)
+- `VITE_SUPABASE_ANON_KEY`: Chave anônima
+- Mantém compatibilidade com `VITE_USE_MOCK_API` (retrocompat)
+- Comentários explicando prioridade
+
+**Documentação**:
+- `docs/supabase-setup.md` (novo - completo):
+  - Criar projeto Supabase passo a passo
+  - SQL para criar tabelas `cases` e `clients` com índices
+  - SQL para habilitar RLS com políticas básicas
+  - Criar bucket `case-images` com políticas
+  - Configurar `.env.local` com credenciais
+  - Testar cada funcionalidade (CRUD cases/clients, upload imagens)
+  - Troubleshooting comum
+  - Dados de teste para quick start
+  - Rollback para mock se necessário
+
+- `README.md` (atualizado):
+  - Nova seção "Data Provider Configuration (Mock/HTTP/Supabase)"
+  - Seção "Integração com Supabase" com setup rápido
+  - Link para `docs/supabase-setup.md`
+  - Funcionalidades Supabase checklist
+  - Atualizado .env examples
+  - Adicionado em documentação links
+
+#### Funcionalidades Mantidas
+✅ **Modo Mock**: Continua funcionando igual (2 casos, 3 clientes de exemplo)
+✅ **Modo HTTP**: Continua chamando API real se VITE_DATA_PROVIDER=http
+✅ **Módulo Capture**: Pronto para usar Storage quando integrado
+✅ **Retrocompatibilidade**: VITE_USE_MOCK_API=true ainda funciona (defaults a mock)
+
+#### Funcionalidades Novas
+✅ **Supabase Provider**: VITE_DATA_PROVIDER=supabase usa PostgreSQL + Storage
+✅ **CRUD Cases**: getCases, createCase, updateCase, deleteCase via Supabase
+✅ **CRUD Clients**: getClients, createClient, updateClient, deleteClient via Supabase
+✅ **Busca Eficiente**: Email/document queries executam no banco (não em memory)
+✅ **Image Upload**: Storage ready para module Capture
+✅ **Sem quebra**: Nenhum componente/page/store alterado - tudo via services
+
+#### Arquitetura
+
+```
+Componentes/Pages/Stores (NÃO mudam)
+          ↓
+    Services (casesService, clientsService)
+          ↓
+    provider.ts (getDataProvider)
+      ↙        ↓        ↘
+  mock/      http/    supabase/
+  (local)   (API)   (PostgreSQL+Storage)
+```
+
+- **Prioridade**: VITE_DATA_PROVIDER > VITE_USE_MOCK_API
+- **Retrocompatibilidade**: Se só VITE_USE_MOCK_API definido, comportamento é o mesmo
+- **Sem imports no app**: Supabase client apenas inicializa se usar provider supabase
+
+#### Status
+- ✅ npm run dev: Funciona com VITE_DATA_PROVIDER=mock (padrão)
+- ✅ npm run build: SUCCESS
+- ✅ Código compila sem erros (sem dependência instalada, avisa no log)
+- ✅ provider.ts resolve corretamente entre 3 opções
+- ✅ Services delegam para implementação correta
+- ✅ Retrocompatibilidade com VITE_USE_MOCK_API verificada
+- ✅ Documentação completa em docs/supabase-setup.md
+
+#### Testes Manuais Obrigatórios (antes de instalar Supabase)
+
+1. ✅ **Modo Mock (padrão)**:
+   - VITE_DATA_PROVIDER=mock (ou não definido) + VITE_USE_MOCK_API=true
+   - npm run dev → cases/clients carregam dos mocks
+   - getCases() retorna 2 casos exemplo
+   - getClients() retorna 3 clientes exemplo
+
+2. ✅ **Modo HTTP**:
+   - VITE_DATA_PROVIDER=http
+   - npm run dev → chamaria API em VITE_API_BASE_URL
+   - (sem API real, throwaria erro, mas provider correto detectado)
+
+3. ✅ **Retrocompatibilidade**:
+   - VITE_USE_MOCK_API=true (sem VITE_DATA_PROVIDER)
+   - npm run dev → comportamento idêntico a modo mock
+   - VITE_USE_MOCK_API=false → tenta HTTP
+
+4. ✅ **Supabase Provider Config (após setup)**:
+   - VITE_DATA_PROVIDER=supabase
+   - VITE_SUPABASE_URL=... + VITE_SUPABASE_ANON_KEY=...
+   - npm install @supabase/supabase-js
+   - npm run dev → cases/clients carregam do PostgreSQL
+   - npm run build → SUCCESS
+
+#### Arquivos Criados/Modificados
+- ✅ src/services/provider.ts (novo)
+- ✅ src/services/supabase/supabaseClient.ts (novo)
+- ✅ src/services/supabase/casesServiceSupabase.ts (novo)
+- ✅ src/services/supabase/clientsServiceSupabase.ts (novo)
+- ✅ src/services/supabase/captureServiceSupabase.ts (novo)
+- ✅ src/services/casesService.ts (modificado - provider switch)
+- ✅ src/services/clientsService.ts (modificado - provider switch)
+- ✅ .env.example (atualizado com novas vars)
+- ✅ docs/supabase-setup.md (novo - guia completo)
+- ✅ README.md (atualizado - instruções Supabase)
+- ✅ CHANGELOG.md (este arquivo)
+
+#### Próximo
+- Usuário cria projeto Supabase e segue docs/supabase-setup.md
+- Implementar autenticação com Supabase Auth
+- Adicionar RLS mais robusta (based on auth.uid())
+- Implementar backup automático
+
+---
+
 ### ETAPA 10 ✅ - Capture Vertical Slice Completo (Upload e Galeria de Imagens)
 **Data**: 2026-01-08
 

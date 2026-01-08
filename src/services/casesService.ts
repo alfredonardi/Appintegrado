@@ -1,16 +1,18 @@
 /**
  * Service para Casos
- * Abstrai chamadas para API ou mock data
+ * Abstrai chamadas para API, mock data, ou Supabase baseado no data provider
  */
 
-import { Case, createEmptyCase } from '@/types/case';
+import { Case, CaseStatus, createEmptyCase } from '@/types/case';
 import { apiClient } from './apiClient';
+import { getDataProvider } from './provider';
 import {
   getAllMockCases,
   getMockCaseById,
   createMockCase,
   updateMockCase,
 } from './mock/mockCases';
+import * as casesServiceSupabase from './supabase/casesServiceSupabase';
 
 const ENDPOINT = '/api/cases';
 
@@ -19,12 +21,19 @@ export class CasesService {
    * Listar todos os casos
    */
   async getCases(): Promise<Case[]> {
-    // Em modo mock, retorna dados fake
-    if (apiClient.isMockMode()) {
+    const provider = getDataProvider();
+
+    // Supabase provider
+    if (provider === 'supabase') {
+      return casesServiceSupabase.getCases();
+    }
+
+    // Mock provider
+    if (provider === 'mock') {
       return getAllMockCases();
     }
 
-    // Em modo real, faz chamada HTTP
+    // HTTP provider (default)
     return apiClient.get<Case[]>(`${ENDPOINT}`);
   }
 
@@ -32,8 +41,15 @@ export class CasesService {
    * Obter um caso específico
    */
   async getCaseById(id: string): Promise<Case> {
-    // Em modo mock
-    if (apiClient.isMockMode()) {
+    const provider = getDataProvider();
+
+    // Supabase provider
+    if (provider === 'supabase') {
+      return casesServiceSupabase.getCaseById(id);
+    }
+
+    // Mock provider
+    if (provider === 'mock') {
       const mockCase = getMockCaseById(id);
       if (!mockCase) {
         throw new Error(`Case ${id} not found`);
@@ -41,7 +57,7 @@ export class CasesService {
       return mockCase;
     }
 
-    // Em modo real
+    // HTTP provider (default)
     return apiClient.get<Case>(`${ENDPOINT}/${id}`);
   }
 
@@ -49,12 +65,19 @@ export class CasesService {
    * Criar novo caso
    */
   async createCase(bo: string): Promise<Case> {
-    // Em modo mock
-    if (apiClient.isMockMode()) {
+    const provider = getDataProvider();
+
+    // Supabase provider
+    if (provider === 'supabase') {
+      return casesServiceSupabase.createCase(bo);
+    }
+
+    // Mock provider
+    if (provider === 'mock') {
       return createMockCase(bo);
     }
 
-    // Em modo real
+    // HTTP provider (default)
     return apiClient.post<Case>(`${ENDPOINT}`, {
       bo,
       status: 'rascunho',
@@ -66,12 +89,19 @@ export class CasesService {
    * Atualizar caso
    */
   async updateCase(id: string, updates: Partial<Case>): Promise<Case> {
-    // Em modo mock
-    if (apiClient.isMockMode()) {
+    const provider = getDataProvider();
+
+    // Supabase provider
+    if (provider === 'supabase') {
+      return casesServiceSupabase.updateCase(id, updates);
+    }
+
+    // Mock provider
+    if (provider === 'mock') {
       return updateMockCase(id, updates);
     }
 
-    // Em modo real
+    // HTTP provider (default)
     return apiClient.put<Case>(`${ENDPOINT}/${id}`, updates);
   }
 
@@ -79,13 +109,20 @@ export class CasesService {
    * Deletar caso
    */
   async deleteCase(id: string): Promise<void> {
-    // Em modo mock, apenas log
-    if (apiClient.isMockMode()) {
+    const provider = getDataProvider();
+
+    // Supabase provider
+    if (provider === 'supabase') {
+      return casesServiceSupabase.deleteCase(id);
+    }
+
+    // Mock provider
+    if (provider === 'mock') {
       console.log(`Mock: delete case ${id}`);
       return;
     }
 
-    // Em modo real
+    // HTTP provider (default)
     await apiClient.delete<void>(`${ENDPOINT}/${id}`);
   }
 
@@ -93,6 +130,14 @@ export class CasesService {
    * Obter casos por status
    */
   async getCasesByStatus(status: 'rascunho' | 'em_revisao' | 'finalizado'): Promise<Case[]> {
+    const provider = getDataProvider();
+
+    // Supabase provider has native filtering
+    if (provider === 'supabase') {
+      return casesServiceSupabase.getCasesByStatus(status);
+    }
+
+    // Mock and HTTP providers: fetch all and filter
     const cases = await this.getCases();
     return cases.filter((c) => c.status === status);
   }
@@ -102,7 +147,7 @@ export class CasesService {
    */
   async updateCaseStatus(
     id: string,
-    status: 'rascunho' | 'em_revisao' | 'finalizado'
+    status: CaseStatus
   ): Promise<Case> {
     return this.updateCase(id, { status });
   }

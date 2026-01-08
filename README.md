@@ -117,6 +117,9 @@ src/
 - **[docs/roadmap.md](docs/roadmap.md)** - Sequência de trabalho por ETAPA
 - **[CHANGELOG.md](CHANGELOG.md)** - Histórico de mudanças
 
+### Integração Supabase
+- **[docs/supabase-setup.md](docs/supabase-setup.md)** - Guia completo de setup Supabase (PostgreSQL + Storage)
+
 ### Guias Originais (Figma)
 - **[PROJETO.md](PROJETO.md)** - Escopo e visão geral
 - **[DESIGN_SYSTEM.md](DESIGN_SYSTEM.md)** - Design system e componentes
@@ -344,11 +347,61 @@ import { FEATURE_FLAGS } from '@/config/features';
 )}
 ```
 
+### Data Provider Configuration (Mock/HTTP/Supabase)
+
+Você pode escolher entre três provedores de dados:
+
+```env
+# Modo 1: Mock Data (desenvolvimento local, padrão)
+VITE_DATA_PROVIDER=mock
+
+# Modo 2: HTTP API (API real)
+VITE_DATA_PROVIDER=http
+VITE_API_BASE_URL=http://localhost:3000
+
+# Modo 3: Supabase (PostgreSQL + Storage)
+VITE_DATA_PROVIDER=supabase
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Nota**: A prioridade é `VITE_DATA_PROVIDER`. Se não definido, usa `VITE_USE_MOCK_API` para compatibilidade regressiva.
+
+### Integração com Supabase
+
+Para usar Supabase como data provider:
+
+1. **Instale a dependência**:
+   ```bash
+   npm install @supabase/supabase-js
+   ```
+
+2. **Configure em `.env.local`**:
+   ```env
+   VITE_DATA_PROVIDER=supabase
+   VITE_SUPABASE_URL=https://your-project-id.supabase.co
+   VITE_SUPABASE_ANON_KEY=seu-anon-key-aqui
+   ```
+
+3. **Siga o setup completo**: Veja `docs/supabase-setup.md` para:
+   - Criar projeto Supabase
+   - Configurar banco de dados (tabelas cases e clients)
+   - Configurar storage para imagens
+   - Testar a integração
+
+**Funcionalidades Supabase**:
+- ✅ CRUD completo de casos (getCases, createCase, updateCase, deleteCase)
+- ✅ CRUD completo de clientes (getClients, createClient, updateClient, deleteClient)
+- ✅ Upload de imagens para Storage (módulo Capture)
+- ✅ Filtragem nativa por status
+- ✅ Busca por email e documento
+
 ### Variáveis de Ambiente
 
 Criar `.env` para override de flags (ver `.env.example`):
 
 ```
+# Feature Flags
 VITE_FEATURE_AUTH=true
 VITE_FEATURE_CASESMODULE=true
 VITE_FEATURE_CLIENTSMODULE=false
@@ -356,8 +409,14 @@ VITE_FEATURE_REPORTSMODULE=false
 VITE_FEATURE_SETTINGSMODULE=true
 VITE_FEATURE_ANALYTICSMODULE=false
 
+# Data Provider
+VITE_DATA_PROVIDER=mock
 VITE_USE_MOCK_API=true
 VITE_API_BASE_URL=http://localhost:3000
+
+# Supabase (opcional)
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Nota**: Variáveis com prefix `VITE_FEATURE_` fazem override dos defaults em `src/config/features.ts`.
