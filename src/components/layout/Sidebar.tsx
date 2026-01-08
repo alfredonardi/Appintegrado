@@ -9,13 +9,16 @@ import {
   FileSearch,
   Package,
   Settings,
+  Users,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import { FEATURE_FLAGS } from '../../config/features';
 
 /**
  * Sidebar - Menu lateral com navegação
  * Usa React Router para navegação e detecção de rota ativa
+ * Menu items condicionados por feature flags
  */
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -26,14 +29,67 @@ export function Sidebar() {
 
   // Definir menu items
   // Para rotas que precisam de caseId, não mostrar se não houver caso selecionado
+  // Adicionar feature flags para mostrar/esconder itens
   const menuItems = [
-    { id: 'cases', label: 'Casos', icon: Folder, path: '/cases' },
-    { id: 'capture', label: 'Captura & IA', icon: Camera, path: caseId ? `/cases/${caseId}/capture` : null },
-    { id: 'recognition', label: 'Reconhecimento', icon: FileText, path: caseId ? `/cases/${caseId}/recognition` : null },
-    { id: 'photo-report', label: 'Relatório Fotográfico', icon: Image, path: caseId ? `/cases/${caseId}/photo-report` : null },
-    { id: 'investigation-report', label: 'Relatório de Investigação', icon: FileSearch, path: caseId ? `/cases/${caseId}/investigation` : null },
-    { id: 'export', label: 'Exportar Pacote', icon: Package, path: caseId ? `/cases/${caseId}/export` : null },
-    { id: 'settings', label: 'Configurações', icon: Settings, path: '/settings' },
+    // Casos (condicionado por FEATURE_FLAGS.casesModule)
+    {
+      id: 'cases',
+      label: 'Casos',
+      icon: Folder,
+      path: '/cases',
+      featureFlag: 'casesModule' as const,
+    },
+    {
+      id: 'capture',
+      label: 'Captura & IA',
+      icon: Camera,
+      path: caseId ? `/cases/${caseId}/capture` : null,
+      featureFlag: 'casesModule' as const,
+    },
+    {
+      id: 'recognition',
+      label: 'Reconhecimento',
+      icon: FileText,
+      path: caseId ? `/cases/${caseId}/recognition` : null,
+      featureFlag: 'casesModule' as const,
+    },
+    {
+      id: 'photo-report',
+      label: 'Relatório Fotográfico',
+      icon: Image,
+      path: caseId ? `/cases/${caseId}/photo-report` : null,
+      featureFlag: 'casesModule' as const,
+    },
+    {
+      id: 'investigation-report',
+      label: 'Relatório de Investigação',
+      icon: FileSearch,
+      path: caseId ? `/cases/${caseId}/investigation` : null,
+      featureFlag: 'casesModule' as const,
+    },
+    {
+      id: 'export',
+      label: 'Exportar Pacote',
+      icon: Package,
+      path: caseId ? `/cases/${caseId}/export` : null,
+      featureFlag: 'casesModule' as const,
+    },
+    // Clientes (condicionado por FEATURE_FLAGS.clientsModule - ETAPA 7)
+    {
+      id: 'clients',
+      label: 'Clientes',
+      icon: Users,
+      path: '/clients',
+      featureFlag: 'clientsModule' as const,
+    },
+    // Configurações
+    {
+      id: 'settings',
+      label: 'Configurações',
+      icon: Settings,
+      path: '/settings',
+      featureFlag: 'settingsModule' as const,
+    },
   ];
 
   // Determinar se a rota está ativa
@@ -76,6 +132,9 @@ export function Sidebar() {
         {menuItems.map((item) => {
           // Pular itens sem path (caso não selecionado)
           if (!item.path) return null;
+
+          // Pular itens se feature desativada
+          if (!FEATURE_FLAGS[item.featureFlag]) return null;
 
           const Icon = item.icon;
           const active = isActive(item.path);
