@@ -6,6 +6,65 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 
 ## [Não Lançado]
 
+### ETAPA 4 ✅ - Auth Mock + Proteção de Rotas
+**Data**: 2026-01-08
+
+#### Adicionado
+- **Autenticação Mock** (`src/state/auth/AuthContext.tsx`):
+  - User type: id, email, name, role
+  - AuthContext com user, isAuthenticated, isLoading
+  - useAuth hook para usar autenticação em qualquer componente
+  - Login mock: aceita qualquer email/senha (não vazio)
+  - Token fake salvo em localStorage (btoa encoded)
+  - Session persistence: useEffect restaura login ao iniciar
+  - Logout limpa localStorage e session
+
+- **Proteção de Rotas** (`src/components/routes/PrivateRoute.tsx`):
+  - Wrapper para proteger rotas públicas
+  - Redireciona para /login se não autenticado
+  - Mostra loading enquanto verifica autenticação
+  - Renderiza <Outlet /> se autenticado
+
+- **Página de Login** (`src/pages/Login.tsx`):
+  - Form simples com email + password
+  - Demo button para preencher exemplo
+  - Mostra mensagens de erro
+  - Redireciona para /cases após sucesso
+  - Design profissional com gradient
+
+- **Logout no Header** (`src/components/layout/Header.tsx`):
+  - User menu com dropdown (hover)
+  - Botão "Sair" funcional
+  - Redireciona para /login após logout
+
+#### Mudanças
+- `src/routes/AppRouter.tsx`:
+  - `/login` é rota pública
+  - `/cases` e sub-rotas protegidas com PrivateRoute
+  - 404 redireciona para /cases (ou /login se deslogado)
+
+- `src/App.tsx`:
+  - Envolve com `<AuthProvider>`
+  - AuthProvider acima de AppRouter
+
+- `src/components/layout/Header.tsx`:
+  - Adiciona useAuth, handleLogout, dropdown menu
+  - LogOut icon import
+
+#### Status
+- ✅ Build production: `npm run build` - SUCCESS
+- ✅ Dev server: `npm run dev` - RUNNING em http://localhost:5174/
+- ✅ Login funciona: qualquer email/senha (não vazio)
+- ✅ Session persistence: refresh mantém login
+- ✅ Proteção de rotas: sem login → redireciona para /login
+- ✅ Logout: remove session e redireciona para /login
+- ✅ Token salvo em localStorage
+
+#### Próximo
+- ETAPA 5: Feature flags
+
+---
+
 ### ETAPA 3 ✅ - React Router + Layout Base
 **Data**: 2026-01-08
 
