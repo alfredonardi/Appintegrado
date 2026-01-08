@@ -529,35 +529,87 @@ npm run dev
 - ✅ Delete remover imagem (ao recarregar em mock, pode resetar)
 - ✅ localStorage armazena Data URLs (base64)
 
-#### Testando Capture com Supabase
+#### Testando Capture com Supabase (6 Passos Rápidos)
 
-Supabase mode usa Storage real (imagens persistem):
+O módulo Capture funciona em **3 modos**: mock (localStorage), http (API backend), ou supabase (Supabase Storage).
+
+**Modo Supabase**: Imagens uploadam para bucket `case-images` e persistem com URLs públicas.
+
+##### Pré-requisitos
+- Conta Supabase ativa (https://supabase.com)
+- Projeto criado com bucket `case-images` (ou auto-criar)
+- Variáveis de ambiente configuradas em `.env.local`
+
+##### 6 Passos de Teste
 
 ```bash
-# 1. Configurar .env.local
+# PASSO 1: Configurar variáveis de ambiente
+# Editar .env.local com credenciais Supabase:
 VITE_DATA_PROVIDER=supabase
-VITE_SUPABASE_URL=your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
+VITE_SUPABASE_URL=https://seu-projeto.supabase.co
+VITE_SUPABASE_ANON_KEY=seu-anon-key-aqui
 
-# 2. Criar bucket 'case-images' no Supabase Storage
+# PASSO 2: Instalar dependência Supabase (se não estiver)
+npm install @supabase/supabase-js
 
-# 3. npm run dev
+# PASSO 3: Iniciar app em desenvolvimento
+npm run dev
 
-# 4. Acessar /cases/:caseId/capture
-# 5. Upload 2 imagens
-# 6. Recarregar página - imagens continuam
-# 7. Delete 1 imagem
-# 8. Recarregar - imagem deletada não volta
+# PASSO 4: Navegar para módulo Capture
+# - Ir para http://localhost:5173/cases
+# - Clicar em um caso existente
+# - Clicar em "Captura de Imagens"
+
+# PASSO 5: Testar Upload
+# - Selecionar 2-3 imagens (PNG, JPG, WebP, GIF - máx 10MB cada)
+# - Confirmar: imagens aparecem na galeria em ~2-3 segundos
+# - Verificar console: logs [CaptureModule] e [CaptureStore]
+
+# PASSO 6: Testar Persistência e Delete
+# - F5 (refresh page)
+# - Confirmar: imagens persistem (carregadas do Supabase Storage)
+# - Clicar em uma imagem para deletar
+# - F5 novamente: imagem removida não reaparece
 ```
 
-**Estrutura de Storage**:
+##### Verificação Técnica
+
+**Console Esperado (sucesso)**:
+```
+[Provider] Data provider configured: {provider: "supabase", ...}
+[CaptureModule] Imagens carregadas do Supabase: 2
+[CaptureStore] Erro ao fazer upload de imagens: (nenhum erro se sucesso)
+```
+
+**Supabase Storage (estrutura esperada)**:
 ```
 case-images/
 └── cases/
     └── {caseId}/
-        ├── {imageId}-photo1.jpg
-        ├── {imageId}-photo2.png
-        └── {imageId}-photo3.webp
+        ├── {uuid}-photo1.jpg
+        ├── {uuid}-photo2.png
+        └── {uuid}-photo3.webp
+```
+
+**URLs Públicas**: Clique em uma imagem - a URL na barra de endereço mostrará:
+```
+https://seu-projeto.supabase.co/storage/v1/object/public/case-images/cases/{caseId}/{uuid}-photo.jpg
+```
+
+##### Troubleshooting
+
+| Problema | Solução |
+|----------|---------|
+| `Error: Supabase client not initialized` | Verificar VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY |
+| Upload nunca completa | Bucket não existe ou RLS bloqueando - ler docs/supabase-setup.md |
+| Imagens não persistem após refresh | Cache localStorage vazio - fazer upload novamente |
+| Erro ao deletar | Verificar path formato `cases/{caseId}/{imageId}-{name}` |
+
+**Para voltar ao modo mock temporariamente**:
+```bash
+# Em .env.local, mudar para:
+VITE_DATA_PROVIDER=mock
+# Reiniciar npm run dev
 ```
 
 #### Endpoints HTTP (se VITE_DATA_PROVIDER=http)

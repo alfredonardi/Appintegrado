@@ -26,4 +26,5 @@ export interface CaptureState {
   addImages: (caseId: string, files: File[]) => void;
   removeImage: (caseId: string, imageId: string) => void;
   clearCaseImages: (caseId: string) => void;
+  setImages: (caseId: string, images: CaptureImage[]) => void; // Para sincronizar com servidor
 }

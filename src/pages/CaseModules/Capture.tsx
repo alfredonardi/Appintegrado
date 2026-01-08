@@ -5,23 +5,58 @@
  * - Upload múltiplo de imagens (PNG, JPG, WebP)
  * - Preview em grid responsivo
  * - Remoção de imagens
- * - Persistência por caso via Zustand + localStorage
+ * - Sincronização com Supabase Storage (quando configurado)
+ * - Persistência com localStorage (mock) ou Supabase Storage (supabase provider)
  */
 
 import { useParams, useNavigate } from 'react-router-dom';
-import { useCallback, useState } from 'react';
-import { Camera, ArrowLeft, Upload, ImageIcon } from 'lucide-react';
+import { useCallback, useState, useEffect } from 'react';
+import { Camera, ArrowLeft, Upload, ImageIcon, AlertCircle } from 'lucide-react';
 import { CaptureUploader, CaptureGrid } from '../../components/capture';
 import { useCaptureStore } from '../../state/captureStore';
+import { captureService } from '../../services/captureService';
+import { isSupabaseProvider } from '../../services/provider';
 
 export function CaptureModule() {
   const { caseId } = useParams<{ caseId: string }>();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Conectar ao store de capture
-  const { getImages, addImages, removeImage } = useCaptureStore();
+  const { getImages, addImages, removeImage, setImages } = useCaptureStore();
   const images = getImages(caseId || '');
+
+  // Efeito: Carregar imagens do Supabase ao montar (quando em modo supabase)
+  useEffect(() => {
+    if (!caseId) return;
+
+    // Apenas carregar do Supabase se estiver em modo supabase
+    if (isSupabaseProvider()) {
+      setIsInitialLoading(true);
+      setError(null);
+
+      captureService
+        .listCaseImages(caseId)
+        .then((loadedImages) => {
+          if (loadedImages && loadedImages.length > 0) {
+            // Sincronizar as imagens carregadas do Supabase com o store
+            setImages(caseId, loadedImages);
+            console.info('[CaptureModule] Imagens carregadas do Supabase:', loadedImages.length);
+          }
+        })
+        .catch((error) => {
+          console.error('[CaptureModule] Erro ao carregar imagens:', error);
+          setError(
+            'Erro ao carregar imagens do Supabase. Verifique a conexão e configuração.'
+          );
+        })
+        .finally(() => {
+          setIsInitialLoading(false);
+        });
+    }
+  }, [caseId, setImages]);
 
   // Validar que temos um caseId
   if (!caseId) {
@@ -39,10 +74,21 @@ export function CaptureModule() {
   const handleFilesSelected = useCallback(
     (files: File[]) => {
       setIsLoading(true);
-      // Simular pequeno delay para mostrar feedback ao usuário
+      setError(null);
+
+      // Delay para permitir que o store processe (especialmente em modo async)
       setTimeout(() => {
-        addImages(caseId, files);
-        setIsLoading(false);
+        try {
+          addImages(caseId, files);
+          setIsLoading(false);
+        } catch (err) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : 'Erro ao processar imagens. Tente novamente.'
+          );
+          setIsLoading(false);
+        }
       }, 300);
     },
     [caseId, addImages]
@@ -51,7 +97,14 @@ export function CaptureModule() {
   // Handler para remover imagem
   const handleRemoveImage = useCallback(
     (imageId: string) => {
-      removeImage(caseId, imageId);
+      try {
+        removeImage(caseId, imageId);
+        setError(null);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : 'Erro ao remover imagem. Tente novamente.'
+        );
+      }
     },
     [caseId, removeImage]
   );
@@ -75,6 +128,17 @@ export function CaptureModule() {
         <p className="text-gray-600">Caso #{caseId}</p>
       </div>
 
+      {/* Banner de erro global */}
+      {error && (
+        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex gap-3">
+          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="font-medium text-red-900">Erro</p>
+            <p className="text-sm text-red-700 mt-1">{error}</p>
+          </div>
+        </div>
+      )}
+
       {/* Conteúdo principal */}
       <div className="space-y-8">
         {/* Seção de Upload */}
@@ -86,7 +150,7 @@ export function CaptureModule() {
           <CaptureUploader
             caseId={caseId}
             onFilesSelected={handleFilesSelected}
-            isLoading={isLoading}
+            isLoading={isLoading || isInitialLoading}
           />
         </section>
 
@@ -99,7 +163,7 @@ export function CaptureModule() {
           <CaptureGrid
             images={images}
             onRemoveImage={handleRemoveImage}
-            isLoading={isLoading}
+            isLoading={isLoading || isInitialLoading}
           />
         </section>
 
@@ -108,9 +172,11 @@ export function CaptureModule() {
           <h3 className="font-semibold text-blue-900 mb-3">Informações</h3>
           <ul className="text-sm text-blue-800 space-y-2">
             <li>✓ Imagens persistem ao recarregar a página</li>
-            <li>✓ Suportado: PNG, JPG, WebP</li>
+            {isSupabaseProvider() && <li>✓ Sincronizadas com Supabase Storage</li>}
+            <li>✓ Suportado: PNG, JPG, WebP, GIF</li>
             <li>✓ Arraste arquivos ou clique para selecionar</li>
             <li>✓ Clique em uma imagem para removê-la</li>
+            <li>✓ Máximo: 10MB por arquivo, 20 por vez</li>
           </ul>
         </section>
       </div>

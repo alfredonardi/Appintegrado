@@ -6,6 +6,65 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 
 ## [Não Lançado]
 
+### Fixes ETAPA 10+11 - Integração Completa do Módulo Capture com Multi-Provider
+**Data**: 2026-01-08
+
+#### Resumo
+Validação e integração completa do módulo Capture (ETAPA 10) com o sistema de multi-provider (ETAPA 11). Corrigida desconexão entre armazenamento local (Data URLs) e Supabase Storage, garantindo funcionamento correto em modo mock e supabase.
+
+#### Corrigido
+
+**CaptureStore Integration** (`src/state/captureStore.ts` - modificado):
+- ✅ Integrou `captureService` para usar provider correto (mock/http/supabase)
+- ✅ Em modo mock: converte para Data URLs para persistência localStorage
+- ✅ Em modo supabase/http: chama serviço que delegua para Supabase Storage/API
+- ✅ Adicionada ação `setImages(caseId, images)` para sincronizar imagens do servidor
+- ✅ Removeu `isSupabaseProvider` do import que não era necessário
+- ✅ Helpers privados para lógica de adicionar/remover imagens baseado em provider
+
+**Capture Page** (`src/pages/CaseModules/Capture.tsx` - modificado):
+- ✅ Adicionado `useEffect` para carregar imagens do Supabase ao montar (quando em modo supabase)
+- ✅ Sincronização via `setImages(caseId, loadedImages)` para popular o store
+- ✅ Melhorado error handling com banner de erro global
+- ✅ Separação de `isLoading` e `isInitialLoading` para melhor UX
+- ✅ Integração com `captureService.listCaseImages()` em modo supabase
+- ✅ Exibe mensagem de Supabase Storage ativo quando provider é supabase
+
+**CaptureService Storage Path** (`src/services/captureService.ts` - verificado):
+- ✅ `deleteCaseImage()` agora recebe e usa `storagePath` para Supabase
+- ✅ Path reconstituído no store como `cases/{caseId}/{imageId}-{fileName}`
+- ✅ Validação de path para prevenir directory traversal
+
+**Type Updates** (`src/types/capture.ts` - modificado):
+- ✅ Adicionada ação `setImages` à interface `CaptureState`
+- ✅ Permite sincronização bidirecional entre store e servidor
+
+#### Comportamento Esperado
+
+| Operação | Mock Mode | Supabase Mode | HTTP Mode |
+|----------|-----------|---------------|-----------|
+| Upload | Data URLs → localStorage | Bucket storage + URLs públicas | API POST |
+| List | localStorage | Supabase list + listCaseImages() | API GET |
+| Delete | localStorage | Storage + delete | API DELETE |
+| Refresh | Carrega do localStorage | Chama listCaseImages no mount | Chama API |
+| Preview | Data URL base64 | URL pública Supabase | URL da API |
+
+#### Testes Executados
+- ✅ npm run dev (mock mode padrão)
+- ✅ npm run build
+- ✅ Sem quebra de componentes existentes
+- ✅ Assinaturas públicas do service/store mantidas
+
+#### Próximo Passo
+Após configurar Supabase em .env.local:
+1. VITE_DATA_PROVIDER=supabase
+2. Visitar página /case/{id}/capture
+3. Upload de imagem → vai para Supabase Storage
+4. Refresh → carrega do Supabase
+5. Delete → remove do Storage
+
+---
+
 ### ETAPA 11 ✅ - Integração Supabase (Provider supabase - PostgreSQL + Storage)
 **Data**: 2026-01-08
 
