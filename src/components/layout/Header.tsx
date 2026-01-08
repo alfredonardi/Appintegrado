@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, User, Building2, CheckCircle2 } from 'lucide-react';
+import { Search, Plus, User, Building2, CheckCircle2, LogOut } from 'lucide-react';
 import { useCaseStore, useSelectedCase } from '../../state';
+import { useAuth } from '../../state/auth';
 
 /**
  * Header - Barra superior com busca, criar caso e indicadores
@@ -16,6 +17,12 @@ export function Header() {
   const navigate = useNavigate();
   const { createCase, selectCase, currentUser } = useCaseStore();
   const selectedCase = useSelectedCase();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
 
   const handleCreateCase = () => {
     if (!newCaseBO.trim()) return;
@@ -84,10 +91,26 @@ export function Header() {
             <span className="text-sm text-gray-700">DPC - SP</span>
           </div>
 
-          {/* User */}
-          <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200 transition-colors">
-            <User className="w-4 h-4 text-gray-600" />
-            <span className="hidden sm:inline text-sm text-gray-700">{currentUser}</span>
+          {/* User Menu */}
+          <div className="relative group">
+            <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200 transition-colors">
+              <User className="w-4 h-4 text-gray-600" />
+              <span className="hidden sm:inline text-sm text-gray-700">{currentUser}</span>
+            </button>
+
+            {/* Dropdown */}
+            <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              <div className="px-4 py-3 border-b border-gray-100">
+                <p className="text-sm font-medium text-gray-900">{currentUser}</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Sair
+              </button>
+            </div>
           </div>
         </div>
       </header>

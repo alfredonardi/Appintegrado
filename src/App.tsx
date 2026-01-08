@@ -1,14 +1,19 @@
 import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from './state/auth';
 import { AppRouter } from './routes/AppRouter';
 
 /**
  * App - Componente raiz da aplicação
- * Envolve toda a app com BrowserRouter para ativar React Router
+ * Envolve com:
+ * - BrowserRouter: ativa React Router
+ * - AuthProvider: ativa autenticação mock
  */
 export default function App() {
   return (
     <BrowserRouter>
-      <AppRouter />
+      <AuthProvider>
+        <AppRouter />
+      </AuthProvider>
     </BrowserRouter>
   );
 }
