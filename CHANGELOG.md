@@ -6,6 +6,52 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 
 ## [Não Lançado]
 
+### ETAPA 6 ✅ - Camada de API + Mocks Alternável
+**Data**: 2026-01-08
+
+#### Adicionado
+- **API Client Centralizado** (`src/services/apiClient.ts`):
+  - Cliente HTTP genérico com suporte a mock e API real
+  - Configurável via `VITE_USE_MOCK_API` e `VITE_API_BASE_URL`
+  - Métodos: get, post, put, delete com tipos genéricos
+  - Autenticação: adiciona token Bearer automaticamente
+  - Tratamento de erros e timeout
+
+- **Mock Data** (`src/services/mock/`):
+  - `mockCases.ts`: 2 casos exemplo com dados completos (BO-2024-001, BO-2024-002)
+  - `mockClients.ts`: 3 clientes exemplo (pessoas físicas e jurídicas)
+  - `mockUsers.ts`: 5 usuários exemplo (delegados, investigadores, fotógrafos)
+  - Funções helpers: get, create, update, delete
+
+- **Services Abstratos** (`src/services/`):
+  - `casesService.ts`: CRUD para casos, status, filtros
+  - `clientsService.ts`: CRUD para clientes, busca por status/email/document
+  - `authService.ts`: Login, logout, register, validate token, change password
+  - Cada service detecta modo mock automaticamente e usa dados fake ou API real
+
+- **Tipos para Cliente** (`src/types/client.ts`):
+  - Interface Client com todos campos necessários
+  - Suporte a CPF e CNPJ
+  - Status: ativo, inativo, bloqueado
+
+- **Configuração via Environment**:
+  - `VITE_USE_MOCK_API=true` (padrão): usa dados fake
+  - `VITE_USE_MOCK_API=false`: chama API real
+  - `VITE_API_BASE_URL=http://localhost:3000`: URL da API real
+
+#### Status
+- ✅ Build production: `npm run build` - SUCCESS
+- ✅ Dev server: `npm run dev` - SUCCESS
+- ✅ Services funcionam com mock data
+- ✅ Estrutura pronta para integração com API real (basta alterar .env)
+- ✅ All tipos definidos para Cliente
+- ✅ CRUD completo para casos e clientes implementado
+
+#### Próximo
+- ETAPA 7: Primeiro vertical slice (CRUD Clientes)
+
+---
+
 ### ETAPA 5 ✅ - Feature Flags
 **Data**: 2026-01-08
 

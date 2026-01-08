@@ -9,7 +9,7 @@ Bundle exportado do Figma transformado em uma aplicação React/Vite escalável,
 - ✅ **ETAPA 3**: React Router + Layout base
 - ✅ **ETAPA 4**: Auth mock + proteção de rotas
 - ✅ **ETAPA 5**: Feature flags
-- ⏳ **ETAPA 6**: Camada de API + mocks alternável
+- ✅ **ETAPA 6**: Camada de API + mocks alternável
 - ⏳ **ETAPA 7**: Primeiro CRUD (Clientes)
 
 Veja `docs/roadmap.md` para detalhes de cada etapa.
@@ -139,9 +139,11 @@ src/
 - **Feature Flags** para ativar/desativar módulos via config ou .env
 - **useFeature Hook** para verificar flags em componentes
 - **FeatureGuard Component** para condicionar rendering por flag
+- **API Client** centralizado com suporte a mock/real (ETAPA 6)
+- **Services abstratos** para Casos, Clientes, Autenticação (ETAPA 6)
+- **Mock Data** com 2 casos, 3 clientes, 5 usuários (ETAPA 6)
 
 ### 🔲 Planejados (Próximas ETAPAs)
-- **Camada de API** abstrata com mocks alternáveis (ETAPA 6)
 - **Módulo CRUD** simples (Clientes) como exemplo (ETAPA 7)
 
 ---
@@ -233,6 +235,59 @@ import { NovoComponente } from '@/components/ui/novo-componente';
 ---
 
 ## ⚙️ Configuração
+
+### Camada de API (ETAPA 6) ✅ Implementado
+
+**Client HTTP centralizado** (`src/services/apiClient.ts`):
+
+```typescript
+import { apiClient } from '@/services/apiClient';
+
+// Verificar modo
+if (apiClient.isMockMode()) {
+  console.log('Usando dados fake');
+}
+
+// Config atual
+const config = apiClient.getConfig();
+```
+
+**Services abstratos** (`src/services/`):
+
+```typescript
+// Cases
+import { casesService } from '@/services/casesService';
+
+const cases = await casesService.getCases();
+const caseById = await casesService.getCaseById('case-001');
+await casesService.createCase('BO-2024-003');
+
+// Clientes
+import { clientsService } from '@/services/clientsService';
+
+const clients = await clientsService.getClients();
+const client = await clientsService.getClientById('client-001');
+await clientsService.createClient({ name: 'João', email: 'joao@example.com', ... });
+await clientsService.deleteClient('client-001');
+
+// Autenticação
+import { authService } from '@/services/authService';
+
+const { token, user } = await authService.login('user@example.com', 'password');
+await authService.logout();
+await authService.register({ name, email, password, role });
+```
+
+**Alternador Mock/Real** via `.env`:
+
+```env
+# Modo desenvolvimento (usa dados fake)
+VITE_USE_MOCK_API=true
+
+# Modo produção (chama API real)
+VITE_USE_MOCK_API=false
+VITE_API_BASE_URL=https://api.appintegrado.com
+```
 
 ### Feature Flags (ETAPA 5) ✅ Implementado
 
@@ -375,14 +430,11 @@ Veja `package.json` para lista completa.
 
 ## 📚 Próximos Passos
 
-1. **Fazer ETAPA 6** (Camada de API + Mocks Alternável)
-   - Abstrair dados com service layer
-   - Mock vs. real API via .env
-   - Preparar para integrações reais
-
-2. **Fazer ETAPA 7** (Primeiro CRUD - Clientes)
+1. **Fazer ETAPA 7** (Primeiro CRUD - Clientes)
    - Módulo vertical slice completo
-   - List, Create, Edit, Delete
+   - Pages: List, Create, Edit
+   - Store/state para Clientes
+   - Rotas e menu items com feature flag
    - Exemplo para futuros módulos
 
 Cada ETAPA termina com:
@@ -390,6 +442,7 @@ Cada ETAPA termina com:
 - ✅ Nenhuma quebra de funcionalidade
 - ✅ Novo recurso implementado
 - ✅ Documentação atualizada
+- ✅ Build production (`npm run build`) com sucesso
 
 ---
 
@@ -408,4 +461,4 @@ Este projeto é um bundle exportado do Figma com transformações de arquitetura
 ---
 
 **Última atualização**: 2026-01-08
-**Status**: ETAPA 5 ✅ Completa | ETAPA 6 ⏳ Próximo
+**Status**: ETAPA 6 ✅ Completa | ETAPA 7 ⏳ Próximo
