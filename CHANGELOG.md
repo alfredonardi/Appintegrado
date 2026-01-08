@@ -6,6 +6,55 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 
 ## [Não Lançado]
 
+### ETAPA 5 ✅ - Feature Flags
+**Data**: 2026-01-08
+
+#### Adicionado
+- **Feature Flags Config** (`src/config/features.ts`):
+  - FEATURE_FLAGS object com todas as flags
+  - Tipos: auth, dashboard, casesModule, clientsModule, reportsModule, settingsModule, analyticsModule
+  - Override via .env: `VITE_FEATURE_<KEY>=true/false`
+  - Helper functions: `isFeatureEnabled()`, `getEnabledFeatures()`
+  - ALL_FEATURES array com metadados de cada feature
+  - Log em dev mode para visualizar flags ativadas
+
+- **useFeature Hook** (`src/hooks/useFeature.ts`):
+  - Hook simples para verificar se feature está ativada
+  - Uso: `const isClientsEnabled = useFeature('clientsModule')`
+
+- **FeatureGuard Component** (`src/components/FeatureGuard.tsx`):
+  - Component wrapper para proteger features
+  - Renderiza children se feature ativada, senão fallback (default null)
+  - Uso: `<FeatureGuard feature="clientsModule"><Clients /></FeatureGuard>`
+
+- **Feature Flags em Rotas** (`src/routes/AppRouter.tsx`):
+  - `/cases` e sub-rotas condicionadas por `FEATURE_FLAGS.casesModule`
+  - Desativar flag remove rota automaticamente
+  - Estrutura pronta para `/clients` (ETAPA 7)
+
+- **Feature Flags no Menu** (`src/components/layout/Sidebar.tsx`):
+  - Menu items condicionados por feature flag
+  - Casos, Clientes, Configurações checam suas flags
+  - Menu item desaparece se feature desativada
+  - Users icon adicionado para "Clientes"
+
+- **Documentação de Features** (`.env.example`):
+  - Exemplo de arquivo `.env` com todas as feature flags
+  - Instruções de uso
+  - Comentários explicando cada flag
+
+#### Status
+- ✅ Build production: `npm run build` - SUCCESS
+- ✅ Dev server: `npm run dev` - RUNNING
+- ✅ Features desativadas removem rotas e menu items automaticamente
+- ✅ Feature flags funcionam via `.env` ou valores padrão
+- ✅ Console log em dev mostra flags ativadas
+
+#### Próximo
+- ETAPA 6: Camada de API + mocks alternável
+
+---
+
 ### ETAPA 4 ✅ - Auth Mock + Proteção de Rotas
 **Data**: 2026-01-08
 

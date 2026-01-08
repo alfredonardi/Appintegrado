@@ -8,7 +8,7 @@ Bundle exportado do Figma transformado em uma aplicação React/Vite escalável,
 - ✅ **ETAPA 2**: Estrutura app-ready (pages, components, services)
 - ✅ **ETAPA 3**: React Router + Layout base
 - ✅ **ETAPA 4**: Auth mock + proteção de rotas
-- ⏳ **ETAPA 5**: Feature flags (próximo)
+- ✅ **ETAPA 5**: Feature flags
 - ⏳ **ETAPA 6**: Camada de API + mocks alternável
 - ⏳ **ETAPA 7**: Primeiro CRUD (Clientes)
 
@@ -133,11 +133,14 @@ src/
 - **TypeScript** com tipos bem definidos
 - **Tailwind CSS** para estilização
 - **Modelo de dados robusto** com auditoria integrada
+- **React Router v6** com URL-based routing e nested routes
+- **Autenticação Mock** com session persistence em localStorage
+- **Proteção de Rotas** com PrivateRoute guard
+- **Feature Flags** para ativar/desativar módulos via config ou .env
+- **useFeature Hook** para verificar flags em componentes
+- **FeatureGuard Component** para condicionar rendering por flag
 
 ### 🔲 Planejados (Próximas ETAPAs)
-- **React Router** com rotas e URLs (ETAPA 3)
-- **Autenticação Mock** com proteção de rotas (ETAPA 4)
-- **Feature Flags** para ativar/desativar módulos (ETAPA 5)
 - **Camada de API** abstrata com mocks alternáveis (ETAPA 6)
 - **Módulo CRUD** simples (Clientes) como exemplo (ETAPA 7)
 
@@ -229,46 +232,111 @@ import { NovoComponente } from '@/components/ui/novo-componente';
 
 ---
 
-## ⚙️ Configuração (Futuro)
+## ⚙️ Configuração
 
-### Feature Flags (ETAPA 5)
+### Feature Flags (ETAPA 5) ✅ Implementado
 
-Criar `src/config/features.ts`:
+Arquivo `src/config/features.ts` já criado com feature flags:
 
 ```typescript
 export const FEATURE_FLAGS = {
   auth: true,
   dashboard: true,
-  clientsModule: false,  // Desativar módulo de clientes
+  casesModule: true,
+  clientsModule: false,     // Desativar para ETAPA 7
   reportsModule: false,
+  settingsModule: true,
+  analyticsModule: false,
 };
+```
+
+**Como usar em componentes:**
+
+```typescript
+// Hook
+import { useFeature } from '@/hooks/useFeature';
+
+function Dashboard() {
+  const isClientsEnabled = useFeature('clientsModule');
+  if (!isClientsEnabled) return null;
+  return <Clients />;
+}
+
+// Component wrapper
+import { FeatureGuard } from '@/components/FeatureGuard';
+
+function App() {
+  return (
+    <FeatureGuard feature="clientsModule">
+      <Clients />
+    </FeatureGuard>
+  );
+}
+
+// Em rotas
+import { FEATURE_FLAGS } from '@/config/features';
+
+{FEATURE_FLAGS.clientsModule && (
+  <Route path="/clients" element={<Clients />} />
+)}
 ```
 
 ### Variáveis de Ambiente
 
-Criar `.env` para controlar flags:
+Criar `.env` para override de flags (ver `.env.example`):
 
 ```
-VITE_FEATURE_CLIENTS=true
-VITE_FEATURE_REPORTS=false
+VITE_FEATURE_AUTH=true
+VITE_FEATURE_CASESMODULE=true
+VITE_FEATURE_CLIENTSMODULE=false
+VITE_FEATURE_REPORTSMODULE=false
+VITE_FEATURE_SETTINGSMODULE=true
+VITE_FEATURE_ANALYTICSMODULE=false
+
 VITE_USE_MOCK_API=true
+VITE_API_BASE_URL=http://localhost:3000
 ```
+
+**Nota**: Variáveis com prefix `VITE_FEATURE_` fazem override dos defaults em `src/config/features.ts`.
 
 ---
 
-## 🔐 Autenticação (Futuro - ETAPA 4)
+## 🔐 Autenticação (ETAPA 4) ✅ Implementado
 
-- **Mock Login**: qualquer email/senha aceita
-- **Proteção de Rotas**: PrivateRoute wrapper
-- **Session**: token salvo em localStorage
-- **Logout**: limpa session
+- **Mock Login**: qualquer email/senha não-vazia aceita (arquivo `src/pages/Login.tsx`)
+- **Proteção de Rotas**: PrivateRoute wrapper (`src/components/routes/PrivateRoute.tsx`)
+- **Session Persistence**: token + user salvo em localStorage
+- **Logout**: limpa session e redireciona para login
+- **AuthContext**: gerencia autenticação global (`src/state/auth/AuthContext.tsx`)
+
+**Como usar:**
 
 ```typescript
-// Será implementado em ETAPA 4
-<PrivateRoute>
-  <Dashboard />
-</PrivateRoute>
+// Em componentes
+import { useAuth } from '@/state/auth';
+
+function MyComponent() {
+  const { user, isAuthenticated, login, logout } = useAuth();
+
+  return (
+    <div>
+      {isAuthenticated && <p>Olá, {user?.name}</p>}
+      <button onClick={() => logout()}>Sair</button>
+    </div>
+  );
+}
+
+// Em rotas (AppRouter.tsx)
+<Route element={<PrivateRoute />}>
+  <Route element={<AppLayout />}>
+    {/* Rotas protegidas aqui */}
+  </Route>
+</Route>
 ```
+
+**Credenciais de teste:**
+- Email: qualquer (ex: teste@example.com)
+- Senha: qualquer (não vazia)
 
 ---
 
@@ -307,12 +375,15 @@ Veja `package.json` para lista completa.
 
 ## 📚 Próximos Passos
 
-1. **Ler [docs/roadmap.md](docs/roadmap.md)** para entender sequência de ETAPAs
-2. **Fazer ETAPA 3** (React Router + Layout)
-3. **Fazer ETAPA 4** (Auth Mock)
-4. **Fazer ETAPA 5** (Feature Flags)
-5. **Fazer ETAPA 6** (API abstrata)
-6. **Fazer ETAPA 7** (Primeiro CRUD)
+1. **Fazer ETAPA 6** (Camada de API + Mocks Alternável)
+   - Abstrair dados com service layer
+   - Mock vs. real API via .env
+   - Preparar para integrações reais
+
+2. **Fazer ETAPA 7** (Primeiro CRUD - Clientes)
+   - Módulo vertical slice completo
+   - List, Create, Edit, Delete
+   - Exemplo para futuros módulos
 
 Cada ETAPA termina com:
 - ✅ `npm run dev` rodando
@@ -337,4 +408,4 @@ Este projeto é um bundle exportado do Figma com transformações de arquitetura
 ---
 
 **Última atualização**: 2026-01-08
-**Status**: ETAPA 2 ✅ Completa | ETAPA 3 ⏳ Próximo
+**Status**: ETAPA 5 ✅ Completa | ETAPA 6 ⏳ Próximo
