@@ -6,6 +6,71 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 
 ## [Não Lançado]
 
+### ETAPA 8 ✅ - CRUD de Casos + Feature Flags para Submódulos
+**Data**: 2026-01-08
+
+#### Adicionado
+- **Store de Casos para CRUD** (`src/state/casesStore.ts`):
+  - Zustand store com persistência em localStorage
+  - Complementa caseStore.ts (que gerencia caso aberto)
+  - Actions: fetchCases, createCase, updateCase, deleteCase
+  - Seletores: selectedCase(), getCaseById()
+  - Estado: cases[], selectedCaseId, loading
+  - Integração automática com casesService (mock ou API real)
+  - Exportado em state/index.ts
+
+- **Feature Flags para Submódulos de Casos** (`src/config/features.ts`):
+  - `captureModule`: Ativa/desativa Captura & IA
+  - `recognitionModule`: Ativa/desativa Reconhecimento Visuográfico
+  - `photoReportModule`: Ativa/desativa Relatório Fotográfico
+  - `investigationModule`: Ativa/desativa Relatório de Investigação
+  - `exportModule`: Ativa/desativa Exportação/PDF
+  - Todos defaultam para `true` (ativados)
+  - Override via .env: `VITE_FEATURE_CAPTUREMODULE=false`
+  - Metadados em ALL_FEATURES para documentação
+
+- **Rotas Condicionadas por Feature Flags** (`src/routes/AppRouter.tsx`):
+  - `/cases/:caseId/capture` → condicionado a captureModule
+  - `/cases/:caseId/recognition` → condicionado a recognitionModule
+  - `/cases/:caseId/photo-report` → condicionado a photoReportModule
+  - `/cases/:caseId/investigation` → condicionado a investigationModule
+  - `/cases/:caseId/export` → condicionado a exportModule
+  - Desativar flag remove rota e impede navegação
+
+- **Menu Lateral com Feature Flags** (`src/components/layout/Sidebar.tsx`):
+  - Cada submódulo do Sidebar agora usa sua flag específica
+  - "Captura & IA" usa `captureModule`
+  - "Reconhecimento" usa `recognitionModule`
+  - "Relatório Fotográfico" usa `photoReportModule`
+  - "Relatório de Investigação" usa `investigationModule`
+  - "Exportar Pacote" usa `exportModule`
+  - Menu items desaparecem se flag desativada
+
+#### Status
+- ✅ Build production: `npm run build` - SUCCESS
+- ✅ Dev server: `npm run dev` - SUCCESS
+- ✅ Store de Casos funcionando com persist
+- ✅ Feature flags para submódulos implementadas
+- ✅ Rotas condicionadas corretamente
+- ✅ Sidebar dinâmico baseado em flags
+- ✅ Padrão replicado de clientsStore
+- ✅ Estrutura preparada para ativação granular
+
+#### Padrão ETAPA 8
+Implementação seguindo padrão de Clientes (ETAPA 7):
+- **casesStore.ts** similar a **clientsStore.ts**
+- Serviço **casesService** já existente e integrado
+- Feature flags centralizadas em **features.ts**
+- Submódulos controláveis independentemente
+- localStorage persistence via Zustand
+- Mock data alternável via VITE_USE_MOCK_API
+
+#### Próximo
+- Implementar páginas CRUD adicionais (Create, Edit) se necessário
+- Integrar com API real (trocar VITE_USE_MOCK_API)
+
+---
+
 ### ETAPA 7 ✅ - Primeiro Vertical Slice (CRUD Clientes)
 **Data**: 2026-01-08
 

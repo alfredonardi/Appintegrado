@@ -14,6 +14,11 @@ export type FeatureFlagKey =
   | 'auth'
   | 'dashboard'
   | 'casesModule'
+  | 'captureModule'
+  | 'recognitionModule'
+  | 'photoReportModule'
+  | 'investigationModule'
+  | 'exportModule'
   | 'clientsModule'
   | 'reportsModule'
   | 'settingsModule'
@@ -40,6 +45,13 @@ const DEFAULT_FEATURES: Record<FeatureFlagKey, boolean> = {
   // Módulos principais
   dashboard: true,
   casesModule: true,
+
+  // Submódulos de Casos (ETAPA 8 - Feature Flags)
+  captureModule: true,
+  recognitionModule: true,
+  photoReportModule: true,
+  investigationModule: true,
+  exportModule: true,
 
   // Módulos opcionais
   clientsModule: true, // Ativado em ETAPA 7
@@ -73,6 +85,11 @@ export const FEATURE_FLAGS: Record<FeatureFlagKey, boolean> = {
   auth: getFeatureValue('auth'),
   dashboard: getFeatureValue('dashboard'),
   casesModule: getFeatureValue('casesModule'),
+  captureModule: getFeatureValue('captureModule'),
+  recognitionModule: getFeatureValue('recognitionModule'),
+  photoReportModule: getFeatureValue('photoReportModule'),
+  investigationModule: getFeatureValue('investigationModule'),
+  exportModule: getFeatureValue('exportModule'),
   clientsModule: getFeatureValue('clientsModule'),
   reportsModule: getFeatureValue('reportsModule'),
   settingsModule: getFeatureValue('settingsModule'),
@@ -101,6 +118,36 @@ export const ALL_FEATURES: FeatureFlag[] = [
     name: 'Módulo de Casos',
     description: 'Gerenciamento de casos de investigação',
     enabled: FEATURE_FLAGS.casesModule,
+  },
+  {
+    key: 'captureModule',
+    name: 'Captura & IA',
+    description: 'Submódulo de captura de fotos e classificação por IA',
+    enabled: FEATURE_FLAGS.captureModule,
+  },
+  {
+    key: 'recognitionModule',
+    name: 'Reconhecimento',
+    description: 'Submódulo de reconhecimento visuográfico',
+    enabled: FEATURE_FLAGS.recognitionModule,
+  },
+  {
+    key: 'photoReportModule',
+    name: 'Relatório Fotográfico',
+    description: 'Submódulo de geração de relatório fotográfico',
+    enabled: FEATURE_FLAGS.photoReportModule,
+  },
+  {
+    key: 'investigationModule',
+    name: 'Investigação',
+    description: 'Submódulo de relatório de investigação',
+    enabled: FEATURE_FLAGS.investigationModule,
+  },
+  {
+    key: 'exportModule',
+    name: 'Exportar Pacote',
+    description: 'Submódulo de exportação e geração de PDFs',
+    enabled: FEATURE_FLAGS.exportModule,
   },
   {
     key: 'clientsModule',

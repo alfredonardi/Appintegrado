@@ -59,11 +59,23 @@ export function AppRouter() {
             <>
               <Route path="/cases" element={<CasesListScreen />} />
               <Route path="/cases/:caseId" element={<CaseWorkspaceScreen />} />
-              <Route path="/cases/:caseId/capture" element={<CaptureAIScreen />} />
-              <Route path="/cases/:caseId/recognition" element={<RecognitionScreen />} />
-              <Route path="/cases/:caseId/photo-report" element={<PhotoReportScreen />} />
-              <Route path="/cases/:caseId/investigation" element={<InvestigationReportScreen />} />
-              <Route path="/cases/:caseId/export" element={<ExportScreen />} />
+
+              {/* Submódulos de Casos com feature flags individuais (ETAPA 8) */}
+              {FEATURE_FLAGS.captureModule && (
+                <Route path="/cases/:caseId/capture" element={<CaptureAIScreen />} />
+              )}
+              {FEATURE_FLAGS.recognitionModule && (
+                <Route path="/cases/:caseId/recognition" element={<RecognitionScreen />} />
+              )}
+              {FEATURE_FLAGS.photoReportModule && (
+                <Route path="/cases/:caseId/photo-report" element={<PhotoReportScreen />} />
+              )}
+              {FEATURE_FLAGS.investigationModule && (
+                <Route path="/cases/:caseId/investigation" element={<InvestigationReportScreen />} />
+              )}
+              {FEATURE_FLAGS.exportModule && (
+                <Route path="/cases/:caseId/export" element={<ExportScreen />} />
+              )}
             </>
           )}
 
