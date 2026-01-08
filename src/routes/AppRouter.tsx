@@ -3,9 +3,13 @@ import { AppLayout } from '../components/layout/AppLayout';
 import { PrivateRoute } from '../components/routes/PrivateRoute';
 import { FEATURE_FLAGS } from '../config/features';
 
-// Pages - Cases
+// Pages - Login
 import { Login } from '../pages/Login';
+
+// Pages - Cases (ETAPA 8 - CRUD)
 import { CasesListScreen } from '../pages/CasesListScreen';
+import { CasesList } from '../pages/Cases/List';
+import { CasesEdit } from '../pages/Cases/Edit';
 import { CaseWorkspaceScreen } from '../pages/CaseWorkspaceScreen';
 import { CaptureAIScreen } from '../pages/CaptureAIScreen';
 import { RecognitionScreen } from '../pages/RecognitionScreen';
@@ -27,7 +31,9 @@ import { ClientsEdit } from '../pages/Clients/Edit';
  * Rotas Protegidas (requerem autenticação):
  * /                        → Redireciona para /cases
  * /cases                   → Listagem de casos (se casesModule ativado)
+ * /cases/new               → Criar novo caso (ETAPA 8)
  * /cases/:caseId           → Workspace/editor do caso
+ * /cases/:caseId/edit      → Editar caso (ETAPA 8)
  * /cases/:caseId/capture       → Tela de captura com IA
  * /cases/:caseId/recognition   → Tela de reconhecimento
  * /cases/:caseId/photo-report  → Relatório fotográfico
@@ -58,7 +64,9 @@ export function AppRouter() {
           {FEATURE_FLAGS.casesModule && (
             <>
               <Route path="/cases" element={<CasesListScreen />} />
+              <Route path="/cases/new" element={<CasesList />} />
               <Route path="/cases/:caseId" element={<CaseWorkspaceScreen />} />
+              <Route path="/cases/:caseId/edit" element={<CasesEdit />} />
 
               {/* Submódulos de Casos com feature flags individuais (ETAPA 8) */}
               {FEATURE_FLAGS.captureModule && (

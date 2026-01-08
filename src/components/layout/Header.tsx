@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Plus, User, Building2, CheckCircle2, LogOut } from 'lucide-react';
-import { useCaseStore, useSelectedCase } from '../../state';
+import { useSelectedCase } from '../../state';
+import { useCasesStore } from '../../state/casesStore';
+import { useCaseStore } from '../../state/caseStore';
 import { useAuth } from '../../state/auth';
 
 /**
  * Header - Barra superior com busca, criar caso e indicadores
- * Usa React Router para navegação
+ * Usa React Router para navegação e Zustand para estado
  */
 export function Header() {
   const [showNewCaseModal, setShowNewCaseModal] = useState(false);
@@ -15,26 +17,38 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const navigate = useNavigate();
-  const { createCase, selectCase, currentUser } = useCaseStore();
+  const { createCase: createCaseInStore, selectCase: selectCaseInStore } = useCaseStore();
+  const { createCase, selectCase } = useCasesStore();
   const selectedCase = useSelectedCase();
   const { logout } = useAuth();
+  const { currentUser } = useCaseStore();
 
   const handleLogout = () => {
     logout();
     navigate('/login', { replace: true });
   };
 
-  const handleCreateCase = () => {
+  const handleCreateCase = async () => {
     if (!newCaseBO.trim()) return;
 
-    const caseId = createCase(newCaseBO.trim(), newCaseNatureza.trim() || undefined);
-    selectCase(caseId);
-    setShowNewCaseModal(false);
-    setNewCaseBO('');
-    setNewCaseNatureza('');
+    try {
+      // Cria o caso via store (salva em API/mock)
+      const newCase = await createCase(newCaseBO.trim(), newCaseNatureza.trim() || undefined);
 
-    // Navegar para o workspace do novo caso
-    navigate(`/cases/${caseId}`);
+      // Também adiciona ao caseStore (para gerenciar caso aberto)
+      const localCaseId = createCaseInStore(newCaseBO.trim(), newCaseNatureza.trim() || undefined);
+      selectCaseInStore(localCaseId);
+      selectCase(newCase.id);
+
+      setShowNewCaseModal(false);
+      setNewCaseBO('');
+      setNewCaseNatureza('');
+
+      // Navegar para o workspace do novo caso
+      navigate(`/cases/${newCase.id}`);
+    } catch (error) {
+      console.error('Erro ao criar caso:', error);
+    }
   };
 
   const generateBO = () => {
