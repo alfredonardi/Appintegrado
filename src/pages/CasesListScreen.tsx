@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Search, Filter, Calendar, FileText, Eye, Plus, Upload, Package, Trash2 } from 'lucide-react';
-import { useCaseStore } from '../../../store';
-import { CaseStatus } from '../../../types';
+import { useCaseStore } from '../state';
+import { CaseStatus } from '../types';
 
 interface CasesListScreenProps {
   onNavigate: (screen: string) => void;

@@ -1,14 +1,14 @@
 import { FileDown, Save, Check, Sparkles, Eye, Link, Edit2, X } from 'lucide-react';
 import { useState } from 'react';
-import { useCaseStore, useSelectedCase } from '../../../store';
+import { useCaseStore, useSelectedCase } from '../state';
 import {
   RECOGNITION_SECTIONS,
   CANONICAL_FIELDS,
   getFieldByKey,
   getFieldReuse,
-} from '../../../types/fieldRegistry';
-import { generateRecognitionPDF } from '../../../services/pdfService';
-import { FieldStatus } from '../../../types/case';
+} from '../types/fieldRegistry';
+import { generateRecognitionPDF } from '../services/pdfService';
+import { FieldStatus } from '../types/case';
 
 interface RecognitionScreenProps {
   onNavigate: (screen: string) => void;

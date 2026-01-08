@@ -1,8 +1,8 @@
 import { FileDown, Save, Plus, Sparkles, Tag, Image, FileText, Calendar, User, Check, X, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { useCaseStore, useSelectedCase } from '../../../store';
-import { generateInvestigationReportPDF } from '../../../services/pdfService';
-import { getFieldByKey } from '../../../types/fieldRegistry';
+import { useCaseStore, useSelectedCase } from '../state';
+import { generateInvestigationReportPDF } from '../services/pdfService';
+import { getFieldByKey } from '../types/fieldRegistry';
 
 interface InvestigationReportScreenProps {
   onNavigate: (screen: string) => void;

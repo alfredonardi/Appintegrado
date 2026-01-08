@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ChevronRight, Edit2, Clock, AlertTriangle, CheckCircle, XCircle, ArrowRight, Info, Save } from 'lucide-react';
-import { useCaseStore, useSelectedCase } from '../../../store';
+import { useCaseStore, useSelectedCase } from '../state';
 
 interface CaseWorkspaceScreenProps {
   onNavigate: (screen: string) => void;

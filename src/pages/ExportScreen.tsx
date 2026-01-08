@@ -1,7 +1,7 @@
 import { Package, FileText, Image, FileSearch, FolderArchive, Download, CheckCircle2, AlertCircle, Clock, Loader2 } from 'lucide-react';
 import { useState, useMemo } from 'react';
-import { useCaseStore, useSelectedCase } from '../../../store';
-import { downloadExportPackage, ExportOptions } from '../../../services/exportService';
+import { useCaseStore, useSelectedCase } from '../state';
+import { downloadExportPackage, ExportOptions } from '../services/exportService';
 
 interface ExportScreenProps {
   onNavigate: (screen: string) => void;
