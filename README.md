@@ -497,6 +497,82 @@ Veja `package.json` para lista completa.
 
 ## 📚 Próximos Passos
 
+## 📸 Módulo Capture (ETAPA 10)
+
+### Upload e Galeria de Imagens
+
+O módulo Capture implementa um vertical slice completo com upload múltiplo, preview em grid e persistência.
+
+#### Testando Capture em Mock Mode
+
+Mock mode usa armazenamento em memória (dados não persistem após recarregar):
+
+```bash
+# 1. Ensure .env or defaults to mock
+VITE_DATA_PROVIDER=mock
+
+# 2. Start dev server
+npm run dev
+
+# 3. Acessar um caso: /cases/:caseId/capture
+# 4. Fazer upload de 2-3 imagens (PNG/JPG/WebP)
+# 5. Verificar grid com preview
+# 6. Deletar 1 imagem
+# 7. Verificar dados em localStorage:
+#    DevTools → Application → Local Storage → appintegrado-capture
+```
+
+**Comportamento esperado**:
+- ✅ Upload funciona com drag-drop ou click
+- ✅ Preview aparece em grid responsivo
+- ✅ Metadados mostrados (nome, tamanho, tipo, data)
+- ✅ Delete remover imagem (ao recarregar em mock, pode resetar)
+- ✅ localStorage armazena Data URLs (base64)
+
+#### Testando Capture com Supabase
+
+Supabase mode usa Storage real (imagens persistem):
+
+```bash
+# 1. Configurar .env.local
+VITE_DATA_PROVIDER=supabase
+VITE_SUPABASE_URL=your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+
+# 2. Criar bucket 'case-images' no Supabase Storage
+
+# 3. npm run dev
+
+# 4. Acessar /cases/:caseId/capture
+# 5. Upload 2 imagens
+# 6. Recarregar página - imagens continuam
+# 7. Delete 1 imagem
+# 8. Recarregar - imagem deletada não volta
+```
+
+**Estrutura de Storage**:
+```
+case-images/
+└── cases/
+    └── {caseId}/
+        ├── {imageId}-photo1.jpg
+        ├── {imageId}-photo2.png
+        └── {imageId}-photo3.webp
+```
+
+#### Endpoints HTTP (se VITE_DATA_PROVIDER=http)
+
+Se você implementar API backend, estes endpoints são esperados:
+
+```
+POST   /api/cases/:caseId/images       # Upload múltiplo
+GET    /api/cases/:caseId/images       # Listar imagens
+DELETE /api/cases/:caseId/images/:id   # Remover imagem
+DELETE /api/cases/:caseId/images       # Remover todas
+```
+
+---
+
 ### Desenvolvimento Futuro
 
 1. **Implementar Módulos Adicionais**
@@ -519,6 +595,11 @@ Veja `package.json` para lista completa.
    - Testes unitários dos stores
    - Testes de componentes
    - Testes de integração
+
+5. **Capture & IA (ETAPA 11+)**
+   - Integração com IA para classificação automática
+   - OCR para extrair texto de documentos
+   - Associar imagens ao relatório fotográfico
 
 ### Padrão de Desenvolvimento
 

@@ -1,5 +1,17 @@
-import { CaptureImage } from '../../types/capture';
+/**
+ * CaptureGrid - Grid responsivo de imagens capturadas
+ *
+ * Exibe:
+ * - Grid de cards de imagens
+ * - Estado vazio com mensagem
+ * - Estado de carregamento
+ * - Deletar imagens com confirmação
+ */
+
+import { AlertCircle } from 'lucide-react';
+import { CaptureImage } from '@/types/capture';
 import { CaptureCard } from './CaptureCard';
+import { useState } from 'react';
 
 interface CaptureGridProps {
   images: CaptureImage[];
@@ -7,75 +19,64 @@ interface CaptureGridProps {
   isLoading?: boolean;
 }
 
-/**
- * Grid responsivo mostrando todas as imagens capturadas de um caso
- */
-export function CaptureGrid({
-  images,
-  onRemoveImage,
-  isLoading = false,
-}: CaptureGridProps) {
-  if (isLoading) {
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => (
-          <div
-            key={i}
-            className="bg-gray-100 rounded-lg aspect-square animate-pulse"
-          />
-        ))}
-      </div>
-    );
-  }
+export function CaptureGrid({ images, onRemoveImage, isLoading = false }: CaptureGridProps) {
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  if (images.length === 0) {
+  const handleDelete = (imageId: string) => {
+    setDeletingId(imageId);
+    setTimeout(() => {
+      onRemoveImage(imageId);
+      setDeletingId(null);
+    }, 300);
+  };
+
+  // Estado vazio
+  if (images.length === 0 && !isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <div className="bg-gray-100 rounded-full p-4 mb-4">
-          <svg
-            className="w-8 h-8 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
-          </svg>
-        </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-1">
-          Nenhuma imagem capturada
-        </h3>
-        <p className="text-sm text-gray-500">
-          Comece fazendo upload de imagens para este caso
-        </p>
+        <AlertCircle className="w-12 h-12 text-gray-400 mb-4" />
+        <p className="text-lg font-medium text-gray-700 mb-2">Nenhuma imagem capturada</p>
+        <p className="text-sm text-gray-500">Faça upload de imagens acima para começar</p>
       </div>
     );
   }
 
+  // Estado de carregamento
+  if (isLoading && images.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+        <p className="text-gray-600">Carregando imagens...</p>
+      </div>
+    );
+  }
+
+  // Grid de imagens
   return (
     <div className="space-y-4">
-      {/* Contagem de imagens */}
-      <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200">
-        <span className="text-sm font-medium text-gray-700">
+      {/* Contador */}
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm text-gray-600">
           {images.length} imagem{images.length !== 1 ? 's' : ''} capturada{images.length !== 1 ? 's' : ''}
-        </span>
-        <span className="text-xs text-gray-500">
-          Total: {(images.reduce((sum, img) => sum + img.size, 0) / 1024 / 1024).toFixed(2)} MB
-        </span>
+        </p>
+        <div className="text-xs text-gray-500">
+          {images.reduce((total, img) => total + img.size, 0)} bytes no total
+        </div>
       </div>
 
-      {/* Grid de cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {images.map((image) => (
-          <CaptureCard
+          <div
             key={image.id}
-            image={image}
-            onRemove={onRemoveImage}
-          />
+            className={deletingId === image.id ? 'opacity-50' : ''}
+          >
+            <CaptureCard
+              image={image}
+              onDelete={handleDelete}
+              isDeleting={deletingId === image.id}
+            />
+          </div>
         ))}
       </div>
     </div>
