@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Calendar, FileText, Eye, Plus, Upload, Package, Trash2 } from 'lucide-react';
-import { useCaseStore } from '../state';
+import { useCasesStore } from '../state';
 import { CaseStatus } from '../types';
 
 
@@ -15,7 +15,12 @@ export function CasesListScreen() {
   const [newCaseBO, setNewCaseBO] = useState('');
   const [newCaseNatureza, setNewCaseNatureza] = useState('');
 
-  const { cases, selectCase, createCase, deleteCase } = useCaseStore();
+  const { cases, loading, fetchCases, selectCase, createCase, deleteCase } = useCasesStore();
+
+  // Carrega casos ao montar o componente
+  useEffect(() => {
+    fetchCases();
+  }, [fetchCases]);
 
   // Filtrar casos
   const filteredCases = cases.filter((caso) => {
@@ -81,18 +86,32 @@ export function CasesListScreen() {
 
   const handleOpenCase = (caseId: string) => {
     selectCase(caseId);
-    navigate('/cases/${caseId}');
+    navigate(`/cases/${caseId}`);
   };
 
-  const handleCreateCase = () => {
+  const handleCreateCase = async () => {
     if (!newCaseBO.trim()) return;
 
-    const caseId = createCase(newCaseBO.trim(), newCaseNatureza.trim() || undefined);
-    selectCase(caseId);
-    setShowNewCaseModal(false);
-    setNewCaseBO('');
-    setNewCaseNatureza('');
-    navigate('/cases/${caseId}');
+    try {
+      const newCase = await createCase(newCaseBO.trim(), newCaseNatureza.trim() || undefined);
+      selectCase(newCase.id);
+      setShowNewCaseModal(false);
+      setNewCaseBO('');
+      setNewCaseNatureza('');
+      navigate(`/cases/${newCase.id}`);
+    } catch (error) {
+      console.error('Erro ao criar caso:', error);
+    }
+  };
+
+  const handleDeleteCase = async (caseId: string) => {
+    if (window.confirm('Tem certeza que deseja deletar este caso?')) {
+      try {
+        await deleteCase(caseId);
+      } catch (error) {
+        console.error('Erro ao deletar caso:', error);
+      }
+    }
   };
 
   const generateBO = () => {
@@ -208,11 +227,7 @@ export function CasesListScreen() {
                           Abrir
                         </button>
                         <button
-                          onClick={() => {
-                            if (confirm('Tem certeza que deseja excluir este caso?')) {
-                              deleteCase(caso.id);
-                            }
-                          }}
+                          onClick={() => handleDeleteCase(caso.id)}
                           className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />

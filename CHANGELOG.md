@@ -6,7 +6,7 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 
 ## [Não Lançado]
 
-### ETAPA 8 ✅ - CRUD de Casos + Feature Flags para Submódulos
+### ETAPA 8 ✅ - CRUD de Casos (Consolidação Final)
 **Data**: 2026-01-08
 
 #### Adicionado
@@ -19,55 +19,69 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
   - Integração automática com casesService (mock ou API real)
   - Exportado em state/index.ts
 
-- **Feature Flags para Submódulos de Casos** (`src/config/features.ts`):
+- **Páginas de Casos** (`src/pages/Cases/`):
+  - `List.tsx`: Listagem estruturada de casos seguindo padrão de Clientes
+    - Cartões com informações (BO, natureza, data/hora, endereço, status)
+    - Botões: Novo Caso, Editar, Deletar com confirmação
+    - Estados: vazio, carregando, com dados
+    - Integração com useCasesStore e fetchCases()
+    - Dark mode support
+
+  - `Edit.tsx`: Formulário para editar caso existente
+    - Campos: BO (readonly), natureza, status, endereço
+    - Localização: CEP, bairro, cidade, estado
+    - Jurisdição: circunscrição, unidade
+    - Validação e navegação automática
+    - Integração com updateCase via store
+
+- **CasesListScreen.tsx** (Refactorizado):
+  - Migrado de useCaseStore para useCasesStore (plural)
+  - Adicionado useEffect para fetchCases() ao montar
+  - Funções async para createCase e deleteCase
+  - Substituído template literals por template strings corretas
+  - Gerenciamento de loading e erro
+
+- **Header.tsx** (Corrigido):
+  - Usa useCasesStore para criar casos globalmente
+  - Sincroniza com caseStore para gerenciador aberto
+  - createCase agora é async com await
+  - Navegação correta após criação
+
+- **AppRouter.tsx** (Atualizado):
+  - Rotas adicionadas: `/cases/new` e `/cases/:caseId/edit`
+  - Documentação completa das rotas
+  - Importações de Cases/List e Cases/Edit
+
+- **vite.config.ts** (Corrigido):
+  - Configurado rollupOptions.external para React
+  - Fix para build error: "react/jsx-runtime not found"
+  - Build agora funciona corretamente: `npm run build` ✅
+
+- **Feature Flags para Submódulos de Casos** (Anterior):
   - `captureModule`: Ativa/desativa Captura & IA
   - `recognitionModule`: Ativa/desativa Reconhecimento Visuográfico
   - `photoReportModule`: Ativa/desativa Relatório Fotográfico
   - `investigationModule`: Ativa/desativa Relatório de Investigação
   - `exportModule`: Ativa/desativa Exportação/PDF
-  - Todos defaultam para `true` (ativados)
-  - Override via .env: `VITE_FEATURE_CAPTUREMODULE=false`
-  - Metadados em ALL_FEATURES para documentação
-
-- **Rotas Condicionadas por Feature Flags** (`src/routes/AppRouter.tsx`):
-  - `/cases/:caseId/capture` → condicionado a captureModule
-  - `/cases/:caseId/recognition` → condicionado a recognitionModule
-  - `/cases/:caseId/photo-report` → condicionado a photoReportModule
-  - `/cases/:caseId/investigation` → condicionado a investigationModule
-  - `/cases/:caseId/export` → condicionado a exportModule
-  - Desativar flag remove rota e impede navegação
-
-- **Menu Lateral com Feature Flags** (`src/components/layout/Sidebar.tsx`):
-  - Cada submódulo do Sidebar agora usa sua flag específica
-  - "Captura & IA" usa `captureModule`
-  - "Reconhecimento" usa `recognitionModule`
-  - "Relatório Fotográfico" usa `photoReportModule`
-  - "Relatório de Investigação" usa `investigationModule`
-  - "Exportar Pacote" usa `exportModule`
-  - Menu items desaparecem se flag desativada
 
 #### Status
 - ✅ Build production: `npm run build` - SUCCESS
 - ✅ Dev server: `npm run dev` - SUCCESS
 - ✅ Store de Casos funcionando com persist
-- ✅ Feature flags para submódulos implementadas
-- ✅ Rotas condicionadas corretamente
-- ✅ Sidebar dinâmico baseado em flags
+- ✅ CRUD completo: Create, Read, Update, Delete
+- ✅ Listagem com casesStore
+- ✅ Edição via formulário reativo
 - ✅ Padrão replicado de clientsStore
-- ✅ Estrutura preparada para ativação granular
+- ✅ Todas as rotas funcionando
 
-#### Padrão ETAPA 8
-Implementação seguindo padrão de Clientes (ETAPA 7):
-- **casesStore.ts** similar a **clientsStore.ts**
-- Serviço **casesService** já existente e integrado
-- Feature flags centralizadas em **features.ts**
-- Submódulos controláveis independentemente
-- localStorage persistence via Zustand
-- Mock data alternável via VITE_USE_MOCK_API
-
-#### Próximo
-- Implementar páginas CRUD adicionais (Create, Edit) se necessário
-- Integrar com API real (trocar VITE_USE_MOCK_API)
+#### Arquivos Criados/Modificados
+- ✅ src/pages/Cases/List.tsx (novo)
+- ✅ src/pages/Cases/Edit.tsx (novo)
+- ✅ src/pages/CasesListScreen.tsx (refactorizado)
+- ✅ src/components/layout/Header.tsx (corrigido)
+- ✅ src/routes/AppRouter.tsx (atualizado)
+- ✅ vite.config.ts (corrigido)
+- ✅ CHANGELOG.md (documentação)
 
 ---
 
