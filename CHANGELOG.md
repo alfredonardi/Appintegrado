@@ -6,6 +6,135 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 
 ## [Não Lançado]
 
+### ETAPA 10 ✅ - Capture Vertical Slice Completo (Upload e Galeria de Imagens)
+**Data**: 2026-01-08
+
+#### Objetivo
+Implementar um vertical slice completo do submódulo Capture com funcionalidade real de upload, preview e persistência de imagens por caso.
+
+#### Adicionado
+
+**Tipos** (`src/types/capture.ts` - novo):
+- `CaptureImage`: Interface com id, caseId, name, size, type, url, createdAt
+- `CaptureState`: Interface com ações do store (getImages, addImages, removeImage, clearCaseImages)
+
+**Store Zustand com Persistência** (`src/state/captureStore.ts` - novo):
+- `useCaptureStore`: Store global com middleware persist
+- Persiste em localStorage com chave `appintegrado-capture`
+- Usa Data URLs (base64) para que imagens persistam após reload
+- Actions:
+  - `getImages(caseId)`: Retorna imagens de um caso específico
+  - `addImages(caseId, files)`: Upload assincronamente, converte para Data URL
+  - `removeImage(caseId, imageId)`: Remove imagem do store
+  - `clearCaseImages(caseId)`: Limpa todas as imagens de um caso
+- State: `imagesByCaseId: Record<string, CaptureImage[]>`
+
+**Componentes UI** (`src/components/capture/` - novos):
+- `CaptureUploader.tsx`:
+  - Input file com multiple + accept="image/*"
+  - Suporta drag-and-drop
+  - Valida tipos (PNG, JPG, WebP)
+  - Feedback visual durante upload
+  - Acessível (aria-labels)
+
+- `CaptureGrid.tsx`:
+  - Grid responsivo (1, 2 ou 4 colunas conforme viewport)
+  - Exibe contagem de imagens e tamanho total
+  - Estado vazio com ilustração
+  - Loading skeleton
+  - Chama onRemoveImage para cada imagem
+
+- `CaptureCard.tsx`:
+  - Preview da imagem (aspect-ratio quadrado)
+  - Metadados: nome, tamanho formatado, tipo, data
+  - Botão remover com overlay no hover
+  - Títulos (title) para truncate
+  - Acessível
+
+- `index.ts`: Re-exports dos 3 componentes
+
+**Página do Módulo** (`src/pages/CaseModules/Capture.tsx` - refatorizado):
+- Substituiu placeholder por implementação funcional
+- Integra store useCaptureStore
+- Seções:
+  - Header com título, ID do caso, botão voltar
+  - Seção "Adicionar Imagens" com CaptureUploader
+  - Seção "Galeria de Imagens" com CaptureGrid
+  - Informações úteis ao usuário
+- Handlers useCallback para fileSeletion e removeImage
+- Validação do caseId
+
+#### Funcionalidade
+
+✅ **Upload Múltiplo**:
+- Selecionar 1+ imagens via input ou drag-drop
+- Apenas imagens válidas são processadas
+- FileReader lê como base64 (Data URL)
+- Adiciona ao store de forma assincronada
+
+✅ **Preview em Grid**:
+- Cards mostrando imagem + metadados
+- Responsivo (mobile, tablet, desktop)
+- Contagem e tamanho total visíveis
+
+✅ **Remoção de Imagens**:
+- Botão por card
+- Remove imediatamente do store
+- Atualiza contagem em tempo real
+
+✅ **Persistência**:
+- Zustand persist middleware com localStorage
+- Data URLs válidas após reload
+- Imagens associadas por caseId
+- Recarregar página mantém as imagens
+
+#### Feature Flag
+- Feature flag `caseCaptureModule` continua aplicado
+- Rotas CaseRouter já protegem o submódulo
+- Página renderiza apenas se caseId válido
+
+#### Boas Práticas Aplicadas
+- Validação de arquivo antes de processar
+- IDs com crypto.randomUUID() (fallback incluído)
+- Data URLs para persistência sem IndexedDB
+- Componentes pequenos e reutilizáveis
+- Acessibilidade básica (aria-labels, alt)
+- Sem dependências externas além de react + zustand + lucide
+
+#### Status
+- ✅ npm run build: SUCCESS (sem erros de tipo)
+- ✅ npm run dev: Servidor rodando OK
+- ✅ Persistência localStorage: Testada
+- ✅ Componentes renderizam sem erros
+
+#### Testes Manuais Obrigatórios
+1. ✅ Ativar caseCaptureModule (já está ativo)
+2. ✅ Acessar /cases/:id/capture
+3. ✅ Upload de 3 imagens PNG/JPG
+4. ✅ Confirmar preview em grid (4 colunas em desktop)
+5. ✅ Recarregar página - imagens continuam
+6. ✅ Remover 1 imagem
+7. ✅ Recarregar - imagem removida não volta
+8. ✅ npm run build sem erros
+9. ✅ npm run dev sem erros
+
+#### Arquivos Criados/Modificados
+- ✅ src/types/capture.ts (novo)
+- ✅ src/types/index.ts (modificado - adicionado export)
+- ✅ src/state/captureStore.ts (novo)
+- ✅ src/components/capture/CaptureUploader.tsx (novo)
+- ✅ src/components/capture/CaptureGrid.tsx (novo)
+- ✅ src/components/capture/CaptureCard.tsx (novo)
+- ✅ src/components/capture/index.ts (novo)
+- ✅ src/pages/CaseModules/Capture.tsx (refatorizado)
+
+#### Próximo
+- Integração com IA para classificação de fotos
+- Associar imagens ao relatório fotográfico
+- Suporte a mais formatos (GIF, TIFF)
+
+---
+
 ### ETAPA 9 ✅ - Submódulos de Caso com Feature Flags (Roteamento Aninhado)
 **Data**: 2026-01-08
 
