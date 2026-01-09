@@ -23,9 +23,15 @@ export function Header() {
   const { logout } = useAuth();
   const { currentUser } = useCaseStore();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login', { replace: true });
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login', { replace: true });
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+      // Fazer logout local mesmo se falhar
+      navigate('/login', { replace: true });
+    }
   };
 
   const handleCreateCase = async () => {
