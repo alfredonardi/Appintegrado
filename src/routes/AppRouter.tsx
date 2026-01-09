@@ -11,6 +11,7 @@ import { Login } from '../pages/Login';
 import { CasesList } from '../pages/Cases/List';
 import { CasesCreate } from '../pages/Cases/Create';
 import { CasesEdit } from '../pages/Cases/Edit';
+import { MyCases } from '../pages/MyCases';
 
 // Pages - Clients (ETAPA 7)
 import { ClientsList } from '../pages/Clients/List';
@@ -63,6 +64,9 @@ export function AppRouter() {
           {/* Casos - condicionado por feature flag (ETAPA 8 - CRUD, ETAPA 9 - Submódulos) */}
           {FEATURE_FLAGS.casesModule && (
             <>
+              {/* Meus Casos - apenas do time do usuário (ETAPA 13 - Nhost) */}
+              <Route path="/my-cases" element={<MyCases />} />
+
               {/* Listagem de casos */}
               <Route path="/cases" element={<CasesList />} />
               {/* Criar novo caso */}

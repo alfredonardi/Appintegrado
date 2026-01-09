@@ -227,6 +227,11 @@ export interface Case {
   createdAt: string;
   updatedAt: string;
 
+  // Organizações e times (Nhost)
+  organization_id?: string;
+  team_id?: string;
+  shared_with_org?: boolean; // Se verdadeiro, visível para chefes/delegados da org
+
   // Equipe
   team: TeamMember[];
 

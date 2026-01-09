@@ -29,7 +29,7 @@ export function Header() {
       navigate('/login', { replace: true });
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
-      // Navegar mesmo com erro
+      // Fazer logout local mesmo se falhar
       navigate('/login', { replace: true });
     }
   };

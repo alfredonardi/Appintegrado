@@ -7,10 +7,11 @@ import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useCasesStore } from '@/state/casesStore';
+import { useAuth } from '@/state/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Share2 } from 'lucide-react';
 import { CaseStatus } from '@/types/case';
 
 interface EditCaseFormData {
@@ -24,11 +25,13 @@ interface EditCaseFormData {
   circunscricao: string;
   unidade: string;
   status: CaseStatus;
+  shared_with_org?: boolean;
 }
 
 export function CasesEdit() {
   const { caseId } = useParams<{ caseId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { getCaseById, updateCase, loading } = useCasesStore();
 
   const {
@@ -36,6 +39,7 @@ export function CasesEdit() {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    watch,
   } = useForm<EditCaseFormData>({
     defaultValues: {
       bo: '',
@@ -48,8 +52,11 @@ export function CasesEdit() {
       circunscricao: '',
       unidade: '',
       status: 'rascunho',
+      shared_with_org: false,
     },
   });
+
+  const sharedWithOrg = watch('shared_with_org');
 
   useEffect(() => {
     if (caseId) {
@@ -66,6 +73,7 @@ export function CasesEdit() {
           circunscricao: caseItem.circunscricao,
           unidade: caseItem.unidade,
           status: caseItem.status,
+          shared_with_org: caseItem.shared_with_org || false,
         });
       }
     }
@@ -138,6 +146,38 @@ export function CasesEdit() {
                   <option value="em_revisao">Em revisão</option>
                   <option value="finalizado">Finalizado</option>
                 </select>
+              </div>
+
+              {/* Compartilhar com Chefia */}
+              <div className={`p-4 rounded-lg border-2 transition-colors ${
+                sharedWithOrg
+                  ? 'bg-green-50 border-green-300'
+                  : 'bg-gray-50 border-gray-300'
+              }`}>
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    {...register('shared_with_org')}
+                    className="mt-1 w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500 cursor-pointer"
+                  />
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-900 dark:text-white cursor-pointer">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Share2 size={16} className="text-green-600" />
+                        Compartilhar com Chefia
+                      </div>
+                    </label>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      Ativa a visibilidade deste caso para chefes e delegados da sua delegacia.
+                      Apenas você pode alterar esta configuração.
+                    </p>
+                    {sharedWithOrg && (
+                      <p className="text-xs text-green-700 dark:text-green-300 mt-2">
+                        ✓ Este caso está visível para a chefia da sua organização.
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* Natureza */}
