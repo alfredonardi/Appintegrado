@@ -1,10 +1,36 @@
-# CHANGELOG - Appintegrado
+# CHANGELOG - Atlas
 
 Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 
 ---
 
 ## [Não Lançado]
+
+### Feat ETAPA 13 - Renomeação de Appintegrado para Atlas
+**Data**: 2026-01-09
+
+#### Resumo
+Renomeação completa do branding do aplicativo de "Appintegrado" para "Atlas" com atualização em docs, UI, metadados e persistência local com migração automática.
+
+#### Mudanças
+- ✅ Atualizado `package.json` com nome "atlas" e descrição "Atlas - Casos, diligências e evidências em um só lugar"
+- ✅ Atualizado `index.html` com title e meta tags para "Atlas"
+- ✅ Atualizado UI (Login.tsx) para exibir "Atlas" em vez de "CaseHub"
+- ✅ Atualizado comentários em arquivos TypeScript (tipos, helpers, constantes)
+- ✅ Migração automática de localStorage keys com fallback:
+  - `casehub-storage` → `atlas-storage`
+  - `casehub-auth-token` → `atlas-auth-token`
+  - `casehub-auth-user` → `atlas-auth-user`
+  - `appintegrado-capture` → `atlas-capture`
+  - `appintegrado-photo-report` → `atlas-photo-report`
+- ✅ Criado utilitário `src/utils/storageMigration.ts` para migração automática
+- ✅ Integrado migração no `main.tsx` antes da inicialização da app
+- ✅ Atualizado README.md com novo título e descrição
+- ✅ Atualizado CHANGELOG.md
+
+---
+
+## [Não Lançado (Anterior)]
 
 ### Feat ETAPA 8 - Cases CRUD Consolidado como Vertical Slice
 **Data**: 2026-01-09

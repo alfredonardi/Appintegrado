@@ -1,4 +1,4 @@
-# Appintegrado - App Escalável para Investigação Forense
+# Atlas - Casos, Diligências e Evidências em um Só Lugar
 
 Bundle exportado do Figma transformado em uma aplicação React/Vite escalável, com estrutura profissional, feature flags, autenticação mock e API abstrata.
 
@@ -379,7 +379,7 @@ VITE_USE_MOCK_API=true
 
 # Modo produção (chama API real)
 VITE_USE_MOCK_API=false
-VITE_API_BASE_URL=https://api.appintegrado.com
+VITE_API_BASE_URL=https://api.atlas.com
 ```
 
 ### Feature Flags (ETAPA 5) ✅ Implementado
@@ -601,7 +601,7 @@ npm run dev
 # 5. Verificar grid com preview
 # 6. Deletar 1 imagem
 # 7. Verificar dados em localStorage:
-#    DevTools → Application → Local Storage → appintegrado-capture
+#    DevTools → Application → Local Storage → atlas-capture
 ```
 
 **Comportamento esperado**:
@@ -763,5 +763,5 @@ Este projeto é um bundle exportado do Figma com transformações de arquitetura
 
 ---
 
-**Última atualização**: 2026-01-08
-**Status**: ETAPA 7 ✅ Completa | Aplicação com 7 ETAPAs Concluídas
+**Última atualização**: 2026-01-09
+**Status**: ETAPA 13 ✅ Renomeação para Atlas | Aplicação com 13 ETAPAs Concluídas

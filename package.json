@@ -1,5 +1,6 @@
 {
-  "name": "@figma/my-make-file",
+  "name": "atlas",
+  "description": "Atlas - Casos, diligências e evidências em um só lugar",
   "private": true,
   "version": "0.0.1",
   "type": "module",
