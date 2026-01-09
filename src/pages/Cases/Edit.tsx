@@ -1,10 +1,11 @@
 /**
  * Página de Edição de Caso (ETAPA 8)
- * Permite editar informações básicas do caso
+ * Permite editar informações básicas do caso usando React Hook Form
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import { useCasesStore } from '@/state/casesStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,32 +13,49 @@ import { Card } from '@/components/ui/card';
 import { ArrowLeft, Save } from 'lucide-react';
 import { CaseStatus } from '@/types/case';
 
+interface EditCaseFormData {
+  bo: string;
+  natureza: string;
+  endereco: string;
+  cep: string;
+  bairro?: string;
+  cidade?: string;
+  estado?: string;
+  circunscricao: string;
+  unidade: string;
+  status: CaseStatus;
+}
+
 export function CasesEdit() {
   const { caseId } = useParams<{ caseId: string }>();
   const navigate = useNavigate();
   const { getCaseById, updateCase, loading } = useCasesStore();
 
-  const [formData, setFormData] = useState({
-    bo: '',
-    natureza: '',
-    endereco: '',
-    cep: '',
-    bairro: '',
-    cidade: '',
-    estado: '',
-    circunscricao: '',
-    unidade: '',
-    status: 'rascunho' as CaseStatus,
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<EditCaseFormData>({
+    defaultValues: {
+      bo: '',
+      natureza: '',
+      endereco: '',
+      cep: '',
+      bairro: '',
+      cidade: '',
+      estado: '',
+      circunscricao: '',
+      unidade: '',
+      status: 'rascunho',
+    },
   });
-
-  const [error, setError] = useState('');
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (caseId) {
       const caseItem = getCaseById(caseId);
       if (caseItem) {
-        setFormData({
+        reset({
           bo: caseItem.bo,
           natureza: caseItem.natureza,
           endereco: caseItem.endereco,
@@ -49,42 +67,20 @@ export function CasesEdit() {
           unidade: caseItem.unidade,
           status: caseItem.status,
         });
-      } else {
-        setError('Caso não encontrado');
       }
     }
-  }, [caseId, getCaseById]);
+  }, [caseId, getCaseById, reset]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!formData.bo.trim()) {
-      setError('BO é obrigatório');
-      return;
-    }
-
+  const onSubmit = async (data: EditCaseFormData) => {
     if (!caseId) {
-      setError('ID do caso não encontrado');
       return;
     }
 
-    setSaving(true);
     try {
-      await updateCase(caseId, formData);
-      navigate(`/cases/${caseId}`);
-    } catch (err) {
-      setError('Erro ao atualizar caso');
-      console.error(err);
-    } finally {
-      setSaving(false);
+      await updateCase(caseId, data);
+      navigate(`/cases`);
+    } catch (error) {
+      console.error('Erro ao atualizar caso:', error);
     }
   };
 
@@ -93,14 +89,12 @@ export function CasesEdit() {
       {/* Header */}
       <div className="border-b border-gray-200 dark:border-gray-700 p-6 bg-white dark:bg-gray-950">
         <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            onClick={() => navigate(-1)}
-            className="gap-2"
+          <button
+            onClick={() => navigate('/cases')}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition"
           >
-            <ArrowLeft size={18} />
-            Voltar
-          </Button>
+            <ArrowLeft size={24} className="text-gray-900 dark:text-white" />
+          </button>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Editar Caso</h1>
         </div>
       </div>
@@ -111,27 +105,23 @@ export function CasesEdit() {
           <div className="flex items-center justify-center h-full">
             <p className="text-gray-500">Carregando...</p>
           </div>
-        ) : error ? (
+        ) : !caseId ? (
           <Card className="p-6 bg-red-50 border-red-200">
-            <p className="text-red-800">{error}</p>
+            <p className="text-red-800">Caso não encontrado</p>
           </Card>
         ) : (
-          <Card className="max-w-2xl mx-auto p-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <Card className="max-w-2xl mx-auto">
+            <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
               {/* Boletim de Ocorrência */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Boletim de Ocorrência (BO) *
+                  Boletim de Ocorrência (BO)
                 </label>
                 <Input
                   type="text"
-                  name="bo"
-                  value={formData.bo}
-                  onChange={handleChange}
-                  placeholder="Ex: 2025/123456"
-                  required
                   disabled
-                  className="bg-gray-50"
+                  {...register('bo')}
+                  className="bg-gray-50 dark:bg-gray-800"
                 />
               </div>
 
@@ -141,10 +131,8 @@ export function CasesEdit() {
                   Status
                 </label>
                 <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
+                  {...register('status')}
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white border-gray-300 dark:border-gray-600`}
                 >
                   <option value="rascunho">Em rascunho</option>
                   <option value="em_revisao">Em revisão</option>
@@ -158,10 +146,8 @@ export function CasesEdit() {
                   Natureza
                 </label>
                 <select
-                  name="natureza"
-                  value={formData.natureza}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
+                  {...register('natureza')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white dark:border-gray-600"
                 >
                   <option value="">Selecione...</option>
                   <option value="Homicídio">Homicídio</option>
@@ -182,10 +168,8 @@ export function CasesEdit() {
                 </label>
                 <Input
                   type="text"
-                  name="endereco"
-                  value={formData.endereco}
-                  onChange={handleChange}
                   placeholder="Rua, número, complemento"
+                  {...register('endereco')}
                 />
               </div>
 
@@ -197,10 +181,8 @@ export function CasesEdit() {
                   </label>
                   <Input
                     type="text"
-                    name="cep"
-                    value={formData.cep}
-                    onChange={handleChange}
                     placeholder="00000-000"
+                    {...register('cep')}
                   />
                 </div>
                 <div>
@@ -209,10 +191,8 @@ export function CasesEdit() {
                   </label>
                   <Input
                     type="text"
-                    name="bairro"
-                    value={formData.bairro}
-                    onChange={handleChange}
                     placeholder="Bairro"
+                    {...register('bairro')}
                   />
                 </div>
                 <div>
@@ -221,10 +201,8 @@ export function CasesEdit() {
                   </label>
                   <Input
                     type="text"
-                    name="cidade"
-                    value={formData.cidade}
-                    onChange={handleChange}
                     placeholder="Cidade"
+                    {...register('cidade')}
                   />
                 </div>
                 <div>
@@ -233,11 +211,9 @@ export function CasesEdit() {
                   </label>
                   <Input
                     type="text"
-                    name="estado"
-                    value={formData.estado}
-                    onChange={handleChange}
                     placeholder="SP"
                     maxLength={2}
+                    {...register('estado')}
                   />
                 </div>
               </div>
@@ -250,11 +226,13 @@ export function CasesEdit() {
                   </label>
                   <Input
                     type="text"
-                    name="circunscricao"
-                    value={formData.circunscricao}
-                    onChange={handleChange}
                     placeholder="Ex: 1ª Circunscrição"
+                    {...register('circunscricao', { required: 'Circunscrição é obrigatória' })}
+                    className={errors.circunscricao ? 'border-red-500' : ''}
                   />
+                  {errors.circunscricao && (
+                    <p className="text-red-600 text-sm mt-1">{errors.circunscricao.message}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -262,11 +240,13 @@ export function CasesEdit() {
                   </label>
                   <Input
                     type="text"
-                    name="unidade"
-                    value={formData.unidade}
-                    onChange={handleChange}
                     placeholder="Ex: DHPP"
+                    {...register('unidade', { required: 'Unidade é obrigatória' })}
+                    className={errors.unidade ? 'border-red-500' : ''}
                   />
+                  {errors.unidade && (
+                    <p className="text-red-600 text-sm mt-1">{errors.unidade.message}</p>
+                  )}
                 </div>
               </div>
 
@@ -275,18 +255,19 @@ export function CasesEdit() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => navigate(-1)}
+                  onClick={() => navigate('/cases')}
                   className="flex-1"
+                  disabled={isSubmitting || loading}
                 >
                   Cancelar
                 </Button>
                 <Button
                   type="submit"
-                  disabled={saving || loading}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white gap-2"
+                  disabled={isSubmitting || loading}
                 >
                   <Save size={18} />
-                  {saving ? 'Salvando...' : 'Salvar Alterações'}
+                  {isSubmitting || loading ? 'Salvando...' : 'Salvar Alterações'}
                 </Button>
               </div>
             </form>

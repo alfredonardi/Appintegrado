@@ -11,6 +11,7 @@ import {
   getMockCaseById,
   createMockCase,
   updateMockCase,
+  deleteMockCase,
 } from './mock/mockCases';
 import * as casesServiceSupabase from './supabase/casesServiceSupabase';
 
@@ -118,8 +119,7 @@ export class CasesService {
 
     // Mock provider
     if (provider === 'mock') {
-      console.log(`Mock: delete case ${id}`);
-      return;
+      return deleteMockCase(id);
     }
 
     // HTTP provider (default)

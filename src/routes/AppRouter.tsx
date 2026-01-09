@@ -8,8 +8,8 @@ import { CaseRouter } from './CaseRouter';
 import { Login } from '../pages/Login';
 
 // Pages - Cases (ETAPA 8 - CRUD, ETAPA 9 - Submódulos)
-import { CasesListScreen } from '../pages/CasesListScreen';
 import { CasesList } from '../pages/Cases/List';
+import { CasesCreate } from '../pages/Cases/Create';
 import { CasesEdit } from '../pages/Cases/Edit';
 
 // Pages - Clients (ETAPA 7)
@@ -60,12 +60,14 @@ export function AppRouter() {
       <Route element={<PrivateRoute />}>
         {/* Layout wrapper que contém Sidebar e Header */}
         <Route element={<AppLayout />}>
-          {/* Casos - condicionado por feature flag (ETAPA 9 - Submódulos) */}
+          {/* Casos - condicionado por feature flag (ETAPA 8 - CRUD, ETAPA 9 - Submódulos) */}
           {FEATURE_FLAGS.casesModule && (
             <>
               {/* Listagem de casos */}
-              <Route path="/cases" element={<CasesListScreen />} />
-              <Route path="/cases/new" element={<CasesList />} />
+              <Route path="/cases" element={<CasesList />} />
+              {/* Criar novo caso */}
+              <Route path="/cases/new" element={<CasesCreate />} />
+              {/* Editar caso */}
               <Route path="/cases/:caseId/edit" element={<CasesEdit />} />
 
               {/* Workspace do caso com rotas aninhadas e submódulos (ETAPA 9) */}
