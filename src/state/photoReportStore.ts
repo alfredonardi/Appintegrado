@@ -201,7 +201,7 @@ export const usePhotoReportStore = create<PhotoReportState>()(
       },
     }),
     {
-      name: 'appintegrado-photo-report',
+      name: 'atlas-photo-report',
       storage: createJSONStorage(() => localStorage),
       // Em modo Supabase, o cache local persiste para disponibilidade offline
       // Os dados reais estão no Supabase

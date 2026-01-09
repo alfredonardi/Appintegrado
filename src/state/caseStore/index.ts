@@ -205,7 +205,7 @@ export const useCaseStore = create<CaseStore>()(
       ...createPDFSlice(set, get),
     }),
     {
-      name: 'casehub-storage',
+      name: 'atlas-storage',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         cases: state.cases.map((c) => ({

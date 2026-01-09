@@ -1,5 +1,5 @@
 // =============================================================================
-// CaseHub - Seletores e Helpers para Casos
+// Atlas - Seletores e Helpers para Casos
 // =============================================================================
 
 import { Case, PhotoEvidence, FieldValue, PhotoCategory, ReportBlock, GeneratedPDF } from '../types/case';

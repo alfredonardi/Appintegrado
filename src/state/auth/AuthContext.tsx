@@ -31,8 +31,8 @@ export interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Chave para localStorage
-const AUTH_TOKEN_KEY = 'casehub-auth-token';
-const AUTH_USER_KEY = 'casehub-auth-user';
+const AUTH_TOKEN_KEY = 'atlas-auth-token';
+const AUTH_USER_KEY = 'atlas-auth-user';
 
 /**
  * AuthProvider - Provider do contexto
