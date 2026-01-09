@@ -49,10 +49,9 @@ export function Login() {
           {/* Logo */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold">
-              <span className="text-gray-900">Case</span>
-              <span className="text-blue-600">Hub</span>
+              <span className="text-blue-600">Atlas</span>
             </h1>
-            <p className="text-gray-600 text-sm mt-2">Sistema de Investigação Forense</p>
+            <p className="text-gray-600 text-sm mt-2">Casos, diligências e evidências em um só lugar</p>
           </div>
 
           {/* Form */}
