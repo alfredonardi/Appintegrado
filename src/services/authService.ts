@@ -1,10 +1,12 @@
 /**
  * Service para Autenticação
- * Abstrai chamadas para API ou mock data
+ * Abstrai chamadas para API, mock data, ou Supabase baseado no data provider
  */
 
 import { apiClient } from './apiClient';
 import { getMockUserByEmail, User } from './mock/mockUsers';
+import { getDataProvider } from './provider';
+import * as authServiceSupabase from './supabase/authServiceSupabase';
 
 const ENDPOINT = '/api/auth';
 
@@ -30,8 +32,15 @@ export class AuthService {
    * Login - Autenticação do usuário
    */
   async login(email: string, password: string): Promise<LoginResponse> {
-    // Em modo mock
-    if (apiClient.isMockMode()) {
+    const provider = getDataProvider();
+
+    // Supabase provider
+    if (provider === 'supabase') {
+      return authServiceSupabase.login(email, password);
+    }
+
+    // Mock provider
+    if (provider === 'mock') {
       // Simular validação
       if (!email || !password) {
         throw new Error('Email and password required');
@@ -55,7 +64,7 @@ export class AuthService {
       return { token, user };
     }
 
-    // Em modo real
+    // HTTP provider (default)
     return apiClient.post<LoginResponse>(`${ENDPOINT}/login`, {
       email,
       password,
@@ -66,13 +75,20 @@ export class AuthService {
    * Logout - Limpar sessão
    */
   async logout(): Promise<void> {
-    // Em modo mock, apenas log
-    if (apiClient.isMockMode()) {
+    const provider = getDataProvider();
+
+    // Supabase provider
+    if (provider === 'supabase') {
+      return authServiceSupabase.logout();
+    }
+
+    // Mock provider
+    if (provider === 'mock') {
       console.log('Mock: logout');
       return;
     }
 
-    // Em modo real
+    // HTTP provider (default)
     await apiClient.post<void>(`${ENDPOINT}/logout`, {});
   }
 
@@ -80,8 +96,15 @@ export class AuthService {
    * Registrar novo usuário
    */
   async register(data: RegisterRequest): Promise<LoginResponse> {
-    // Em modo mock
-    if (apiClient.isMockMode()) {
+    const provider = getDataProvider();
+
+    // Supabase provider
+    if (provider === 'supabase') {
+      return authServiceSupabase.register(data);
+    }
+
+    // Mock provider
+    if (provider === 'mock') {
       if (!data.email || !data.password || !data.name) {
         throw new Error('Name, email, and password required');
       }
@@ -100,7 +123,7 @@ export class AuthService {
       return { token, user };
     }
 
-    // Em modo real
+    // HTTP provider (default)
     return apiClient.post<LoginResponse>(`${ENDPOINT}/register`, data);
   }
 
@@ -108,8 +131,19 @@ export class AuthService {
    * Validar token
    */
   async validateToken(token: string): Promise<User> {
-    // Em modo mock
-    if (apiClient.isMockMode()) {
+    const provider = getDataProvider();
+
+    // Supabase provider - get current user instead of validating token
+    if (provider === 'supabase') {
+      const user = await authServiceSupabase.getCurrentUser();
+      if (!user) {
+        throw new Error('Invalid or expired token');
+      }
+      return user;
+    }
+
+    // Mock provider
+    if (provider === 'mock') {
       // Token mock é base64 de "email:timestamp"
       try {
         const decoded = atob(token);
@@ -135,7 +169,7 @@ export class AuthService {
       }
     }
 
-    // Em modo real
+    // HTTP provider (default)
     return apiClient.get<User>(`${ENDPOINT}/validate`, {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -145,6 +179,14 @@ export class AuthService {
    * Obter usuário atual
    */
   async getCurrentUser(): Promise<User | null> {
+    const provider = getDataProvider();
+
+    // Supabase provider
+    if (provider === 'supabase') {
+      return authServiceSupabase.getCurrentUser();
+    }
+
+    // Mock and HTTP provider
     const token = localStorage.getItem('casehub-auth-token');
     if (!token) {
       return null;
@@ -161,13 +203,20 @@ export class AuthService {
    * Alterar senha
    */
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {
-    // Em modo mock
-    if (apiClient.isMockMode()) {
+    const provider = getDataProvider();
+
+    // Mock provider
+    if (provider === 'mock') {
       console.log('Mock: change password');
       return;
     }
 
-    // Em modo real
+    // Supabase provider - not implemented yet
+    if (provider === 'supabase') {
+      throw new Error('Change password not implemented for Supabase provider');
+    }
+
+    // HTTP provider (default)
     await apiClient.post<void>(`${ENDPOINT}/change-password`, {
       currentPassword,
       newPassword,
