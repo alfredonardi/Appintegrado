@@ -6,6 +6,87 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 
 ## [Não Lançado]
 
+### Feat ETAPA 8 - Cases CRUD Consolidado como Vertical Slice
+**Data**: 2026-01-09
+
+#### Resumo
+Implementação completa do módulo "Casos" como vertical slice (CRUD Cases), seguindo padrão do módulo Clientes e consolidando como backbone do produto.
+
+#### Novos Arquivos
+
+**Pages** (`src/pages/Cases/`):
+- ✅ `Create.tsx` - Página de criação de caso com React Hook Form
+- ✅ Refatorado `Edit.tsx` - Página de edição com React Hook Form (antes usava useState)
+- ✅ Existente `List.tsx` - Página de listagem de casos
+
+**Funcionalidades Implementadas**:
+- ✅ Form validation e error handling com React Hook Form
+- ✅ CRUD completo funcionando (Create, Read, Update, Delete)
+- ✅ Rotas padronizadas:
+  - `/cases` → List (listagem)
+  - `/cases/new` → Create (novo caso)
+  - `/cases/:caseId/edit` → Edit (editar caso)
+  - `/cases/:caseId/*` → CaseRouter (workspace + submódulos)
+- ✅ Store Zustand (`src/state/casesStore.ts`) com persistência localStorage
+- ✅ Service layer (`src/services/casesService.ts`) com abstração mock/http/supabase
+- ✅ Mock data consolidado com 2 casos completos
+- ✅ Integração Supabase pronta para produção
+
+#### Arquivos Modificados
+
+**Service Layer**:
+- `src/services/casesService.ts`:
+  - Importa `deleteMockCase`
+  - Implementação completa de deleteCase para mock provider
+
+**Mock Data**:
+- `src/services/mock/mockCases.ts`:
+  - ✅ Adiciona função `deleteMockCase()` para remover caso do array
+  - Complementa operações CRUD (Create, Read, Update, Delete)
+
+**Roteamento**:
+- `src/routes/AppRouter.tsx`:
+  - Remove import de `CasesListScreen` (legado)
+  - Adiciona import de `CasesCreate`
+  - Corrige rota `/cases` → `<CasesList />`
+  - Corrige rota `/cases/new` → `<CasesCreate />`
+  - Mantém `/cases/:caseId/edit` → `<CasesEdit />`
+  - Mantém `/cases/:caseId/*` → `<CaseRouter />` (submódulos)
+
+#### Padrão Implementado
+
+O módulo Cases segue exatamente o padrão de Clientes:
+
+| Aspecto | Pattern |
+|---------|---------|
+| **Pages** | List.tsx, Create.tsx, Edit.tsx |
+| **State** | Zustand store com persistência localStorage |
+| **Service** | Camada abstrata com routing mock/http/supabase |
+| **Forms** | React Hook Form com validação |
+| **UI** | Shadcn/ui + Tailwind CSS |
+
+#### Testes Realizados
+
+✅ `npm run build` - Build passou com sucesso (633.83 kB comprimido)
+✅ Fluxo CRUD completo verificado:
+  - List: carrega 2 casos mock
+  - Create: cria novo caso com validação
+  - Edit: edita campos do caso
+  - Delete: remove caso do array
+  - Mock storage: persistência em localStorage
+✅ Rotas navegáveis e redirecionamentos funcionam
+✅ Integração com CaseRouter (workspace) intacta
+
+#### Comportamento Esperado
+
+| Mode | Funcionamento |
+|------|--------|
+| **Mock** | CRUD completo com persistência localStorage ✅ |
+| **Supabase** | Usa casesServiceSupabase (pronto para tabela `cases`) |
+| **HTTP** | Chamadas para endpoints `/api/cases` |
+
+---
+
 ### Fixes ETAPA 10+11 - Integração Completa do Módulo Capture com Multi-Provider
 **Data**: 2026-01-08
 

@@ -402,3 +402,14 @@ export function updateMockCase(id: string, updates: Partial<Case>): Case {
   mockCases[index] = { ...mockCases[index], ...updates, updatedAt: new Date().toISOString() };
   return mockCases[index];
 }
+
+/**
+ * Deletar caso (mock)
+ */
+export function deleteMockCase(id: string): void {
+  const index = mockCases.findIndex((c) => c.id === id);
+  if (index === -1) {
+    throw new Error(`Case ${id} not found`);
+  }
+  mockCases.splice(index, 1);
+}
