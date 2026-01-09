@@ -10,7 +10,7 @@
  * Default: mock mode for safe local development
  */
 
-export type DataProvider = 'mock' | 'http' | 'supabase';
+export type DataProvider = 'mock' | 'http' | 'supabase' | 'nhost';
 
 /**
  * Resolves the current data provider based on environment variables
@@ -19,7 +19,7 @@ export type DataProvider = 'mock' | 'http' | 'supabase';
 export function getDataProvider(): DataProvider {
   // Check explicit VITE_DATA_PROVIDER first
   const explicitProvider = import.meta.env.VITE_DATA_PROVIDER as DataProvider | undefined;
-  if (explicitProvider && ['mock', 'http', 'supabase'].includes(explicitProvider)) {
+  if (explicitProvider && ['mock', 'http', 'supabase', 'nhost'].includes(explicitProvider)) {
     return explicitProvider;
   }
 
@@ -44,6 +44,10 @@ export function isSupabaseProvider(): boolean {
   return getDataProvider() === 'supabase';
 }
 
+export function isNhostProvider(): boolean {
+  return getDataProvider() === 'nhost';
+}
+
 /**
  * Get provider configuration summary (for logging/debugging)
  */
@@ -54,9 +58,12 @@ export function getProviderConfig() {
     isMock: isMockProvider(),
     isHttp: isHttpProvider(),
     isSupabase: isSupabaseProvider(),
+    isNhost: isNhostProvider(),
     apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
     supabaseUrl: import.meta.env.VITE_SUPABASE_URL || undefined,
     supabaseKeyConfigured: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+    nhostBackendUrl: import.meta.env.VITE_NHOST_BACKEND_URL || undefined,
+    nhostConfigured: !!import.meta.env.VITE_NHOST_BACKEND_URL,
   };
 
   // Log config in development
