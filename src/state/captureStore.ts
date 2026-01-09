@@ -130,7 +130,7 @@ export const useCaptureStore = create<CaptureState>()(
       },
     }),
     {
-      name: 'appintegrado-capture',
+      name: 'atlas-capture',
       storage: createJSONStorage(() => localStorage),
       // Em modo Supabase, o cache local persiste para disponibilidade offline
       // Os dados reais estão no Supabase Storage
