@@ -14,6 +14,7 @@ import {
   deleteMockCase,
 } from './mock/mockCases';
 import * as casesServiceSupabase from './supabase/casesServiceSupabase';
+import { casesServiceNhost } from './nhost/casesServiceNhost';
 
 const ENDPOINT = '/api/cases';
 
@@ -23,6 +24,11 @@ export class CasesService {
    */
   async getCases(): Promise<Case[]> {
     const provider = getDataProvider();
+
+    // Nhost provider
+    if (provider === 'nhost') {
+      return casesServiceNhost.getCases();
+    }
 
     // Supabase provider
     if (provider === 'supabase') {
@@ -43,6 +49,11 @@ export class CasesService {
    */
   async getCaseById(id: string): Promise<Case> {
     const provider = getDataProvider();
+
+    // Nhost provider
+    if (provider === 'nhost') {
+      return casesServiceNhost.getCaseById(id);
+    }
 
     // Supabase provider
     if (provider === 'supabase') {
@@ -68,6 +79,11 @@ export class CasesService {
   async createCase(bo: string): Promise<Case> {
     const provider = getDataProvider();
 
+    // Nhost provider
+    if (provider === 'nhost') {
+      return casesServiceNhost.createCase(bo);
+    }
+
     // Supabase provider
     if (provider === 'supabase') {
       return casesServiceSupabase.createCase(bo);
@@ -92,6 +108,11 @@ export class CasesService {
   async updateCase(id: string, updates: Partial<Case>): Promise<Case> {
     const provider = getDataProvider();
 
+    // Nhost provider
+    if (provider === 'nhost') {
+      return casesServiceNhost.updateCase(id, updates);
+    }
+
     // Supabase provider
     if (provider === 'supabase') {
       return casesServiceSupabase.updateCase(id, updates);
@@ -111,6 +132,11 @@ export class CasesService {
    */
   async deleteCase(id: string): Promise<void> {
     const provider = getDataProvider();
+
+    // Nhost provider
+    if (provider === 'nhost') {
+      return casesServiceNhost.deleteCase(id);
+    }
 
     // Supabase provider
     if (provider === 'supabase') {
