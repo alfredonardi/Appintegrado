@@ -87,6 +87,174 @@ O módulo Cases segue exatamente o padrão de Clientes:
 
 ---
 
+### Feat ETAPA 12 - Photo Report Vertical Slice Integrado com Capture
+**Data**: 2026-01-09
+
+#### Resumo
+Implementação completa do módulo "Relatório Fotográfico" como vertical slice integrado ao módulo Capture, com suporte a multi-provider (mock, HTTP, Supabase) e persistência automática.
+
+#### Novos Arquivos
+
+**Tipos** (`src/types/`):
+- ✅ `photoReport.ts` - Tipos PhotoReportItem e PhotoReportState
+
+**State Management** (`src/state/`):
+- ✅ `photoReportStore.ts` - Zustand store com persist, integrado com captureStore
+
+**Service Layer** (`src/services/`):
+- ✅ `photoReportService.ts` - Roteador multi-provider (mock/http/supabase)
+- ✅ `mock/mockPhotoReport.ts` - Implementação mock em memória
+- ✅ `supabase/photoReportServiceSupabase.ts` - Implementação Supabase com tabela photo_report_items
+
+**UI Component** (`src/pages/CaseModules/`):
+- ✅ `PhotoReport.tsx` - Componente funcional integrando:
+  - Listagem de imagens disponíveis do Capture (useCaptureStore)
+  - Adição de imagens ao relatório
+  - Campos de legenda editáveis
+  - Reordenação via botões subir/descer
+  - Remoção de itens
+  - Persistência automática via store
+
+#### Funcionalidades Implementadas
+
+✅ **Seleção de Imagens**:
+- Exibe imagens capturadas no módulo Capture
+- Mostra apenas imagens ainda não adicionadas ao relatório
+- Grid responsivo com previews
+
+✅ **Adição ao Relatório**:
+- Botão "Adicionar" por imagem
+- Criação automática de PhotoReportItem
+- Tratamento de erro para duplicatas
+
+✅ **Edição de Legendas**:
+- Campo input para legenda em tempo real
+- Sincronização com store
+
+✅ **Reordenação**:
+- Botões "Subir" e "Descer" para cada item
+- Sem necessidade de DnD (evita dependência deprecated)
+- Ordem persistida automaticamente
+
+✅ **Remoção**:
+- Botão "Remover" por item
+- Deleta imediatamente do relatório
+
+✅ **Persistência**:
+- Zustand store com localStorage (mock)
+- Sincronização com serviço em modo supabase/http
+- Carregamento automático ao montar componente
+
+#### Arquivos Modificados
+
+**Tipos** (`src/types/index.ts`):
+- Adicionado export de `photoReport.ts`
+
+**Rotas** (`src/routes/CaseRouter.tsx`):
+- Importa `PhotoReportModule` de `CaseModules/PhotoReport`
+- Rota `/photo-report` usa novo componente (antes usava PhotoReportScreen da ETAPA 9)
+- Mantém CaseModuleGuard para feature flag
+
+**Configuração** (`src/config/caseModules.ts`):
+- Feature flag `photoReportModule` já estava ativa (ETAPA 9)
+- Nenhuma alteração necessária
+
+#### Padrão Implementado
+
+Segue exatamente o padrão do Capture (ETAPA 10) e Cases (ETAPA 8):
+
+| Aspecto | Pattern |
+|---------|---------|
+| **Tipos** | Interface em `src/types/photoReport.ts` |
+| **State** | Zustand store com persistência + helpers privados |
+| **Service** | Roteador que delega para mock/http/supabase |
+| **Mock Data** | Memória local (compatível com localStorage) |
+| **Supabase** | Tabela `photo_report_items(id, caseId, imageId, caption, order, createdAt)` |
+| **UI** | Componente funcional integrando stores |
+| **Persistência** | localStorage para mock, Supabase para produção |
+
+#### Testes Realizados
+
+✅ `npm run dev` - Dev server inicia OK
+✅ Componente PhotoReportModule renderiza sem erros
+✅ Integração com captureStore funciona (getImages)
+✅ Integração com photoReportStore funciona (getReport, addItem, updateItem, removeItem, reorder)
+✅ Imagens disponíveis exibem corretamente
+✅ Adição de imagem ao relatório funciona
+✅ Edição de legenda persiste no store
+✅ Reordenação via botões funciona
+✅ Remoção de item funciona
+✅ Refresh F5 mantém dados no mock (localStorage)
+
+#### Comportamento Esperado
+
+| Mode | Funcionamento |
+|------|--------|
+| **Mock** | CRUD completo com persistência localStorage ✅ |
+| **Supabase** | Tabela photo_report_items (RLS recomendado) ✅ |
+| **HTTP** | Endpoints `/api/cases/:caseId/photo-report` |
+
+#### SQL Recomendado (Supabase)
+
+```sql
+CREATE TABLE photo_report_items (
+  id TEXT PRIMARY KEY,
+  caseId TEXT NOT NULL,
+  imageId TEXT NOT NULL,
+  caption TEXT DEFAULT '',
+  order INTEGER DEFAULT 0,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (caseId) REFERENCES cases(id) ON DELETE CASCADE
+);
+
+CREATE INDEX photo_report_items_caseId ON photo_report_items(caseId);
+```
+
+#### Integração com Capture
+
+- Photo Report usa `useCaptureStore` para acessar imagens
+- Imagens vêm de Capture, relacionadas por `imageId`
+- Ambos os stores persistem independentemente
+- Fluxo: Upload em Capture → Listagem em Photo Report → Seleção para relatório
+
+#### Feature Flag
+
+- `photoReportModule` já estava ativada (ETAPA 9)
+- Rota `/photo-report` protegida por CaseModuleGuard
+- Desativar flag remove rota automaticamente
+
+#### Testes Manuais Obrigatórios
+
+1. ✅ Ir para um caso e submódulo Capture
+2. ✅ Upload de 3 imagens PNG/JPG
+3. ✅ Ir para submódulo Photo Report
+4. ✅ Adicionar 2 das 3 imagens ao relatório
+5. ✅ Editar legenda de cada imagem
+6. ✅ Reordenar imagens com botões subir/descer
+7. ✅ Remover 1 imagem do relatório
+8. ✅ Refresh F5 - dados persistem
+9. ✅ npm run build sem erros
+
+#### Arquivos Criados/Modificados
+- ✅ src/types/photoReport.ts (novo)
+- ✅ src/types/index.ts (modificado - adicionado export)
+- ✅ src/state/photoReportStore.ts (novo)
+- ✅ src/services/photoReportService.ts (novo - roteador)
+- ✅ src/services/mock/mockPhotoReport.ts (novo - mock)
+- ✅ src/services/supabase/photoReportServiceSupabase.ts (novo - supabase)
+- ✅ src/pages/CaseModules/PhotoReport.tsx (refatorizado - funcional)
+- ✅ src/routes/CaseRouter.tsx (modificado - importação + rota)
+- ✅ CHANGELOG.md (este arquivo)
+- ✅ README.md (atualizado - documentação)
+
+#### Próximo
+- Integração com PDF generation para relatório
+- Suporte a reordenação por drag-and-drop (quando react-beautiful-dnd estiver atualizado)
+- Integração com módulo Investigation (relacionar fotos a seções)
+
+---
+
 ### Fixes ETAPA 10+11 - Integração Completa do Módulo Capture com Multi-Provider
 **Data**: 2026-01-08
 

@@ -2,3 +2,4 @@
 export * from './case';
 export * from './fieldRegistry';
 export * from './capture';
+export * from './photoReport';

@@ -12,6 +12,10 @@ Bundle exportado do Figma transformado em uma aplicação React/Vite escalável,
 - ✅ **ETAPA 6**: Camada de API + mocks alternável
 - ✅ **ETAPA 7**: Primeiro CRUD (Clientes)
 - ✅ **ETAPA 8**: Cases CRUD Consolidado (List, Create, Edit + Mock/Supabase integration)
+- ✅ **ETAPA 9**: Submódulos de Caso com Feature Flags (Roteamento Aninhado)
+- ✅ **ETAPA 10**: Capture Vertical Slice Completo (Upload e Galeria de Imagens)
+- ✅ **ETAPA 11**: Integração Supabase (Provider supabase - PostgreSQL + Storage)
+- ✅ **ETAPA 12**: Photo Report Vertical Slice (Integrado com Capture)
 
 Veja `docs/roadmap.md` para detalhes de cada etapa.
 
@@ -38,6 +42,45 @@ Abre em `http://localhost:5173/`
 ```bash
 npm run build
 ```
+
+### Teste Rápido - Photo Report (ETAPA 12)
+
+1. **Iniciar servidor**:
+   ```bash
+   npm run dev
+   ```
+
+2. **Login** (credenciais dummy - qualquer email/senha válidos):
+   - Email: `admin@test.com`
+   - Senha: `123456`
+
+3. **Criar/Acessar caso**:
+   - Clicar em "Casos" no sidebar
+   - Selecionar um caso existente ou criar novo
+
+4. **Upload de imagens no Capture**:
+   - Ir para submódulo "Captura & IA"
+   - Fazer upload de 3+ imagens (ou usar imagens de teste)
+   - As imagens são armazenadas com Data URLs em localStorage
+
+5. **Criar Relatório no Photo Report**:
+   - Ir para submódulo "Relatório Fotográfico"
+   - Grid à esquerda mostra imagens disponíveis
+   - Adicionar 2-3 imagens ao relatório (coluna direita)
+   - Editar legenda de cada imagem
+   - Testar botões "Subir" e "Descer" para reordenar
+   - Remover uma imagem com botão "X"
+
+6. **Verificar persistência**:
+   - Fazer F5 (refresh da página)
+   - Dados do relatório devem estar preservados no localStorage
+   - Imagens adicionadas, legendas e ordem mantêm-se
+
+7. **Validar build**:
+   ```bash
+   npm run build
+   ```
+   - Deve completar sem erros (bundle size ~634KB)
 
 ---
 
@@ -154,7 +197,45 @@ src/
   - Store Zustand com persistência
   - Integrado com services layer
 
+- **Módulo CRUD Completo de Cases** (ETAPA 8):
+  - Listagem de casos
+  - Criação de novo caso
+  - Edição de caso existente
+  - Deletação com confirmação
+  - Store Zustand com persistência
+  - Integrado com services multi-provider (mock/supabase)
+
+- **Submódulos de Caso com Feature Flags** (ETAPA 9):
+  - Roteamento aninhado `/cases/:caseId/*`
+  - 5 submódulos: Capture, Recognition, Photo Report, Investigation, Export
+  - Redirecionamento inteligente baseado em feature flags
+  - Sidebar dinâmico mostrando apenas módulos ativos
+
+- **Capture Vertical Slice Completo** (ETAPA 10):
+  - Upload múltiplo de imagens com drag-drop
+  - Galeria com previews responsiva
+  - Persistência com Data URLs em localStorage
+  - Integrado com Supabase Storage (modo supabase)
+  - CRUD de imagens por caso
+
+- **Integração Supabase** (ETAPA 11):
+  - Multi-provider: mock | http | supabase
+  - PostgreSQL com tabelas cases, clients, photo_report_items
+  - Storage para case-images
+  - Provider automático via VITE_DATA_PROVIDER ou VITE_USE_MOCK_API
+
+- **Photo Report Vertical Slice** (ETAPA 12):
+  - Seleção de imagens capturadas do Capture
+  - Adição ao relatório com legenda
+  - Reordenação via botões (subir/descer)
+  - Remoção de itens
+  - Persistência automática via Zustand
+  - Integrado com Capture e multi-provider
+
 ### 🔲 Próximas Implementações
+- Integração com PDF generation para Photo Report
+- Drag-and-drop reordenação (quando react-beautiful-dnd atualizado)
+- Integração Investigation (relacionar fotos a seções de relatório)
 - Implementar outros módulos (Relatórios, Analytics, etc)
 - Integrar com API real (trocar `VITE_USE_MOCK_API=false`)
 

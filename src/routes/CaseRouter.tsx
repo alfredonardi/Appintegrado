@@ -20,7 +20,7 @@ import { getFirstActiveModule, getActiveModules, isModuleActive } from '../confi
 import { CaseWorkspaceScreen } from '../pages/CaseWorkspaceScreen';
 import { CaptureAIScreen } from '../pages/CaptureAIScreen';
 import { RecognitionScreen } from '../pages/RecognitionScreen';
-import { PhotoReportScreen } from '../pages/PhotoReportScreen';
+import { PhotoReportModule } from '../pages/CaseModules/PhotoReport';
 import { InvestigationReportScreen } from '../pages/InvestigationReportScreen';
 import { ExportScreen } from '../pages/ExportScreen';
 
@@ -116,7 +116,7 @@ export function CaseRouter() {
           path="/photo-report"
           element={
             <CaseModuleGuard moduleId="photo-report">
-              <PhotoReportScreen />
+              <PhotoReportModule />
             </CaseModuleGuard>
           }
         />
