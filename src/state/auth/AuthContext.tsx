@@ -1,10 +1,13 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { authService } from '../../services/authService';
+import { isSupabaseProvider } from '../../services/provider';
+import * as authServiceSupabase from '../../services/supabase/authServiceSupabase';
 
 /**
- * AuthContext - Autenticação mock com localStorage
+ * AuthContext - Autenticação com suporte a Mock e Supabase
  *
- * Mock simples que aceita qualquer email/senha
- * Token salvo em localStorage (fake JWT)
+ * Mock: simples que aceita qualquer email/senha, token salvo em localStorage (fake JWT)
+ * Supabase: integra com supabase.auth, persiste sessão automaticamente
  */
 
 export interface User {
@@ -19,7 +22,7 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,67 +40,103 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Verificar token ao iniciar (simular session persistence)
+  // Recuperar sessão ao iniciar
   useEffect(() => {
-    const storedToken = localStorage.getItem(AUTH_TOKEN_KEY);
-    const storedUser = localStorage.getItem(AUTH_USER_KEY);
-
-    if (storedToken && storedUser) {
+    const initializeAuth = async () => {
       try {
-        const userData = JSON.parse(storedUser);
-        setUser(userData);
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error('Erro ao restaurar sessão:', error);
-        localStorage.removeItem(AUTH_TOKEN_KEY);
-        localStorage.removeItem(AUTH_USER_KEY);
-      }
-    }
+        setIsLoading(true);
 
-    setIsLoading(false);
+        // Se Supabase, obter sessão e setup listener
+        if (isSupabaseProvider()) {
+          // Obter sessão atual
+          const session = await authServiceSupabase.getSession();
+          if (session?.user) {
+            const currentUser = await authServiceSupabase.getCurrentUser();
+            if (currentUser) {
+              setUser(currentUser);
+              setIsAuthenticated(true);
+            }
+          }
+
+          // Setup listener para mudanças de auth state
+          authServiceSupabase.onAuthStateChange((authUser) => {
+            if (authUser) {
+              setUser(authUser);
+              setIsAuthenticated(true);
+            } else {
+              setUser(null);
+              setIsAuthenticated(false);
+            }
+          });
+        } else {
+          // Mock ou HTTP: tentar restaurar do localStorage
+          const storedToken = localStorage.getItem(AUTH_TOKEN_KEY);
+          const storedUser = localStorage.getItem(AUTH_USER_KEY);
+
+          if (storedToken && storedUser) {
+            try {
+              const userData = JSON.parse(storedUser);
+              setUser(userData);
+              setIsAuthenticated(true);
+            } catch (error) {
+              console.error('Erro ao restaurar sessão:', error);
+              localStorage.removeItem(AUTH_TOKEN_KEY);
+              localStorage.removeItem(AUTH_USER_KEY);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao inicializar autenticação:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
 
-    // Simular delay de login
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      // Em modo mock, simular delay
+      if (!isSupabaseProvider()) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
 
-    // Mock: aceita qualquer email/senha (não vazio)
-    if (!email.trim() || !password.trim()) {
+      // Validação básica
+      if (!email.trim() || !password.trim()) {
+        throw new Error('Email e senha são obrigatórios');
+      }
+
+      // Usar authService para rotear pelo provider
+      const response = await authService.login(email, password);
+
+      // Atualizar estado
+      setUser(response.user);
+      setIsAuthenticated(true);
+    } catch (error) {
       setIsLoading(false);
-      throw new Error('Email e senha são obrigatórios');
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
-
-    // Gerar fake JWT token
-    const token = btoa(JSON.stringify({ email, timestamp: Date.now() }));
-
-    // Criar usuário fake
-    const newUser: User = {
-      id: `user-${Date.now()}`,
-      email,
-      name: email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1),
-      role: 'user',
-    };
-
-    // Salvar em localStorage
-    localStorage.setItem(AUTH_TOKEN_KEY, token);
-    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(newUser));
-
-    // Atualizar estado
-    setUser(newUser);
-    setIsAuthenticated(true);
-    setIsLoading(false);
   };
 
-  const logout = () => {
-    // Remover do localStorage
-    localStorage.removeItem(AUTH_TOKEN_KEY);
-    localStorage.removeItem(AUTH_USER_KEY);
+  const logout = async (): Promise<void> => {
+    try {
+      await authService.logout();
 
-    // Limpar estado
-    setUser(null);
-    setIsAuthenticated(false);
+      // Limpar estado
+      setUser(null);
+      setIsAuthenticated(false);
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+      // Limpar mesmo com erro
+      setUser(null);
+      setIsAuthenticated(false);
+      throw error;
+    }
   };
 
   const value: AuthContextType = {
