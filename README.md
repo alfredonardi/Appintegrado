@@ -11,6 +11,7 @@ Bundle exportado do Figma transformado em uma aplicação React/Vite escalável,
 - ✅ **ETAPA 5**: Feature flags
 - ✅ **ETAPA 6**: Camada de API + mocks alternável
 - ✅ **ETAPA 7**: Primeiro CRUD (Clientes)
+- ✅ **ETAPA 8**: Cases CRUD Consolidado (List, Create, Edit + Mock/Supabase integration)
 
 Veja `docs/roadmap.md` para detalhes de cada etapa.
 
