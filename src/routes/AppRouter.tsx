@@ -22,7 +22,7 @@ import { ClientsEdit } from '../pages/Clients/Edit';
  * AppRouter - Configuração central de rotas da aplicação (ETAPA 9 - Submódulos)
  *
  * Rotas Públicas:
- * /login                   → Login (autenticação mock)
+ * /login                   → Login (autenticacao Nhost)
  *
  * Rotas Protegidas (requerem autenticação):
  * /                        → Redireciona para /cases

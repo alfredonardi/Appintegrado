@@ -1,13 +1,9 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { isNhostProvider } from '@/services/provider';
 import { initializeNhost, getNhostClientOrThrow } from '@/services/nhost/nhostClient';
-import { NhostUser } from '@/types/organization';
 
 /**
- * AuthContext - Suporta autenticação mock e Nhost
- *
- * Mock: aceita qualquer email/senha, token salvo em localStorage
- * Nhost: integra com Nhost Auth, via GraphQL/API
+ * AuthContext - Nhost authentication only.
  */
 
 export interface User {
@@ -30,14 +26,10 @@ export interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Chave para localStorage
-const AUTH_TOKEN_KEY = 'atlas-auth-token';
-const AUTH_USER_KEY = 'atlas-auth-user';
-
 /**
  * AuthProvider - Provider do contexto
- * Envolver a app com este component para habilitar autenticação
- * Suporta mock e Nhost baseado em VITE_DATA_PROVIDER
+ * Envolver a app com este component para habilitar autenticacao
+ * Requer Nhost (VITE_DATA_PROVIDER=nhost)
  */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -45,63 +37,75 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Inicializar provider e restaurar sessão ao montar
+  // Inicializar provider e restaurar sessao ao montar
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const isNhost = isNhostProvider();
+        if (!isNhostProvider()) {
+          setError('Nhost mode is required. Set VITE_DATA_PROVIDER=nhost.');
+          return;
+        }
 
-        if (isNhost) {
-          // Inicializar Nhost client
-          const backendUrl = import.meta.env.VITE_NHOST_BACKEND_URL;
-          if (!backendUrl) {
-            throw new Error(
-              'VITE_NHOST_BACKEND_URL não está configurado. ' +
-                'Configure as variáveis de ambiente para Nhost.'
-            );
+        const envAuthUrl = import.meta.env.VITE_NHOST_AUTH_URL as string | undefined;
+        const envGraphqlUrl = import.meta.env.VITE_NHOST_GRAPHQL_URL as string | undefined;
+        const envStorageUrl = import.meta.env.VITE_NHOST_STORAGE_URL as string | undefined;
+        const envFunctionsUrl = import.meta.env.VITE_NHOST_FUNCTIONS_URL as string | undefined;
+        const subdomain = import.meta.env.VITE_NHOST_SUBDOMAIN as string | undefined;
+        const region = import.meta.env.VITE_NHOST_REGION as string | undefined;
+
+        const authUrl =
+          envAuthUrl ||
+          (subdomain && region
+            ? `https://${subdomain}.auth.${region}.nhost.run/v1`
+            : undefined);
+        const graphqlUrl =
+          envGraphqlUrl ||
+          (subdomain && region
+            ? `https://${subdomain}.graphql.${region}.nhost.run/v1`
+            : undefined);
+        const storageUrl =
+          envStorageUrl ||
+          (subdomain && region
+            ? `https://${subdomain}.storage.${region}.nhost.run/v1`
+            : undefined);
+        const functionsUrl =
+          envFunctionsUrl ||
+          (subdomain && region
+            ? `https://${subdomain}.functions.${region}.nhost.run/v1`
+            : undefined);
+
+        if (!authUrl || !graphqlUrl) {
+          throw new Error(
+            'Nhost URLs nao estao configuradas. Defina VITE_NHOST_AUTH_URL e ' +
+              'VITE_NHOST_GRAPHQL_URL (ou VITE_NHOST_SUBDOMAIN + VITE_NHOST_REGION).'
+          );
+        }
+
+        // Cleanup legacy mock keys to avoid confusion in localStorage.
+        localStorage.removeItem('atlas-auth-token');
+        localStorage.removeItem('atlas-auth-user');
+
+        try {
+          initializeNhost({ authUrl, graphqlUrl, storageUrl, functionsUrl });
+          const client = getNhostClientOrThrow();
+          const nhostUser = client.getUser();
+
+          if (nhostUser && client.isAuthenticated()) {
+            const appUser: User = {
+              id: nhostUser.id,
+              email: nhostUser.email,
+              name: nhostUser.name || nhostUser.email.split('@')[0],
+              role: nhostUser.role,
+              organization_id: nhostUser.organization_id,
+              team_id: nhostUser.team_id,
+            };
+
+            setUser(appUser);
+            setIsAuthenticated(true);
           }
-
-          try {
-            initializeNhost({ backendUrl });
-            const client = getNhostClientOrThrow();
-            const nhostUser = client.getUser();
-
-            if (nhostUser && client.isAuthenticated()) {
-              // Converter NhostUser para User
-              const appUser: User = {
-                id: nhostUser.id,
-                email: nhostUser.email,
-                name: nhostUser.name || nhostUser.email.split('@')[0],
-                role: nhostUser.role,
-                organization_id: nhostUser.organization_id,
-                team_id: nhostUser.team_id,
-              };
-
-              setUser(appUser);
-              setIsAuthenticated(true);
-            }
-          } catch (nhostError) {
-            console.warn('[Auth] Failed to initialize Nhost:', nhostError);
-            setError(
-              'Falha ao conectar com Nhost. Verifique as configurações.'
-            );
-          }
-        } else {
-          // Mock mode: restaurar session do localStorage
-          const storedToken = localStorage.getItem(AUTH_TOKEN_KEY);
-          const storedUser = localStorage.getItem(AUTH_USER_KEY);
-
-          if (storedToken && storedUser) {
-            try {
-              const userData = JSON.parse(storedUser);
-              setUser(userData);
-              setIsAuthenticated(true);
-            } catch (parseError) {
-              console.error('Erro ao restaurar sessão:', parseError);
-              localStorage.removeItem(AUTH_TOKEN_KEY);
-              localStorage.removeItem(AUTH_USER_KEY);
-            }
-          }
+        } catch (nhostError) {
+          console.warn('[Auth] Failed to initialize Nhost:', nhostError);
+          setError('Falha ao conectar com Nhost. Verifique as configuracoes.');
         }
       } finally {
         setIsLoading(false);
@@ -116,60 +120,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      // Validações básicas
       if (!email.trim() || !password.trim()) {
-        throw new Error('Email e senha são obrigatórios');
+        throw new Error('Email e senha sao obrigatorios');
       }
 
-      const isNhost = isNhostProvider();
+      if (!isNhostProvider()) {
+        throw new Error('Nhost mode is required. Set VITE_DATA_PROVIDER=nhost.');
+      }
 
-      if (isNhost) {
-        // Nhost authentication
-        try {
-          const client = getNhostClientOrThrow();
-          const session = await client.signIn(email, password);
+      try {
+        const client = getNhostClientOrThrow();
+        const session = await client.signIn(email, password);
 
-          const newUser: User = {
-            id: session.user.id,
-            email: session.user.email,
-            name: session.user.name || email.split('@')[0],
-            role: session.user.role,
-            organization_id: session.user.organization_id,
-            team_id: session.user.team_id,
-          };
-
-          setUser(newUser);
-          setIsAuthenticated(true);
-        } catch (nhostError) {
-          throw new Error(
-            `Falha ao fazer login via Nhost: ${
-              nhostError instanceof Error ? nhostError.message : 'Erro desconhecido'
-            }`
-          );
-        }
-      } else {
-        // Mock authentication
-        // Simular delay de login
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // Gerar fake JWT token
-        const token = btoa(JSON.stringify({ email, timestamp: Date.now() }));
-
-        // Criar usuário mock
         const newUser: User = {
-          id: `user-${Date.now()}`,
-          email,
-          name: email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1),
-          role: 'investigator',
+          id: session.user.id,
+          email: session.user.email,
+          name: session.user.name || email.split('@')[0],
+          role: session.user.role,
+          organization_id: session.user.organization_id,
+          team_id: session.user.team_id,
         };
 
-        // Salvar em localStorage
-        localStorage.setItem(AUTH_TOKEN_KEY, token);
-        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(newUser));
-
-        // Atualizar estado
         setUser(newUser);
         setIsAuthenticated(true);
+      } catch (nhostError) {
+        throw new Error(
+          `Falha ao fazer login via Nhost: ${
+            nhostError instanceof Error ? nhostError.message : 'Erro desconhecido'
+          }`
+        );
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Erro ao fazer login';
@@ -182,24 +161,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      const isNhost = isNhostProvider();
-
-      if (isNhost) {
-        // Nhost logout
-        try {
-          const client = getNhostClientOrThrow();
-          await client.signOut();
-        } catch (err) {
-          console.warn('[Auth] Nhost logout error:', err);
-          // Continue com logout local mesmo se Nhost falhar
-        }
+      if (!isNhostProvider()) {
+        throw new Error('Nhost mode is required. Set VITE_DATA_PROVIDER=nhost.');
       }
 
-      // Remover do localStorage
-      localStorage.removeItem(AUTH_TOKEN_KEY);
-      localStorage.removeItem(AUTH_USER_KEY);
+      try {
+        const client = getNhostClientOrThrow();
+        await client.signOut();
+      } catch (err) {
+        console.warn('[Auth] Nhost logout error:', err);
+      }
 
-      // Limpar estado
       setUser(null);
       setIsAuthenticated(false);
       setError(null);
@@ -221,7 +193,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 /**
- * useAuth - Hook para usar autenticação
+ * useAuth - Hook para usar autenticacao
  * Use em qualquer componente dentro de AuthProvider
  */
 export function useAuth(): AuthContextType {

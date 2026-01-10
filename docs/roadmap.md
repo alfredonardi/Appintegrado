@@ -253,13 +253,13 @@ const routes = [
 
 **.env**:
 ```
-VITE_USE_MOCK_API=true
+VITE_DATA_PROVIDER=nhost
 VITE_API_BASE_URL=http://localhost:3000
 ```
 
 **apiClient.ts**:
 ```typescript
-const isUseMock = import.meta.env.VITE_USE_MOCK_API === 'true';
+const provider = import.meta.env.VITE_DATA_PROVIDER;
 
 if (isUseMock) {
   // Return mock data
@@ -272,14 +272,14 @@ if (isUseMock) {
 ```typescript
 export async function listClients() {
   // Usa apiClient internamente
-  // Se VITE_USE_MOCK_API=true → retorna mock
+  // Se VITE_DATA_PROVIDER=nhost → retorna mock
   // Se false → faz fetch real
 }
 ```
 
 **Critério de Pronto**:
 - ✅ Dashboard mostra dados (de mock ou API)
-- ✅ Trocar `VITE_USE_MOCK_API` funciona
+- ✅ Trocar `VITE_DATA_PROVIDER` funciona
 - ✅ `npm run dev` com mock=true funciona
 - ✅ Serviços têm função consistente (fetch/cache)
 

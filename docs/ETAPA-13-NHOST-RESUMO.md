@@ -168,7 +168,8 @@ npm run dev
 
 # 3. Configurar .env.local
 echo "VITE_DATA_PROVIDER=nhost" >> .env.local
-echo "VITE_NHOST_BACKEND_URL=https://your-project-xxxxx.nhost.app" >> .env.local
+echo "VITE_NHOST_AUTH_URL=https://<subdomain>.auth.<region>.nhost.run/v1
+VITE_NHOST_GRAPHQL_URL=https://<subdomain>.graphql.<region>.nhost.run/v1" >> .env.local
 
 # 4. Executar SQL migrations (ver docs/nhost-setup.md)
 

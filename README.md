@@ -1,29 +1,29 @@
-# Atlas - Casos, Diligências e Evidências em um Só Lugar
+﻿# Atlas - Casos, Dilig├¬ncias e Evid├¬ncias em um S├│ Lugar
 
-Bundle exportado do Figma transformado em uma aplicação React/Vite escalável, com estrutura profissional, feature flags, autenticação mock e API abstrata.
+Bundle exportado do Figma transformado em uma aplica├º├úo React/Vite escal├ível, com estrutura profissional, feature flags, autentica├º├úo mock e API abstrata.
 
-## 📋 Status de Transformação
+## ­ƒôï Status de Transforma├º├úo
 
-- ✅ **ETAPA 1**: Diagnóstico inicial e plano
-- ✅ **ETAPA 2**: Estrutura app-ready (pages, components, services)
-- ✅ **ETAPA 3**: React Router + Layout base
-- ✅ **ETAPA 4**: Auth mock + proteção de rotas
-- ✅ **ETAPA 5**: Feature flags
-- ✅ **ETAPA 6**: Camada de API + mocks alternável
-- ✅ **ETAPA 7**: Primeiro CRUD (Clientes)
-- ✅ **ETAPA 8**: Cases CRUD Consolidado (List, Create, Edit + Mock/Supabase integration)
-- ✅ **ETAPA 9**: Submódulos de Caso com Feature Flags (Roteamento Aninhado)
-- ✅ **ETAPA 10**: Capture Vertical Slice Completo (Upload e Galeria de Imagens)
-- ✅ **ETAPA 11**: Integração Supabase (Provider supabase - PostgreSQL + Storage)
-- ✅ **ETAPA 12**: Photo Report Vertical Slice (Integrado com Capture)
+- Ô£à **ETAPA 1**: Diagn├│stico inicial e plano
+- Ô£à **ETAPA 2**: Estrutura app-ready (pages, components, services)
+- Ô£à **ETAPA 3**: React Router + Layout base
+- Ô£à **ETAPA 4**: Auth mock + prote├º├úo de rotas
+- Ô£à **ETAPA 5**: Feature flags
+- Ô£à **ETAPA 6**: Camada de API + mocks altern├ível
+- Ô£à **ETAPA 7**: Primeiro CRUD (Clientes)
+- Ô£à **ETAPA 8**: Cases CRUD Consolidado (List, Create, Edit + Mock/Supabase integration)
+- Ô£à **ETAPA 9**: Subm├│dulos de Caso com Feature Flags (Roteamento Aninhado)
+- Ô£à **ETAPA 10**: Capture Vertical Slice Completo (Upload e Galeria de Imagens)
+- Ô£à **ETAPA 11**: Integra├º├úo Supabase (Provider supabase - PostgreSQL + Storage)
+- Ô£à **ETAPA 12**: Photo Report Vertical Slice (Integrado com Capture)
 
 Veja `docs/roadmap.md` para detalhes de cada etapa.
 
 ---
 
-## 🚀 Quick Start
+## ­ƒÜÇ Quick Start
 
-### Instalação
+### Instala├º├úo
 
 ```bash
 npm install
@@ -37,20 +37,20 @@ npm run dev
 
 Abre em `http://localhost:5173/`
 
-### Build Produção
+### Build Produ├º├úo
 
 ```bash
 npm run build
 ```
 
-### Teste Rápido - Photo Report (ETAPA 12)
+### Teste R├ípido - Photo Report (ETAPA 12)
 
 1. **Iniciar servidor**:
    ```bash
    npm run dev
    ```
 
-2. **Login** (credenciais dummy - qualquer email/senha válidos):
+2. **Login** (credenciais dummy - qualquer email/senha v├ílidos):
    - Email: `admin@test.com`
    - Senha: `123456`
 
@@ -59,22 +59,22 @@ npm run build
    - Selecionar um caso existente ou criar novo
 
 4. **Upload de imagens no Capture**:
-   - Ir para submódulo "Captura & IA"
+   - Ir para subm├│dulo "Captura & IA"
    - Fazer upload de 3+ imagens (ou usar imagens de teste)
-   - As imagens são armazenadas com Data URLs em localStorage
+   - As imagens s├úo armazenadas com Data URLs em localStorage
 
-5. **Criar Relatório no Photo Report**:
-   - Ir para submódulo "Relatório Fotográfico"
-   - Grid à esquerda mostra imagens disponíveis
-   - Adicionar 2-3 imagens ao relatório (coluna direita)
+5. **Criar Relat├│rio no Photo Report**:
+   - Ir para subm├│dulo "Relat├│rio Fotogr├ífico"
+   - Grid ├á esquerda mostra imagens dispon├¡veis
+   - Adicionar 2-3 imagens ao relat├│rio (coluna direita)
    - Editar legenda de cada imagem
-   - Testar botões "Subir" e "Descer" para reordenar
-   - Remover uma imagem com botão "X"
+   - Testar bot├Áes "Subir" e "Descer" para reordenar
+   - Remover uma imagem com bot├úo "X"
 
-6. **Verificar persistência**:
-   - Fazer F5 (refresh da página)
-   - Dados do relatório devem estar preservados no localStorage
-   - Imagens adicionadas, legendas e ordem mantêm-se
+6. **Verificar persist├¬ncia**:
+   - Fazer F5 (refresh da p├ígina)
+   - Dados do relat├│rio devem estar preservados no localStorage
+   - Imagens adicionadas, legendas e ordem mant├¬m-se
 
 7. **Validar build**:
    ```bash
@@ -84,172 +84,170 @@ npm run build
 
 ---
 
-## 📁 Estrutura do Projeto
+## ­ƒôü Estrutura do Projeto
 
 ```
 src/
-├── pages/                      # Telas/páginas da aplicação
-│   ├── CasesListScreen.tsx     # Lista de casos
-│   ├── CaseWorkspaceScreen.tsx # Workspace do caso
-│   ├── CaptureAIScreen.tsx     # Captura com IA
-│   ├── RecognitionScreen.tsx   # Reconhecimento de fotos
-│   ├── PhotoReportScreen.tsx   # Relatório fotográfico
-│   ├── InvestigationReportScreen.tsx  # Relatório de investigação
-│   └── ExportScreen.tsx        # Exportação/PDF
-│
-├── components/                 # Componentes reutilizáveis
-│   ├── layout/
-│   │   ├── Sidebar.tsx         # Menu lateral
-│   │   ├── Topbar.tsx          # Barra superior
-│   │   └── Toast.tsx           # Notificações
-│   └── ui/                     # ~50 componentes primitivos
-│       ├── button.tsx
-│       ├── input.tsx
-│       ├── card.tsx
-│       └── ... (Radix UI + custom)
-│
-├── state/                      # Estado global (Zustand)
-│   ├── caseStore.ts           # Store de casos
-│   └── index.ts               # Exports
-│
-├── services/                   # Serviços e API
-│   ├── pdfService.ts          # Geração de PDFs
-│   ├── exportService.ts       # Exportação
-│   └── mock/                  # (Futura) Dados fake
-│
-├── types/                      # Tipos TypeScript
-│   ├── case.ts                # Modelo de dados principal
-│   ├── fieldRegistry.ts       # Registry de campos canônicos
-│   └── index.ts
-│
-├── utils/                      # Utilitários
-│   ├── figma/                 # Utilitários do Figma
-│   └── ...
-│
-├── config/                     # (Futura) Configurações globais
-├── hooks/                      # (Futura) Custom hooks
-├── constants/                  # Constantes da aplicação
-├── assets/                     # Imagens, ícones
-├── styles/                     # CSS global
-│
-├── App.tsx                     # Componente raiz
-└── main.tsx                    # Entry point
+Ôö£ÔöÇÔöÇ pages/                      # Telas/p├íginas da aplica├º├úo
+Ôöé   Ôö£ÔöÇÔöÇ CasesListScreen.tsx     # Lista de casos
+Ôöé   Ôö£ÔöÇÔöÇ CaseWorkspaceScreen.tsx # Workspace do caso
+Ôöé   Ôö£ÔöÇÔöÇ CaptureAIScreen.tsx     # Captura com IA
+Ôöé   Ôö£ÔöÇÔöÇ RecognitionScreen.tsx   # Reconhecimento de fotos
+Ôöé   Ôö£ÔöÇÔöÇ PhotoReportScreen.tsx   # Relat├│rio fotogr├ífico
+Ôöé   Ôö£ÔöÇÔöÇ InvestigationReportScreen.tsx  # Relat├│rio de investiga├º├úo
+Ôöé   ÔööÔöÇÔöÇ ExportScreen.tsx        # Exporta├º├úo/PDF
+Ôöé
+Ôö£ÔöÇÔöÇ components/                 # Componentes reutiliz├íveis
+Ôöé   Ôö£ÔöÇÔöÇ layout/
+Ôöé   Ôöé   Ôö£ÔöÇÔöÇ Sidebar.tsx         # Menu lateral
+Ôöé   Ôöé   Ôö£ÔöÇÔöÇ Topbar.tsx          # Barra superior
+Ôöé   Ôöé   ÔööÔöÇÔöÇ Toast.tsx           # Notifica├º├Áes
+Ôöé   ÔööÔöÇÔöÇ ui/                     # ~50 componentes primitivos
+Ôöé       Ôö£ÔöÇÔöÇ button.tsx
+Ôöé       Ôö£ÔöÇÔöÇ input.tsx
+Ôöé       Ôö£ÔöÇÔöÇ card.tsx
+Ôöé       ÔööÔöÇÔöÇ ... (Radix UI + custom)
+Ôöé
+Ôö£ÔöÇÔöÇ state/                      # Estado global (Zustand)
+Ôöé   Ôö£ÔöÇÔöÇ caseStore.ts           # Store de casos
+Ôöé   ÔööÔöÇÔöÇ index.ts               # Exports
+Ôöé
+Ôö£ÔöÇÔöÇ services/                   # Servi├ºos e API
+Ôöé   Ôö£ÔöÇÔöÇ pdfService.ts          # Gera├º├úo de PDFs
+Ôöé   Ôö£ÔöÇÔöÇ exportService.ts       # Exporta├º├úo
+Ôöé   ÔööÔöÇÔöÇ mock/                  # (Futura) Dados fake
+Ôöé
+Ôö£ÔöÇÔöÇ types/                      # Tipos TypeScript
+Ôöé   Ôö£ÔöÇÔöÇ case.ts                # Modelo de dados principal
+Ôöé   Ôö£ÔöÇÔöÇ fieldRegistry.ts       # Registry de campos can├┤nicos
+Ôöé   ÔööÔöÇÔöÇ index.ts
+Ôöé
+Ôö£ÔöÇÔöÇ utils/                      # Utilit├írios
+Ôöé   Ôö£ÔöÇÔöÇ figma/                 # Utilit├írios do Figma
+Ôöé   ÔööÔöÇÔöÇ ...
+Ôöé
+Ôö£ÔöÇÔöÇ config/                     # (Futura) Configura├º├Áes globais
+Ôö£ÔöÇÔöÇ hooks/                      # (Futura) Custom hooks
+Ôö£ÔöÇÔöÇ constants/                  # Constantes da aplica├º├úo
+Ôö£ÔöÇÔöÇ assets/                     # Imagens, ├¡cones
+Ôö£ÔöÇÔöÇ styles/                     # CSS global
+Ôöé
+Ôö£ÔöÇÔöÇ App.tsx                     # Componente raiz
+ÔööÔöÇÔöÇ main.tsx                    # Entry point
 ```
 
 ---
 
-## 🏗️ Stack Técnico
+## ­ƒÅù´©Å Stack T├®cnico
 
-| Tecnologia | Versão | Uso |
+| Tecnologia | Vers├úo | Uso |
 |-----------|--------|-----|
 | **React** | 18.3.1 | Framework UI |
 | **Vite** | 6.3.5 | Bundler & Dev Server |
-| **TypeScript** | - | Tipagem estática |
+| **TypeScript** | - | Tipagem est├ítica |
 | **Zustand** | 5.0.9 | State management |
 | **Tailwind CSS** | 4.1.12 | Styling |
 | **Radix UI** | Latest | Componentes sem estilo |
 | **Material-UI** | 7.3.5 | Componentes estilizados |
-| **React Hook Form** | 7.55.0 | Formulários |
-| **Recharts** | 2.15.2 | Gráficos |
+| **React Hook Form** | 7.55.0 | Formul├írios |
+| **Recharts** | 2.15.2 | Gr├íficos |
 
 ---
 
-## 📖 Documentação
+## ­ƒôû Documenta├º├úo
 
-### Diagnóstico e Roadmap
-- **[docs/diagnostico.md](docs/diagnostico.md)** - Análise da estrutura atual e problemas identificados
-- **[docs/roadmap.md](docs/roadmap.md)** - Sequência de trabalho por ETAPA
-- **[CHANGELOG.md](CHANGELOG.md)** - Histórico de mudanças
+### Diagn├│stico e Roadmap
+- **[docs/diagnostico.md](docs/diagnostico.md)** - An├ílise da estrutura atual e problemas identificados
+- **[docs/roadmap.md](docs/roadmap.md)** - Sequ├¬ncia de trabalho por ETAPA
+- **[CHANGELOG.md](CHANGELOG.md)** - Hist├│rico de mudan├ºas
 
-### Integração Supabase
+### Integra├º├úo Supabase
 - **[docs/supabase-setup.md](docs/supabase-setup.md)** - Guia completo de setup Supabase (PostgreSQL + Storage)
 
 ### Guias Originais (Figma)
-- **[PROJETO.md](PROJETO.md)** - Escopo e visão geral
+- **[PROJETO.md](PROJETO.md)** - Escopo e vis├úo geral
 - **[DESIGN_SYSTEM.md](DESIGN_SYSTEM.md)** - Design system e componentes
-- **[GUIA_RAPIDO.md](GUIA_RAPIDO.md)** - Guia rápido de uso
+- **[GUIA_RAPIDO.md](GUIA_RAPIDO.md)** - Guia r├ípido de uso
 
 ---
 
-## 🔄 Features Implementados
+## ­ƒöä Features Implementados
 
-### ✅ Atuais
-- **Zustand Store** com persistência em localStorage
+### Ô£à Atuais
+- **Zustand Store** com persist├¬ncia em localStorage
 - **7 Telas complexas** funcionando (Cases, Workspace, Capture, Recognition, Photo Report, Investigation, Export)
-- **~50 Componentes UI** reutilizáveis
+- **~50 Componentes UI** reutiliz├íveis
 - **TypeScript** com tipos bem definidos
-- **Tailwind CSS** para estilização
+- **Tailwind CSS** para estiliza├º├úo
 - **Modelo de dados robusto** com auditoria integrada
 - **React Router v6** com URL-based routing e nested routes
-- **Autenticação Mock** com session persistence em localStorage
-- **Proteção de Rotas** com PrivateRoute guard
-- **Feature Flags** para ativar/desativar módulos via config ou .env
+- **Autentica├º├úo Mock** com session persistence em localStorage
+- **Prote├º├úo de Rotas** com PrivateRoute guard
+- **Feature Flags** para ativar/desativar m├│dulos via config ou .env
 - **useFeature Hook** para verificar flags em componentes
 - **FeatureGuard Component** para condicionar rendering por flag
 - **API Client** centralizado com suporte a mock/real (ETAPA 6)
-- **Services abstratos** para Casos, Clientes, Autenticação (ETAPA 6)
-- **Mock Data** com 2 casos, 3 clientes, 5 usuários (ETAPA 6)
-- **Módulo CRUD Completo de Clientes** (ETAPA 7):
+- **Services abstratos** para Casos, Clientes, Autentica├º├úo (ETAPA 6)
+- **Mock Data** com 2 casos, 3 clientes, 5 usu├írios (ETAPA 6)
+- **M├│dulo CRUD Completo de Clientes** (ETAPA 7):
   - Listagem com filtros por status
-  - Criação de novo cliente
-  - Edição de cliente existente
-  - Deletação com confirmação
-  - Store Zustand com persistência
+  - Cria├º├úo de novo cliente
+  - Edi├º├úo de cliente existente
+  - Deleta├º├úo com confirma├º├úo
+  - Store Zustand com persist├¬ncia
   - Integrado com services layer
 
-- **Módulo CRUD Completo de Cases** (ETAPA 8):
+- **M├│dulo CRUD Completo de Cases** (ETAPA 8):
   - Listagem de casos
-  - Criação de novo caso
-  - Edição de caso existente
-  - Deletação com confirmação
-  - Store Zustand com persistência
+  - Cria├º├úo de novo caso
+  - Edi├º├úo de caso existente
+  - Deleta├º├úo com confirma├º├úo
+  - Store Zustand com persist├¬ncia
   - Integrado com services multi-provider (mock/supabase)
 
-- **Submódulos de Caso com Feature Flags** (ETAPA 9):
+- **Subm├│dulos de Caso com Feature Flags** (ETAPA 9):
   - Roteamento aninhado `/cases/:caseId/*`
-  - 5 submódulos: Capture, Recognition, Photo Report, Investigation, Export
+  - 5 subm├│dulos: Capture, Recognition, Photo Report, Investigation, Export
   - Redirecionamento inteligente baseado em feature flags
-  - Sidebar dinâmico mostrando apenas módulos ativos
+  - Sidebar din├ómico mostrando apenas m├│dulos ativos
 
 - **Capture Vertical Slice Completo** (ETAPA 10):
-  - Upload múltiplo de imagens com drag-drop
+  - Upload m├║ltiplo de imagens com drag-drop
   - Galeria com previews responsiva
-  - Persistência com Data URLs em localStorage
+  - Persist├¬ncia com Data URLs em localStorage
   - Integrado com Supabase Storage (modo supabase)
   - CRUD de imagens por caso
 
-- **Integração Supabase** (ETAPA 11):
+- **Integra├º├úo Supabase** (ETAPA 11):
   - Multi-provider: mock | http | supabase
   - PostgreSQL com tabelas cases, clients, photo_report_items
   - Storage para case-images
-  - Provider automático via VITE_DATA_PROVIDER ou VITE_USE_MOCK_API
 
 - **Photo Report Vertical Slice** (ETAPA 12):
-  - Seleção de imagens capturadas do Capture
-  - Adição ao relatório com legenda
-  - Reordenação via botões (subir/descer)
-  - Remoção de itens
-  - Persistência automática via Zustand
+  - Sele├º├úo de imagens capturadas do Capture
+  - Adi├º├úo ao relat├│rio com legenda
+  - Reordena├º├úo via bot├Áes (subir/descer)
+  - Remo├º├úo de itens
+  - Persist├¬ncia autom├ítica via Zustand
   - Integrado com Capture e multi-provider
 
-### 🔲 Próximas Implementações
-- Integração com PDF generation para Photo Report
-- Drag-and-drop reordenação (quando react-beautiful-dnd atualizado)
-- Integração Investigation (relacionar fotos a seções de relatório)
-- Implementar outros módulos (Relatórios, Analytics, etc)
-- Integrar com API real (trocar `VITE_USE_MOCK_API=false`)
+### ­ƒö▓ Pr├│ximas Implementa├º├Áes
+- Integra├º├úo com PDF generation para Photo Report
+- Drag-and-drop reordena├º├úo (quando react-beautiful-dnd atualizado)
+- Integra├º├úo Investigation (relacionar fotos a se├º├Áes de relat├│rio)
+- Implementar outros m├│dulos (Relat├│rios, Analytics, etc)
 
 ---
 
-## 📝 Modelo de Dados Principal
+## ­ƒôØ Modelo de Dados Principal
 
-### Case (Caso de Investigação)
+### Case (Caso de Investiga├º├úo)
 
 ```typescript
 interface Case {
   id: string;                    // UUID
-  bo: string;                    // Boletim de Ocorrência
-  natureza: string;              // Ex: Homicídio, Roubo
+  bo: string;                    // Boletim de Ocorr├¬ncia
+  natureza: string;              // Ex: Homic├¡dio, Roubo
   status: CaseStatus;            // rascunho | em_revisao | finalizado
   dataHoraFato: string;          // ISO date
   endereco: string;
@@ -260,13 +258,13 @@ interface Case {
   circunscricao: string;
   unidade: string;
 
-  // Campos canônicos
+  // Campos can├┤nicos
   fieldValues: FieldValue[];     // Array de valores estruturados
 
-  // Fotos de evidência
+  // Fotos de evid├¬ncia
   photos: PhotoEvidence[];
 
-  // Extrações IA
+  // Extra├º├Áes IA
   aiExtractions: AIExtraction[];
 
   // Equipe
@@ -275,7 +273,7 @@ interface Case {
   // Timeline de eventos
   events: TimelineEvent[];
 
-  // Relatórios
+  // Relat├│rios
   photoReport: PhotoReport;
   investigationReport: InvestigationReport;
   generatedPDFs: GeneratedPDF[];
@@ -291,7 +289,7 @@ interface Case {
 
 ---
 
-## 🛠️ Como Usar (Desenvolvimento)
+## ­ƒøá´©Å Como Usar (Desenvolvimento)
 
 ### Iniciar Dev Server
 
@@ -327,9 +325,9 @@ import { NovoComponente } from '@/components/ui/novo-componente';
 
 ---
 
-## ⚙️ Configuração
+## ÔÜÖ´©Å Configura├º├úo
 
-### Camada de API (ETAPA 6) ✅ Implementado
+### Camada de API (ETAPA 6) Ô£à Implementado
 
 **Client HTTP centralizado** (`src/services/apiClient.ts`):
 
@@ -360,10 +358,10 @@ import { clientsService } from '@/services/clientsService';
 
 const clients = await clientsService.getClients();
 const client = await clientsService.getClientById('client-001');
-await clientsService.createClient({ name: 'João', email: 'joao@example.com', ... });
+await clientsService.createClient({ name: 'Jo├úo', email: 'joao@example.com', ... });
 await clientsService.deleteClient('client-001');
 
-// Autenticação
+// Autentica├º├úo
 import { authService } from '@/services/authService';
 
 const { token, user } = await authService.login('user@example.com', 'password');
@@ -375,16 +373,14 @@ await authService.register({ name, email, password, role });
 
 ```env
 # Modo desenvolvimento (usa dados fake)
-VITE_USE_MOCK_API=true
 
-# Modo produção (chama API real)
-VITE_USE_MOCK_API=false
+# Modo produ├º├úo (chama API real)
 VITE_API_BASE_URL=https://api.atlas.com
 ```
 
-### Feature Flags (ETAPA 5) ✅ Implementado
+### Feature Flags (ETAPA 5) Ô£à Implementado
 
-Arquivo `src/config/features.ts` já criado com feature flags:
+Arquivo `src/config/features.ts` j├í criado com feature flags:
 
 ```typescript
 export const FEATURE_FLAGS = {
@@ -429,31 +425,29 @@ import { FEATURE_FLAGS } from '@/config/features';
 )}
 ```
 
-### Data Provider Configuration (Mock/HTTP/Supabase)
-
-Você pode escolher entre três provedores de dados:
-
-```env
-# Modo 1: Mock Data (desenvolvimento local, padrão)
-VITE_DATA_PROVIDER=mock
-
+### Data Provider Configuration (Nhost/HTTP/Supabase)
+Escolha o provider de dados explicitamente:
+`env
+# Modo 1: Nhost (backend real)
+VITE_DATA_PROVIDER=nhost
+VITE_NHOST_AUTH_URL=https://<subdomain>.auth.<region>.nhost.run/v1
+VITE_NHOST_GRAPHQL_URL=https://<subdomain>.graphql.<region>.nhost.run/v1
+# Opcional
+# VITE_NHOST_STORAGE_URL=https://<subdomain>.storage.<region>.nhost.run/v1
+# VITE_NHOST_FUNCTIONS_URL=https://<subdomain>.functions.<region>.nhost.run/v1
 # Modo 2: HTTP API (API real)
 VITE_DATA_PROVIDER=http
 VITE_API_BASE_URL=http://localhost:3000
-
 # Modo 3: Supabase (PostgreSQL + Storage)
 VITE_DATA_PROVIDER=supabase
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-**Nota**: A prioridade é `VITE_DATA_PROVIDER`. Se não definido, usa `VITE_USE_MOCK_API` para compatibilidade regressiva.
-
-### Integração com Supabase
+`
+### Integra├º├úo com Supabase
 
 Para usar Supabase como data provider:
 
-1. **Instale a dependência**:
+1. **Instale a depend├¬ncia**:
    ```bash
    npm install @supabase/supabase-js
    ```
@@ -469,16 +463,16 @@ Para usar Supabase como data provider:
    - Criar projeto Supabase
    - Configurar banco de dados (tabelas cases e clients)
    - Configurar storage para imagens
-   - Testar a integração
+   - Testar a integra├º├úo
 
 **Funcionalidades Supabase**:
-- ✅ CRUD completo de casos (getCases, createCase, updateCase, deleteCase)
-- ✅ CRUD completo de clientes (getClients, createClient, updateClient, deleteClient)
-- ✅ Upload de imagens para Storage (módulo Capture)
-- ✅ Filtragem nativa por status
-- ✅ Busca por email e documento
+- Ô£à CRUD completo de casos (getCases, createCase, updateCase, deleteCase)
+- Ô£à CRUD completo de clientes (getClients, createClient, updateClient, deleteClient)
+- Ô£à Upload de imagens para Storage (m├│dulo Capture)
+- Ô£à Filtragem nativa por status
+- Ô£à Busca por email e documento
 
-### Variáveis de Ambiente
+### Vari├íveis de Ambiente
 
 Criar `.env` para override de flags (ver `.env.example`):
 
@@ -492,26 +486,28 @@ VITE_FEATURE_SETTINGSMODULE=true
 VITE_FEATURE_ANALYTICSMODULE=false
 
 # Data Provider
-VITE_DATA_PROVIDER=mock
-VITE_USE_MOCK_API=true
-VITE_API_BASE_URL=http://localhost:3000
-
+VITE_DATA_PROVIDER=nhost
+VITE_NHOST_AUTH_URL=https://<subdomain>.auth.<region>.nhost.run/v1
+VITE_NHOST_GRAPHQL_URL=https://<subdomain>.graphql.<region>.nhost.run/v1
+# Optional
+# VITE_NHOST_STORAGE_URL=https://<subdomain>.storage.<region>.nhost.run/v1
+# VITE_NHOST_FUNCTIONS_URL=https://<subdomain>.functions.<region>.nhost.run/v1
 # Supabase (opcional)
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-**Nota**: Variáveis com prefix `VITE_FEATURE_` fazem override dos defaults em `src/config/features.ts`.
+**Nota**: Vari├íveis com prefix `VITE_FEATURE_` fazem override dos defaults em `src/config/features.ts`.
 
 ---
 
-## 🔐 Autenticação (ETAPA 4) ✅ Implementado
+## ­ƒöÉ Autentica├º├úo (ETAPA 4) Ô£à Implementado
 
-- **Mock Login**: qualquer email/senha não-vazia aceita (arquivo `src/pages/Login.tsx`)
-- **Proteção de Rotas**: PrivateRoute wrapper (`src/components/routes/PrivateRoute.tsx`)
+- **Mock Login**: qualquer email/senha n├úo-vazia aceita (arquivo `src/pages/Login.tsx`)
+- **Prote├º├úo de Rotas**: PrivateRoute wrapper (`src/components/routes/PrivateRoute.tsx`)
 - **Session Persistence**: token + user salvo em localStorage
 - **Logout**: limpa session e redireciona para login
-- **AuthContext**: gerencia autenticação global (`src/state/auth/AuthContext.tsx`)
+- **AuthContext**: gerencia autentica├º├úo global (`src/state/auth/AuthContext.tsx`)
 
 **Como usar:**
 
@@ -524,7 +520,7 @@ function MyComponent() {
 
   return (
     <div>
-      {isAuthenticated && <p>Olá, {user?.name}</p>}
+      {isAuthenticated && <p>Ol├í, {user?.name}</p>}
       <button onClick={() => logout()}>Sair</button>
     </div>
   );
@@ -540,11 +536,11 @@ function MyComponent() {
 
 **Credenciais de teste:**
 - Email: qualquer (ex: teste@example.com)
-- Senha: qualquer (não vazia)
+- Senha: qualquer (n├úo vazia)
 
 ---
 
-## 📦 Dependências Principais
+## ­ƒôª Depend├¬ncias Principais
 
 ```json
 {
@@ -565,96 +561,70 @@ Veja `package.json` para lista completa.
 
 ---
 
-## 🐛 Problemas Conhecidos
+## ­ƒÉø Problemas Conhecidos
 
-1. **React Beautiful DnD deprecated** - npm warning (não quebra)
+1. **React Beautiful DnD deprecated** - npm warning (n├úo quebra)
    - Refatorar para react-dnd em release futura
 
-2. **Bundle size > 500KB** - Vite warning (previsível)
+2. **Bundle size > 500KB** - Vite warning (previs├¡vel)
    - Implementar code-splitting em ETAPA 3+
 
 3. **Sem testes automatizados** - Implementar em fase 2
 
 ---
 
-## 📚 Próximos Passos
+## ­ƒôÜ Pr├│ximos Passos
 
-## 📸 Módulo Capture (ETAPA 10)
+## ­ƒô© M├│dulo Capture (ETAPA 10)
 
 ### Upload e Galeria de Imagens
 
-O módulo Capture implementa um vertical slice completo com upload múltiplo, preview em grid e persistência.
+O m├│dulo Capture implementa um vertical slice completo com upload m├║ltiplo, preview em grid e persist├¬ncia.
 
-#### Testando Capture em Mock Mode
+#### Testando Capture com Supabase (6 Passos R├ípidos)
 
-Mock mode usa armazenamento em memória (dados não persistem após recarregar):
+O m├│dulo Capture funciona em **3 modos**: mock (localStorage), http (API backend), ou supabase (Supabase Storage).
 
-```bash
-# 1. Ensure .env or defaults to mock
-VITE_DATA_PROVIDER=mock
+**Modo Supabase**: Imagens uploadam para bucket `case-images` e persistem com URLs p├║blicas.
 
-# 2. Start dev server
-npm run dev
-
-# 3. Acessar um caso: /cases/:caseId/capture
-# 4. Fazer upload de 2-3 imagens (PNG/JPG/WebP)
-# 5. Verificar grid com preview
-# 6. Deletar 1 imagem
-# 7. Verificar dados em localStorage:
-#    DevTools → Application → Local Storage → atlas-capture
-```
-
-**Comportamento esperado**:
-- ✅ Upload funciona com drag-drop ou click
-- ✅ Preview aparece em grid responsivo
-- ✅ Metadados mostrados (nome, tamanho, tipo, data)
-- ✅ Delete remover imagem (ao recarregar em mock, pode resetar)
-- ✅ localStorage armazena Data URLs (base64)
-
-#### Testando Capture com Supabase (6 Passos Rápidos)
-
-O módulo Capture funciona em **3 modos**: mock (localStorage), http (API backend), ou supabase (Supabase Storage).
-
-**Modo Supabase**: Imagens uploadam para bucket `case-images` e persistem com URLs públicas.
-
-##### Pré-requisitos
+##### Pr├®-requisitos
 - Conta Supabase ativa (https://supabase.com)
 - Projeto criado com bucket `case-images` (ou auto-criar)
-- Variáveis de ambiente configuradas em `.env.local`
+- Vari├íveis de ambiente configuradas em `.env.local`
 
 ##### 6 Passos de Teste
 
 ```bash
-# PASSO 1: Configurar variáveis de ambiente
+# PASSO 1: Configurar vari├íveis de ambiente
 # Editar .env.local com credenciais Supabase:
 VITE_DATA_PROVIDER=supabase
 VITE_SUPABASE_URL=https://seu-projeto.supabase.co
 VITE_SUPABASE_ANON_KEY=seu-anon-key-aqui
 
-# PASSO 2: Instalar dependência Supabase (se não estiver)
+# PASSO 2: Instalar depend├¬ncia Supabase (se n├úo estiver)
 npm install @supabase/supabase-js
 
 # PASSO 3: Iniciar app em desenvolvimento
 npm run dev
 
-# PASSO 4: Navegar para módulo Capture
+# PASSO 4: Navegar para m├│dulo Capture
 # - Ir para http://localhost:5173/cases
 # - Clicar em um caso existente
 # - Clicar em "Captura de Imagens"
 
 # PASSO 5: Testar Upload
-# - Selecionar 2-3 imagens (PNG, JPG, WebP, GIF - máx 10MB cada)
+# - Selecionar 2-3 imagens (PNG, JPG, WebP, GIF - m├íx 10MB cada)
 # - Confirmar: imagens aparecem na galeria em ~2-3 segundos
 # - Verificar console: logs [CaptureModule] e [CaptureStore]
 
-# PASSO 6: Testar Persistência e Delete
+# PASSO 6: Testar Persist├¬ncia e Delete
 # - F5 (refresh page)
 # - Confirmar: imagens persistem (carregadas do Supabase Storage)
 # - Clicar em uma imagem para deletar
-# - F5 novamente: imagem removida não reaparece
+# - F5 novamente: imagem removida n├úo reaparece
 ```
 
-##### Verificação Técnica
+##### Verifica├º├úo T├®cnica
 
 **Console Esperado (sucesso)**:
 ```
@@ -666,40 +636,34 @@ npm run dev
 **Supabase Storage (estrutura esperada)**:
 ```
 case-images/
-└── cases/
-    └── {caseId}/
-        ├── {uuid}-photo1.jpg
-        ├── {uuid}-photo2.png
-        └── {uuid}-photo3.webp
+ÔööÔöÇÔöÇ cases/
+    ÔööÔöÇÔöÇ {caseId}/
+        Ôö£ÔöÇÔöÇ {uuid}-photo1.jpg
+        Ôö£ÔöÇÔöÇ {uuid}-photo2.png
+        ÔööÔöÇÔöÇ {uuid}-photo3.webp
 ```
 
-**URLs Públicas**: Clique em uma imagem - a URL na barra de endereço mostrará:
+**URLs P├║blicas**: Clique em uma imagem - a URL na barra de endere├ºo mostrar├í:
 ```
 https://seu-projeto.supabase.co/storage/v1/object/public/case-images/cases/{caseId}/{uuid}-photo.jpg
 ```
 
 ##### Troubleshooting
 
-| Problema | Solução |
+| Problema | Solu├º├úo |
 |----------|---------|
 | `Error: Supabase client not initialized` | Verificar VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY |
-| Upload nunca completa | Bucket não existe ou RLS bloqueando - ler docs/supabase-setup.md |
-| Imagens não persistem após refresh | Cache localStorage vazio - fazer upload novamente |
+| Upload nunca completa | Bucket n├úo existe ou RLS bloqueando - ler docs/supabase-setup.md |
+| Imagens n├úo persistem ap├│s refresh | Cache localStorage vazio - fazer upload novamente |
 | Erro ao deletar | Verificar path formato `cases/{caseId}/{imageId}-{name}` |
 
-**Para voltar ao modo mock temporariamente**:
-```bash
-# Em .env.local, mudar para:
-VITE_DATA_PROVIDER=mock
-# Reiniciar npm run dev
-```
 
 #### Endpoints HTTP (se VITE_DATA_PROVIDER=http)
 
-Se você implementar API backend, estes endpoints são esperados:
+Se voc├¬ implementar API backend, estes endpoints s├úo esperados:
 
 ```
-POST   /api/cases/:caseId/images       # Upload múltiplo
+POST   /api/cases/:caseId/images       # Upload m├║ltiplo
 GET    /api/cases/:caseId/images       # Listar imagens
 DELETE /api/cases/:caseId/images/:id   # Remover imagem
 DELETE /api/cases/:caseId/images       # Remover todas
@@ -709,59 +673,58 @@ DELETE /api/cases/:caseId/images       # Remover todas
 
 ### Desenvolvimento Futuro
 
-1. **Implementar Módulos Adicionais**
-   - Relatórios (reportsModule)
+1. **Implementar M├│dulos Adicionais**
+   - Relat├│rios (reportsModule)
    - Analytics (analyticsModule)
-   - Seguir mesmo padrão da ETAPA 7 (Pages, Store, Services)
+   - Seguir mesmo padr├úo da ETAPA 7 (Pages, Store, Services)
 
 2. **Integrar com API Real**
-   - Criar arquivo `.env` com `VITE_USE_MOCK_API=false`
    - Implementar endpoints da API backend
    - Substituir mock data por chamadas HTTP reais
 
 3. **Melhorias de UX/Design**
-   - Adicionar paginação nas listas
-   - Implementar busca e filtros avançados
-   - Validação de CPF/CNPJ
+   - Adicionar pagina├º├úo nas listas
+   - Implementar busca e filtros avan├ºados
+   - Valida├º├úo de CPF/CNPJ
    - Loading states mais elaborados
 
 4. **Testing**
-   - Testes unitários dos stores
+   - Testes unit├írios dos stores
    - Testes de componentes
-   - Testes de integração
+   - Testes de integra├º├úo
 
 5. **Capture & IA (ETAPA 11+)**
-   - Integração com IA para classificação automática
+   - Integra├º├úo com IA para classifica├º├úo autom├ítica
    - OCR para extrair texto de documentos
-   - Associar imagens ao relatório fotográfico
+   - Associar imagens ao relat├│rio fotogr├ífico
 
-### Padrão de Desenvolvimento
+### Padr├úo de Desenvolvimento
 
-Cada novo módulo/CRUD deve seguir o padrão estabelecido:
+Cada novo m├│dulo/CRUD deve seguir o padr├úo estabelecido:
 1. Criar tipos em `src/types/`
 2. Criar mock data em `src/services/mock/`
 3. Criar service em `src/services/`
 4. Criar store em `src/state/`
-5. Criar páginas em `src/pages/`
+5. Criar p├íginas em `src/pages/`
 6. Adicionar rotas em `src/routes/AppRouter.tsx`
 7. Ativar feature flag em `src/config/features.ts`
 8. Adicionar menu item em `src/components/layout/Sidebar.tsx`
 
 ---
 
-## 📞 Suporte
+## ­ƒô× Suporte
 
-- **Documentação**: Ver `docs/`
+- **Documenta├º├úo**: Ver `docs/`
 - **Changelog**: Ver `CHANGELOG.md`
 - **Stack Original**: [PROJETO.md](PROJETO.md), [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md)
 
 ---
 
-## 📄 Licença
+## ­ƒôä Licen├ºa
 
-Este projeto é um bundle exportado do Figma com transformações de arquitetura.
+Este projeto ├® um bundle exportado do Figma com transforma├º├Áes de arquitetura.
 
 ---
 
-**Última atualização**: 2026-01-09
-**Status**: ETAPA 13 ✅ Renomeação para Atlas | Aplicação com 13 ETAPAs Concluídas
+**├Ültima atualiza├º├úo**: 2026-01-09
+**Status**: ETAPA 13 Ô£à Renomea├º├úo para Atlas | Aplica├º├úo com 13 ETAPAs Conclu├¡das

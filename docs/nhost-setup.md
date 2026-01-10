@@ -51,8 +51,8 @@ O AppIntegrado migrará o backend para **Nhost** com os seguintes componentes:
 3. Selecione "Europe" (ou sua região)
 4. Aguarde a inicialização (~2 minutos)
 5. Anote:
-   - **Backend URL**: `https://your-project-xxxxx.nhost.app`
-   - **API Endpoint**: `https://your-project-xxxxx.nhost.app/graphql`
+   - **Subdomain**: (Project Info)
+   - **Region**: (Project Info)\n   - **Auth URL**: `https://<subdomain>.auth.<region>.nhost.run/v1`\n   - **GraphQL URL**: `https://<subdomain>.graphql.<region>.nhost.run/v1`
 
 ## 4. Schema Database
 
@@ -345,7 +345,8 @@ Adicione ao `.env.local` (NÃO commitar!):
 VITE_DATA_PROVIDER=nhost
 
 # Nhost Configuration
-VITE_NHOST_BACKEND_URL=https://your-project-xxxxx.nhost.app
+VITE_NHOST_AUTH_URL=https://<subdomain>.auth.<region>.nhost.run/v1
+VITE_NHOST_GRAPHQL_URL=https://<subdomain>.graphql.<region>.nhost.run/v1
 ```
 
 ### 6.2 Feature Flags (opcional)
@@ -453,7 +454,8 @@ hasura migrate create initial_setup --from-server
 
 ```bash
 # Resetar env vars
-unset VITE_NHOST_BACKEND_URL
+unset VITE_NHOST_AUTH_URL
+unset VITE_NHOST_GRAPHQL_URL
 unset VITE_DATA_PROVIDER
 
 npm run dev
@@ -468,7 +470,8 @@ npm run dev
 ```bash
 # Configurar env vars
 export VITE_DATA_PROVIDER=nhost
-export VITE_NHOST_BACKEND_URL=https://your-project-xxxxx.nhost.app
+export VITE_NHOST_AUTH_URL=https://<subdomain>.auth.<region>.nhost.run/v1
+VITE_NHOST_GRAPHQL_URL=https://<subdomain>.graphql.<region>.nhost.run/v1
 
 npm run dev
 
@@ -496,13 +499,14 @@ npm run dev
 
 ### 10.1 "Nhost client not initialized"
 
-**Causa**: VITE_NHOST_BACKEND_URL não configurado com provider nhost
+**Causa**: VITE_NHOST_AUTH_URL/VITE_NHOST_GRAPHQL_URL não configurado com provider nhost
 
 **Solução**:
 ```bash
 # .env.local
 VITE_DATA_PROVIDER=nhost
-VITE_NHOST_BACKEND_URL=https://your-project-xxxxx.nhost.app
+VITE_NHOST_AUTH_URL=https://<subdomain>.auth.<region>.nhost.run/v1
+VITE_NHOST_GRAPHQL_URL=https://<subdomain>.graphql.<region>.nhost.run/v1
 ```
 
 ### 10.2 "GraphQL error: not authorized"
@@ -536,7 +540,7 @@ VITE_NHOST_BACKEND_URL=https://your-project-xxxxx.nhost.app
 **Causa**: Credenciais inválidas ou Nhost endpoint incorreto
 
 **Solução**:
-1. Verificar `VITE_NHOST_BACKEND_URL` está correto
+1. Verificar `VITE_NHOST_AUTH_URL/VITE_NHOST_GRAPHQL_URL` está correto
 2. Verificar usuário existe em Nhost Auth
 3. Ver console do browser: DevTools > Network > POST /auth/sign-in
 

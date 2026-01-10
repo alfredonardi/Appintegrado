@@ -11,7 +11,8 @@ Documento de testes manuais para validar a integração Nhost com AppIntegrado.
 **Setup**:
 ```bash
 # Remover variáveis Nhost (ou não configurá-las)
-unset VITE_NHOST_BACKEND_URL
+unset VITE_NHOST_AUTH_URL
+unset VITE_NHOST_GRAPHQL_URL
 unset VITE_DATA_PROVIDER
 
 # Garantir que mock está ativo
@@ -152,7 +153,8 @@ Antes de executar testes 2.1+:
 ```bash
 # Configurar env vars
 echo "VITE_DATA_PROVIDER=nhost" >> .env.local
-echo "VITE_NHOST_BACKEND_URL=https://your-project-xxxxx.nhost.app" >> .env.local
+echo "VITE_NHOST_AUTH_URL=https://<subdomain>.auth.<region>.nhost.run/v1
+VITE_NHOST_GRAPHQL_URL=https://<subdomain>.graphql.<region>.nhost.run/v1" >> .env.local
 ```
 
 **Executar**:
@@ -327,14 +329,14 @@ Se nenhum caso aparecer:
 
 ## 3. Testes de Edge Cases
 
-### Teste 3.1: Sem VITE_NHOST_BACKEND_URL
+### Teste 3.1: Sem VITE_NHOST_AUTH_URL/VITE_NHOST_GRAPHQL_URL
 
 **Objetivo**: Validar mensagem de erro amigável.
 
 **Setup**:
 ```bash
 echo "VITE_DATA_PROVIDER=nhost" >> .env.local
-# Não configure VITE_NHOST_BACKEND_URL
+# Não configure VITE_NHOST_AUTH_URL/VITE_NHOST_GRAPHQL_URL
 ```
 
 **Executar**:
@@ -347,7 +349,7 @@ npm run dev
 2. Tentar fazer login
 
 **Esperado**:
-- ✅ Console error: "VITE_NHOST_BACKEND_URL não está configurado"
+- ✅ Console error: "VITE_NHOST_AUTH_URL/VITE_NHOST_GRAPHQL_URL não está configurado"
 - ✅ UI exibe mensagem de erro clara
 - ✅ App não trava
 
@@ -362,7 +364,8 @@ npm run dev
 **Setup**:
 ```bash
 # Configurar URL incorreta (simular backend down)
-echo "VITE_NHOST_BACKEND_URL=https://invalid-xxx.nhost.app" >> .env.local
+echo "VITE_NHOST_AUTH_URL=https://invalid-xxx.auth.<region>.nhost.run/v1
+VITE_NHOST_GRAPHQL_URL=https://invalid-xxx.graphql.<region>.nhost.run/v1" >> .env.local
 ```
 
 **Ação**:

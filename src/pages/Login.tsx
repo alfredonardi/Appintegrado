@@ -4,7 +4,7 @@ import { useAuth } from '../state/auth';
 import { AlertCircle, Loader } from 'lucide-react';
 
 /**
- * Login Page - Autenticação mock
+ * Login Page - Autenticacao Nhost
  *
  * Mock: aceita qualquer email/senha (não vazio)
  * Token salvo em localStorage
@@ -128,7 +128,7 @@ export function Login() {
 
           {/* Footer */}
           <p className="text-xs text-gray-500 text-center mt-6">
-            v1.0.0 — Autenticação Mock para Desenvolvimento
+            v1.0.0 — Autenticacao Nhost para Desenvolvimento
           </p>
         </div>
       </div>

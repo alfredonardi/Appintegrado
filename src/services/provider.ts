@@ -1,20 +1,18 @@
 /**
  * Data Provider Configuration and Resolution
  *
- * This module handles switching between mock, HTTP, and Supabase data providers.
+ * This module handles switching between data providers (including Nhost).
  *
  * Priority:
  * 1. VITE_DATA_PROVIDER (explicit provider selection)
- * 2. VITE_USE_MOCK_API (retrocompat: true → mock, false → http)
  *
- * Default: mock mode for safe local development
+ * Default: nhost
  */
 
 export type DataProvider = 'mock' | 'http' | 'supabase' | 'nhost';
 
 /**
- * Resolves the current data provider based on environment variables
- * with backward compatibility for VITE_USE_MOCK_API
+ * Resolves the current data provider based on environment variables.
  */
 export function getDataProvider(): DataProvider {
   // Check explicit VITE_DATA_PROVIDER first
@@ -23,10 +21,7 @@ export function getDataProvider(): DataProvider {
     return explicitProvider;
   }
 
-  // Fallback: use VITE_USE_MOCK_API for backward compatibility
-  // VITE_USE_MOCK_API !== 'false' → true (default to mock)
-  const useMockApi = import.meta.env.VITE_USE_MOCK_API !== 'false';
-  return useMockApi ? 'mock' : 'http';
+  return 'nhost';
 }
 
 /**
@@ -62,13 +57,25 @@ export function getProviderConfig() {
     apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
     supabaseUrl: import.meta.env.VITE_SUPABASE_URL || undefined,
     supabaseKeyConfigured: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
-    nhostBackendUrl: import.meta.env.VITE_NHOST_BACKEND_URL || undefined,
-    nhostConfigured: !!import.meta.env.VITE_NHOST_BACKEND_URL,
+    nhostAuthUrl: import.meta.env.VITE_NHOST_AUTH_URL || undefined,
+    nhostGraphqlUrl: import.meta.env.VITE_NHOST_GRAPHQL_URL || undefined,
+    nhostStorageUrl: import.meta.env.VITE_NHOST_STORAGE_URL || undefined,
+    nhostFunctionsUrl: import.meta.env.VITE_NHOST_FUNCTIONS_URL || undefined,
+    nhostSubdomain: import.meta.env.VITE_NHOST_SUBDOMAIN || undefined,
+    nhostRegion: import.meta.env.VITE_NHOST_REGION || undefined,
+    nhostConfigured:
+      !!import.meta.env.VITE_NHOST_AUTH_URL ||
+      !!import.meta.env.VITE_NHOST_GRAPHQL_URL ||
+      (!!import.meta.env.VITE_NHOST_SUBDOMAIN && !!import.meta.env.VITE_NHOST_REGION),
   };
 
   // Log config in development
   if (import.meta.env.DEV) {
-    console.info('[Provider] Data provider configured:', config);
+    if (config.isNhost) {
+      console.info('[Provider] NHOST MODE', config);
+    } else {
+      console.info('[Provider] Data provider configured:', config);
+    }
   }
 
   return config;

@@ -14,19 +14,37 @@ const AUTH_TOKEN_KEY = 'nhost-auth-token';
 const AUTH_USER_KEY = 'nhost-auth-user';
 const REFRESH_TOKEN_KEY = 'nhost-refresh-token';
 
+const NHOST_V1_SUFFIX = '/v1';
+
+function normalizeNhostUrl(url: string): string {
+  const trimmed = url.trim().replace(/\/$/, '');
+  if (trimmed.endsWith(NHOST_V1_SUFFIX)) {
+    return trimmed;
+  }
+  return `${trimmed}${NHOST_V1_SUFFIX}`;
+}
+
 export interface NhostConfig {
-  backendUrl: string; // https://your-project.nhost.app
-  region?: string;
+  authUrl: string; // https://{subdomain}.auth.{region}.nhost.run/v1
+  graphqlUrl: string; // https://{subdomain}.graphql.{region}.nhost.run/v1
+  storageUrl?: string; // https://{subdomain}.storage.{region}.nhost.run/v1
+  functionsUrl?: string; // https://{subdomain}.functions.{region}.nhost.run/v1
 }
 
 export class NhostClient {
-  private backendUrl: string;
+  private authUrl: string;
+  private graphqlUrl: string;
+  private storageUrl?: string;
+  private functionsUrl?: string;
   private accessToken: string | null = null;
   private refreshToken: string | null = null;
   private user: NhostUser | null = null;
 
   constructor(config: NhostConfig) {
-    this.backendUrl = config.backendUrl.replace(/\/$/, ''); // Remove trailing slash
+    this.authUrl = normalizeNhostUrl(config.authUrl);
+    this.graphqlUrl = normalizeNhostUrl(config.graphqlUrl);
+    this.storageUrl = config.storageUrl ? normalizeNhostUrl(config.storageUrl) : undefined;
+    this.functionsUrl = config.functionsUrl ? normalizeNhostUrl(config.functionsUrl) : undefined;
     this.restoreSession();
   }
 
@@ -81,7 +99,7 @@ export class NhostClient {
    */
   async signUp(email: string, password: string, name?: string): Promise<NhostSession> {
     try {
-      const response = await fetch(`${this.backendUrl}/auth/sign-up/email-password`, {
+      const response = await fetch(`${this.authUrl}/auth/sign-up/email-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -134,7 +152,7 @@ export class NhostClient {
    */
   async signIn(email: string, password: string): Promise<NhostSession> {
     try {
-      const response = await fetch(`${this.backendUrl}/auth/sign-in/email-password`, {
+      const response = await fetch(`${this.authUrl}/auth/sign-in/email-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -183,7 +201,7 @@ export class NhostClient {
   async signOut(): Promise<void> {
     try {
       if (this.accessToken) {
-        await fetch(`${this.backendUrl}/auth/sign-out`, {
+        await fetch(`${this.authUrl}/auth/sign-out`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${this.accessToken}`,
@@ -264,7 +282,7 @@ export class NhostClient {
     }
 
     try {
-      const response = await fetch(`${this.backendUrl}/graphql`, {
+      const response = await fetch(`${this.graphqlUrl}/graphql`, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -338,7 +356,7 @@ export function getNhostClientOrThrow(): NhostClient {
   if (!nhostClient) {
     throw new Error(
       'Nhost client not initialized. Make sure VITE_DATA_PROVIDER=nhost and ' +
-        'VITE_NHOST_BACKEND_URL are set.'
+        'VITE_NHOST_AUTH_URL/VITE_NHOST_GRAPHQL_URL (or subdomain+region) are set.'
     );
   }
   return nhostClient;

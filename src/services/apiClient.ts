@@ -1,6 +1,7 @@
+import { isMockProvider } from './provider';
+
 /**
- * API Client - Centraliza chamadas HTTP
- * Suporta modo mock (desenvolvimento) e API real (produção)
+ * API Client - centraliza chamadas HTTP
  */
 
 export interface ApiClientConfig {
@@ -22,18 +23,16 @@ export interface ApiError {
 }
 
 /**
- * Configuração inicial do cliente
+ * Configuracao inicial do cliente
  */
 const config: ApiClientConfig = {
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
-  useMock: import.meta.env.VITE_USE_MOCK_API !== 'false', // true por padrão
+  useMock: isMockProvider(),
   timeout: 30000,
 };
 
 /**
- * Client HTTP genérico
- * Em modo mock, retorna dados fake
- * Em modo real, faz chamadas HTTP reais
+ * Client HTTP generico
  */
 export class ApiClient {
   private baseURL: string;
@@ -83,7 +82,7 @@ export class ApiClient {
   }
 
   /**
-   * Request genérico
+   * Request generico
    */
   private async request<T>(
     method: string,
@@ -91,13 +90,8 @@ export class ApiClient {
     body?: unknown,
     options?: RequestInit
   ): Promise<T> {
-    // Em modo mock, não fazer chamada HTTP
     if (this.useMock) {
-      // Simular delay de rede
-      await this.delay(200);
-      throw new Error(
-        'Mock mode: use mock data services instead (casesService, clientsService, etc)'
-      );
+      throw new Error('HTTP client disabled while data provider is mock.');
     }
 
     const url = `${this.baseURL}${endpoint}`;
@@ -106,8 +100,8 @@ export class ApiClient {
       ...options?.headers,
     };
 
-    // Adicionar token de autenticação se existir
-    const authToken = localStorage.getItem('casehub-auth-token');
+    const authToken =
+      localStorage.getItem('nhost-auth-token') || localStorage.getItem('casehub-auth-token');
     if (authToken) {
       headers['Authorization'] = `Bearer ${authToken}`;
     }
@@ -135,7 +129,7 @@ export class ApiClient {
         try {
           error.data = await response.json();
         } catch {
-          // Parse JSON failed, keep error as is
+          // Keep error as-is if JSON parse fails
         }
 
         throw error;
@@ -156,14 +150,7 @@ export class ApiClient {
   }
 
   /**
-   * Simular delay de rede
-   */
-  private delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  /**
-   * Verificar se está em modo mock
+   * Verificar se esta em modo mock
    */
   isMockMode(): boolean {
     return this.useMock;
@@ -178,16 +165,16 @@ export class ApiClient {
 }
 
 /**
- * Instância global do cliente
+ * Instancia global do cliente
  */
 export const apiClient = new ApiClient(config);
 
 /**
- * Log de configuração em dev mode
+ * Log de configuracao em dev mode
  */
 if (import.meta.env.DEV) {
-  console.log(
-    '🔌 API Client:',
-    config.useMock ? 'MOCK MODE' : `Real API (${config.baseURL})`
-  );
+  console.log('[API] HTTP client configured', {
+    baseURL: config.baseURL,
+    enabled: !config.useMock,
+  });
 }

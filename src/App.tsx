@@ -3,10 +3,10 @@ import { AuthProvider } from './state/auth';
 import { AppRouter } from './routes/AppRouter';
 
 /**
- * App - Componente raiz da aplicação
+ * App - Componente raiz da aplicacao
  * Envolve com:
  * - BrowserRouter: ativa React Router
- * - AuthProvider: ativa autenticação mock
+ * - AuthProvider: ativa autenticacao Nhost
  */
 export default function App() {
   return (
