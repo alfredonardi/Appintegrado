@@ -24,6 +24,34 @@ function normalizeNhostUrl(url: string): string {
   return `${trimmed}${NHOST_V1_SUFFIX}`;
 }
 
+async function readJsonOrText(response: Response): Promise<any> {
+  const text = await response.text();
+  if (!text) {
+    return {};
+  }
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { message: text };
+  }
+}
+
+async function fetchWithFallback(
+  baseUrl: string,
+  paths: string[],
+  init: RequestInit
+): Promise<Response> {
+  let lastResponse: Response | null = null;
+  for (const path of paths) {
+    const response = await fetch(`${baseUrl}${path}`, init);
+    if (response.status !== 404) {
+      return response;
+    }
+    lastResponse = response;
+  }
+  return lastResponse || new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
 export interface NhostConfig {
   authUrl: string; // https://{subdomain}.auth.{region}.nhost.run/v1
   graphqlUrl: string; // https://{subdomain}.graphql.{region}.nhost.run/v1
@@ -99,24 +127,30 @@ export class NhostClient {
    */
   async signUp(email: string, password: string, name?: string): Promise<NhostSession> {
     try {
-      const response = await fetch(`${this.authUrl}/auth/sign-up/email-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          metadata: { displayName: name },
-        }),
-      });
+      const response = await fetchWithFallback(
+        this.authUrl,
+        ['/signup/email-password', '/auth/sign-up/email-password'],
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            password,
+            metadata: { displayName: name },
+          }),
+        }
+      );
+
+      const data = await readJsonOrText(response);
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to sign up');
+        const message =
+          data?.message || data?.error?.message || response.statusText || 'Failed to sign up';
+        throw new Error(message);
       }
 
-      const data = await response.json();
       const { session, mfa, error: authError } = data;
 
       if (authError) {
@@ -152,23 +186,29 @@ export class NhostClient {
    */
   async signIn(email: string, password: string): Promise<NhostSession> {
     try {
-      const response = await fetch(`${this.authUrl}/auth/sign-in/email-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+      const response = await fetchWithFallback(
+        this.authUrl,
+        ['/signin/email-password', '/auth/sign-in/email-password'],
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        }
+      );
+
+      const data = await readJsonOrText(response);
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to sign in');
+        const message =
+          data?.message || data?.error?.message || response.statusText || 'Failed to sign in';
+        throw new Error(message);
       }
 
-      const data = await response.json();
       const { session, error: authError } = data;
 
       if (authError) {
@@ -201,7 +241,7 @@ export class NhostClient {
   async signOut(): Promise<void> {
     try {
       if (this.accessToken) {
-        await fetch(`${this.authUrl}/auth/sign-out`, {
+        await fetchWithFallback(this.authUrl, ['/signout', '/auth/sign-out'], {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${this.accessToken}`,
