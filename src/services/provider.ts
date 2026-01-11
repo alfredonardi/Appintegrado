@@ -9,7 +9,7 @@
  * Default: nhost
  */
 
-export type DataProvider = 'http' | 'supabase' | 'nhost';
+export type DataProvider = 'http' | 'nhost';
 
 /**
  * Resolves the current data provider based on environment variables.
@@ -17,7 +17,7 @@ export type DataProvider = 'http' | 'supabase' | 'nhost';
 export function getDataProvider(): DataProvider {
   // Check explicit VITE_DATA_PROVIDER first
   const explicitProvider = import.meta.env.VITE_DATA_PROVIDER as DataProvider | undefined;
-  if (explicitProvider && ['http', 'supabase', 'nhost'].includes(explicitProvider)) {
+  if (explicitProvider && ['http', 'nhost'].includes(explicitProvider)) {
     return explicitProvider;
   }
 
@@ -29,10 +29,6 @@ export function getDataProvider(): DataProvider {
  */
 export function isHttpProvider(): boolean {
   return getDataProvider() === 'http';
-}
-
-export function isSupabaseProvider(): boolean {
-  return getDataProvider() === 'supabase';
 }
 
 export function isNhostProvider(): boolean {
@@ -47,11 +43,8 @@ export function getProviderConfig() {
   const config = {
     provider,
     isHttp: isHttpProvider(),
-    isSupabase: isSupabaseProvider(),
     isNhost: isNhostProvider(),
     apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
-    supabaseUrl: import.meta.env.VITE_SUPABASE_URL || undefined,
-    supabaseKeyConfigured: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
     nhostAuthUrl: import.meta.env.VITE_NHOST_AUTH_URL || undefined,
     nhostGraphqlUrl: import.meta.env.VITE_NHOST_GRAPHQL_URL || undefined,
     nhostStorageUrl: import.meta.env.VITE_NHOST_STORAGE_URL || undefined,

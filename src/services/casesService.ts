@@ -1,12 +1,11 @@
 /**
  * Service para Casos
- * Abstrai chamadas para API, mock data, ou Supabase baseado no data provider
+ * Abstrai chamadas para API ou Nhost baseado no data provider
  */
 
 import { Case, CaseStatus } from '@/types/case';
 import { apiClient } from './apiClient';
 import { getDataProvider } from './provider';
-import * as casesServiceSupabase from './supabase/casesServiceSupabase';
 import { casesServiceNhost } from './nhost/casesServiceNhost';
 
 const ENDPOINT = '/api/cases';
@@ -21,11 +20,6 @@ export class CasesService {
     // Nhost provider
     if (provider === 'nhost') {
       return casesServiceNhost.getCases();
-    }
-
-    // Supabase provider
-    if (provider === 'supabase') {
-      return casesServiceSupabase.getCases();
     }
 
     // HTTP provider (default)
@@ -43,11 +37,6 @@ export class CasesService {
       return casesServiceNhost.getCaseById(id);
     }
 
-    // Supabase provider
-    if (provider === 'supabase') {
-      return casesServiceSupabase.getCaseById(id);
-    }
-
     // HTTP provider (default)
     return apiClient.get<Case>(`${ENDPOINT}/${id}`);
   }
@@ -61,11 +50,6 @@ export class CasesService {
     // Nhost provider
     if (provider === 'nhost') {
       return casesServiceNhost.createCase(bo);
-    }
-
-    // Supabase provider
-    if (provider === 'supabase') {
-      return casesServiceSupabase.createCase(bo);
     }
 
     // HTTP provider (default)
@@ -87,11 +71,6 @@ export class CasesService {
       return casesServiceNhost.updateCase(id, updates);
     }
 
-    // Supabase provider
-    if (provider === 'supabase') {
-      return casesServiceSupabase.updateCase(id, updates);
-    }
-
     // HTTP provider (default)
     return apiClient.put<Case>(`${ENDPOINT}/${id}`, updates);
   }
@@ -107,11 +86,6 @@ export class CasesService {
       return casesServiceNhost.deleteCase(id);
     }
 
-    // Supabase provider
-    if (provider === 'supabase') {
-      return casesServiceSupabase.deleteCase(id);
-    }
-
     // HTTP provider (default)
     await apiClient.delete<void>(`${ENDPOINT}/${id}`);
   }
@@ -121,11 +95,6 @@ export class CasesService {
    */
   async getCasesByStatus(status: 'rascunho' | 'em_revisao' | 'finalizado'): Promise<Case[]> {
     const provider = getDataProvider();
-
-    // Supabase provider has native filtering
-    if (provider === 'supabase') {
-      return casesServiceSupabase.getCasesByStatus(status);
-    }
 
     // HTTP provider: fetch all and filter
     const cases = await this.getCases();

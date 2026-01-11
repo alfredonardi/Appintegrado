@@ -1,13 +1,12 @@
 // =============================================================================
 // Capture Module Store (Zustand + Persist)
-// Integrado com captureService para multi-provider (http, supabase)
+// Integrado com captureService para multi-provider (http, nhost)
 // =============================================================================
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { CaptureImage, CaptureState } from '../types/capture';
 import { captureService } from '../services/captureService';
-import { isSupabaseProvider } from '../services/provider';
 
 /**
  * Gera um UUID simples (fallback se crypto.randomUUID não estiver disponível)
@@ -22,8 +21,7 @@ function generateId(): string {
 
 /**
  * Store global de Capture images
- * - Em modo supabase: cache local + sincroniza com Supabase Storage
- * - Em modo http: cache local
+ * - Cache local com sincronização via serviço
  */
 export const useCaptureStore = create<CaptureState>()(
   persist(
@@ -45,8 +43,7 @@ export const useCaptureStore = create<CaptureState>()(
 
       /**
        * Adiciona múltiplas imagens a um caso
-       * - Supabase mode: Upload para bucket case-images, retorna URLs públicas
-       * - HTTP mode: Envia para API backend
+       * - Processa upload via serviço configurado
        */
       addImages: (caseId: string, files: File[]) => {
         // Validar que temos arquivos
@@ -61,8 +58,7 @@ export const useCaptureStore = create<CaptureState>()(
 
       /**
        * Remove uma imagem de um caso
-       * - Supabase mode: Remove do Storage e do estado local
-       * - HTTP mode: Chama API backend
+       * - Remove via serviço configurado e atualiza estado local
        */
       removeImage: (caseId: string, imageId: string) => {
         const state = get();
@@ -105,7 +101,6 @@ export const useCaptureStore = create<CaptureState>()(
 
       /**
        * Define as imagens de um caso (usado para sincronizar com servidor)
-       * Útil para carregar imagens do Supabase ao montar
        */
       setImages: (caseId: string, images: CaptureImage[]) => {
         set((state) => ({
@@ -119,8 +114,6 @@ export const useCaptureStore = create<CaptureState>()(
     {
       name: 'atlas-capture',
       storage: createJSONStorage(() => localStorage),
-      // Em modo Supabase, o cache local persiste para disponibilidade offline
-      // Os dados reais estão no Supabase Storage
     }
   )
 );
@@ -130,7 +123,7 @@ export const useCaptureStore = create<CaptureState>()(
 // ============================================================================
 
 /**
- * Adiciona imagens via serviço (Supabase ou HTTP)
+ * Adiciona imagens via serviço
  * Atualiza o estado local com as imagens retornadas pelo serviço
  */
 function addImagesToServiceMode(caseId: string, files: File[], set: any) {
@@ -153,11 +146,9 @@ function addImagesToServiceMode(caseId: string, files: File[], set: any) {
 }
 
 /**
- * Remove uma imagem via serviço (Supabase ou HTTP)
+ * Remove uma imagem via serviço
  */
 function removeImageViaService(caseId: string, imageId: string, image: CaptureImage) {
-  // Supabase precisa do storagePath, mas como não armazenamos, reconstroímos
-  // Formato do storagePath em Supabase: cases/{caseId}/{imageId}-{fileName}
   const storagePath = `cases/${caseId}/${imageId}-${image.name}`;
 
   captureService
