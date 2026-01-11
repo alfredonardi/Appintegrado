@@ -1,6 +1,6 @@
 // =============================================================================
 // Capture Module Store (Zustand + Persist)
-// Integrado com captureService para multi-provider (http, nhost)
+// Integrado com captureService para Nhost backend
 // =============================================================================
 
 import { create } from 'zustand';
