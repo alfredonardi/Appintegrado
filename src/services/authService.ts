@@ -4,7 +4,7 @@
  */
 
 import { apiClient } from './apiClient';
-import { getMockUserByEmail, User } from './mock/mockUsers';
+import { User } from './mock/mockUsers';
 import { getDataProvider } from './provider';
 import * as authServiceSupabase from './supabase/authServiceSupabase';
 
@@ -39,31 +39,6 @@ export class AuthService {
       return authServiceSupabase.login(email, password);
     }
 
-    // Mock provider
-    if (provider === 'mock') {
-      // Simular validação
-      if (!email || !password) {
-        throw new Error('Email and password required');
-      }
-
-      // Buscar usuário mock (se existir) ou criar genérico
-      const mockUser = getMockUserByEmail(email);
-      const user: User = mockUser || {
-        id: `user-${Date.now()}`,
-        name: email.split('@')[0],
-        email,
-        role: 'Investigador',
-        status: 'ativo',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      // Gerar token fake (btoa encoding - NÃO SEGURO, apenas para dev)
-      const token = btoa(`${email}:${Date.now()}`);
-
-      return { token, user };
-    }
-
     // HTTP provider (default)
     return apiClient.post<LoginResponse>(`${ENDPOINT}/login`, {
       email,
@@ -82,12 +57,6 @@ export class AuthService {
       return authServiceSupabase.logout();
     }
 
-    // Mock provider
-    if (provider === 'mock') {
-      console.log('Mock: logout');
-      return;
-    }
-
     // HTTP provider (default)
     await apiClient.post<void>(`${ENDPOINT}/logout`, {});
   }
@@ -101,26 +70,6 @@ export class AuthService {
     // Supabase provider
     if (provider === 'supabase') {
       return authServiceSupabase.register(data);
-    }
-
-    // Mock provider
-    if (provider === 'mock') {
-      if (!data.email || !data.password || !data.name) {
-        throw new Error('Name, email, and password required');
-      }
-
-      const user: User = {
-        id: `user-${Date.now()}`,
-        name: data.name,
-        email: data.email,
-        role: data.role || 'Investigador',
-        status: 'ativo',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      const token = btoa(`${data.email}:${Date.now()}`);
-      return { token, user };
     }
 
     // HTTP provider (default)
@@ -142,33 +91,6 @@ export class AuthService {
       return user;
     }
 
-    // Mock provider
-    if (provider === 'mock') {
-      // Token mock é base64 de "email:timestamp"
-      try {
-        const decoded = atob(token);
-        const [email] = decoded.split(':');
-
-        const mockUser = getMockUserByEmail(email);
-        if (mockUser) {
-          return mockUser;
-        }
-
-        // Se não encontrar, criar usuário genérico
-        return {
-          id: `user-${Date.now()}`,
-          name: email.split('@')[0],
-          email,
-          role: 'Investigador',
-          status: 'ativo',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-      } catch {
-        throw new Error('Invalid token');
-      }
-    }
-
     // HTTP provider (default)
     return apiClient.get<User>(`${ENDPOINT}/validate`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -186,7 +108,7 @@ export class AuthService {
       return authServiceSupabase.getCurrentUser();
     }
 
-    // Mock and HTTP provider
+    // HTTP provider
     const token = localStorage.getItem('casehub-auth-token');
     if (!token) {
       return null;
@@ -204,12 +126,6 @@ export class AuthService {
    */
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {
     const provider = getDataProvider();
-
-    // Mock provider
-    if (provider === 'mock') {
-      console.log('Mock: change password');
-      return;
-    }
 
     // Supabase provider - not implemented yet
     if (provider === 'supabase') {

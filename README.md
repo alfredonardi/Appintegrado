@@ -11,7 +11,7 @@ Bundle exportado do Figma transformado em uma aplica├º├úo React/Vite escal
 - Ô£à **ETAPA 5**: Feature flags
 - Ô£à **ETAPA 6**: Camada de API + mocks altern├ível
 - Ô£à **ETAPA 7**: Primeiro CRUD (Clientes)
-- Ô£à **ETAPA 8**: Cases CRUD Consolidado (List, Create, Edit + Mock/Supabase integration)
+- Ô£à **ETAPA 8**: Cases CRUD Consolidado (List, Create, Edit + Supabase/HTTP integration)
 - Ô£à **ETAPA 9**: Subm├│dulos de Caso com Feature Flags (Roteamento Aninhado)
 - Ô£à **ETAPA 10**: Capture Vertical Slice Completo (Upload e Galeria de Imagens)
 - Ô£à **ETAPA 11**: Integra├º├úo Supabase (Provider supabase - PostgreSQL + Storage)
@@ -186,9 +186,9 @@ src/
 - **Feature Flags** para ativar/desativar m├│dulos via config ou .env
 - **useFeature Hook** para verificar flags em componentes
 - **FeatureGuard Component** para condicionar rendering por flag
-- **API Client** centralizado com suporte a mock/real (ETAPA 6)
+- **API Client** centralizado (ETAPA 6)
 - **Services abstratos** para Casos, Clientes, Autentica├º├úo (ETAPA 6)
-- **Mock Data** com 2 casos, 3 clientes, 5 usu├írios (ETAPA 6)
+- **Test Data** com 2 casos, 3 clientes, 5 usu├írios para desenvolvimento (ETAPA 6)
 - **M├│dulo CRUD Completo de Clientes** (ETAPA 7):
   - Listagem com filtros por status
   - Cria├º├úo de novo cliente
@@ -203,7 +203,7 @@ src/
   - Edi├º├úo de caso existente
   - Deleta├º├úo com confirma├º├úo
   - Store Zustand com persist├¬ncia
-  - Integrado com services multi-provider (mock/supabase)
+  - Integrado com services multi-provider (http/supabase/nhost)
 
 - **Subm├│dulos de Caso com Feature Flags** (ETAPA 9):
   - Roteamento aninhado `/cases/:caseId/*`
@@ -219,7 +219,7 @@ src/
   - CRUD de imagens por caso
 
 - **Integra├º├úo Supabase** (ETAPA 11):
-  - Multi-provider: mock | http | supabase
+  - Multi-provider: http | supabase | nhost
   - PostgreSQL com tabelas cases, clients, photo_report_items
   - Storage para case-images
 
@@ -334,11 +334,6 @@ import { NovoComponente } from '@/components/ui/novo-componente';
 ```typescript
 import { apiClient } from '@/services/apiClient';
 
-// Verificar modo
-if (apiClient.isMockMode()) {
-  console.log('Usando dados fake');
-}
-
 // Config atual
 const config = apiClient.getConfig();
 ```
@@ -369,12 +364,10 @@ await authService.logout();
 await authService.register({ name, email, password, role });
 ```
 
-**Alternador Mock/Real** via `.env`:
+**Configuração via `.env`**:
 
 ```env
-# Modo desenvolvimento (usa dados fake)
-
-# Modo produ├º├úo (chama API real)
+# API real
 VITE_API_BASE_URL=https://api.atlas.com
 ```
 
@@ -427,7 +420,7 @@ import { FEATURE_FLAGS } from '@/config/features';
 
 ### Data Provider Configuration (Nhost/HTTP/Supabase)
 Escolha o provider de dados explicitamente:
-`env
+```env
 # Modo 1: Nhost (backend real)
 VITE_DATA_PROVIDER=nhost
 VITE_NHOST_AUTH_URL=https://<subdomain>.auth.<region>.nhost.run/v1
@@ -435,14 +428,16 @@ VITE_NHOST_GRAPHQL_URL=https://<subdomain>.graphql.<region>.nhost.run/v1
 # Opcional
 # VITE_NHOST_STORAGE_URL=https://<subdomain>.storage.<region>.nhost.run/v1
 # VITE_NHOST_FUNCTIONS_URL=https://<subdomain>.functions.<region>.nhost.run/v1
+
 # Modo 2: HTTP API (API real)
 VITE_DATA_PROVIDER=http
 VITE_API_BASE_URL=http://localhost:3000
+
 # Modo 3: Supabase (PostgreSQL + Storage)
 VITE_DATA_PROVIDER=supabase
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-`
+```
 ### Integra├º├úo com Supabase
 
 Para usar Supabase como data provider:
@@ -583,7 +578,7 @@ O m├│dulo Capture implementa um vertical slice completo com upload m├║lt
 
 #### Testando Capture com Supabase (6 Passos R├ípidos)
 
-O m├│dulo Capture funciona em **3 modos**: mock (localStorage), http (API backend), ou supabase (Supabase Storage).
+O m├│dulo Capture funciona com diferentes providers: http (API backend), supabase (Supabase Storage), ou nhost.
 
 **Modo Supabase**: Imagens uploadam para bucket `case-images` e persistem com URLs p├║blicas.
 
@@ -654,7 +649,7 @@ https://seu-projeto.supabase.co/storage/v1/object/public/case-images/cases/{case
 |----------|---------|
 | `Error: Supabase client not initialized` | Verificar VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY |
 | Upload nunca completa | Bucket n├úo existe ou RLS bloqueando - ler docs/supabase-setup.md |
-| Imagens n├úo persistem ap├│s refresh | Cache localStorage vazio - fazer upload novamente |
+| Imagens n├úo persistem ap├│s refresh | Verificar configura├º├úo do provider |
 | Erro ao deletar | Verificar path formato `cases/{caseId}/{imageId}-{name}` |
 
 

@@ -1,13 +1,12 @@
 // =============================================================================
 // Photo Report Module Store (Zustand + Persist)
-// Integrado com photoReportService para multi-provider (mock, http, supabase)
+// Integrado com photoReportService para multi-provider (http, supabase)
 // =============================================================================
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { PhotoReportItem, PhotoReportState } from '../types/photoReport';
 import { photoReportService } from '../services/photoReportService';
-import { isMockProvider } from '../services/provider';
 
 /**
  * Gera um UUID simples (fallback se crypto.randomUUID não estiver disponível)
@@ -22,7 +21,6 @@ function generateId(): string {
 
 /**
  * Store global de Photo Report items
- * - Em modo mock: persistente com localStorage
  * - Em modo supabase: cache local + sincroniza com Supabase
  * - Em modo http: cache local
  */
@@ -74,10 +72,8 @@ export const usePhotoReportStore = create<PhotoReportState>()(
           },
         }));
 
-        // Sincroniza com serviço se não for mock
-        if (!isMockProvider()) {
-          syncAddItemViaService(caseId, imageId);
-        }
+        // Sincroniza com serviço
+        syncAddItemViaService(caseId, imageId);
       },
 
       /**
@@ -109,10 +105,8 @@ export const usePhotoReportStore = create<PhotoReportState>()(
           },
         }));
 
-        // Sincroniza com serviço se não for mock
-        if (!isMockProvider()) {
-          syncUpdateItemViaService(caseId, itemId, patch);
-        }
+        // Sincroniza com serviço
+        syncUpdateItemViaService(caseId, itemId, patch);
       },
 
       /**
@@ -136,10 +130,8 @@ export const usePhotoReportStore = create<PhotoReportState>()(
           },
         }));
 
-        // Sincroniza com serviço se não for mock
-        if (!isMockProvider()) {
-          syncRemoveItemViaService(caseId, itemId);
-        }
+        // Sincroniza com serviço
+        syncRemoveItemViaService(caseId, itemId);
       },
 
       /**
@@ -165,10 +157,8 @@ export const usePhotoReportStore = create<PhotoReportState>()(
           },
         }));
 
-        // Sincroniza com serviço se não for mock
-        if (!isMockProvider()) {
-          syncReorderViaService(caseId, orderedIds);
-        }
+        // Sincroniza com serviço
+        syncReorderViaService(caseId, orderedIds);
       },
 
       /**
@@ -194,10 +184,8 @@ export const usePhotoReportStore = create<PhotoReportState>()(
           },
         }));
 
-        // Sincroniza com serviço se não for mock
-        if (!isMockProvider()) {
-          syncClearViaService(caseId);
-        }
+        // Sincroniza com serviço
+        syncClearViaService(caseId);
       },
     }),
     {
