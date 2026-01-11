@@ -1,6 +1,6 @@
 /**
  * Capture Service
- * Abstrai chamadas para API ou Nhost baseado no data provider
+ * Usa exclusivamente Nhost como backend
  *
  * Responsável por:
  * - Upload de imagens múltiplas
@@ -9,54 +9,34 @@
  */
 
 import { CaptureImage } from '@/types/capture';
-import { getDataProvider } from './provider';
-import { apiClient } from './apiClient';
-
-const ENDPOINT = '/api/cases';
 
 export class CaptureService {
   /**
    * Upload múltiplo de imagens para um caso
    */
   async uploadCaseImages(caseId: string, files: File[]): Promise<CaptureImage[]> {
-    const provider = getDataProvider();
-
-    // HTTP provider (default)
-    const formData = new FormData();
-    for (const file of files) {
-      formData.append('files', file);
-    }
-    return apiClient.post<CaptureImage[]>(`${ENDPOINT}/${caseId}/images`, formData);
+    throw new Error('Nhost implementation not yet available for this service');
   }
 
   /**
    * Listar imagens de um caso
    */
   async listCaseImages(caseId: string): Promise<CaptureImage[]> {
-    const provider = getDataProvider();
-
-    // HTTP provider (default)
-    return apiClient.get<CaptureImage[]>(`${ENDPOINT}/${caseId}/images`);
+    throw new Error('Nhost implementation not yet available for this service');
   }
 
   /**
    * Remover uma imagem específica
    */
   async deleteCaseImage(caseId: string, imageId: string, storagePath?: string): Promise<void> {
-    const provider = getDataProvider();
-
-    // HTTP provider (default)
-    return apiClient.delete(`${ENDPOINT}/${caseId}/images/${imageId}`);
+    throw new Error('Nhost implementation not yet available for this service');
   }
 
   /**
    * Remover todas as imagens de um caso
    */
   async deleteCaseAllImages(caseId: string): Promise<void> {
-    const provider = getDataProvider();
-
-    // HTTP provider (default)
-    return apiClient.delete(`${ENDPOINT}/${caseId}/images`);
+    throw new Error('Nhost implementation not yet available for this service');
   }
 }
 

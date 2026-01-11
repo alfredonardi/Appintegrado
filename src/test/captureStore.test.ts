@@ -13,7 +13,6 @@ vi.mock('@/services/captureService', () => ({
 
 // Mock provider detection
 vi.mock('@/services/provider', () => ({
-  isHttpProvider: vi.fn(() => false),
   getDataProvider: vi.fn(() => 'nhost'),
 }));
 

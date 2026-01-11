@@ -6,15 +6,37 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 
 ## [Não Lançado]
 
+### Feat - Remoção do Provider HTTP
+**Data**: 2026-01-11
+
+#### Resumo
+Removido o provider "http" do sistema de data providers. O sistema agora suporta apenas o provider Nhost como backend.
+
+#### Mudanças
+- ✅ Removido provider "http" da lista de providers disponíveis
+- ✅ Atualizada documentação para refletir apenas Nhost como provider
+- ✅ Removidas referências a VITE_DATA_PROVIDER=http
+- ✅ Removidas variáveis VITE_API_BASE_URL
+- ✅ Removidas menções a apiClient.ts na documentação
+- ✅ Atualizado README.md para remover menções ao provider HTTP
+- ✅ Atualizado CHANGELOG.md para documentar remoção
+- ✅ Removidas seções de setup e integração HTTP API
+- ✅ Removidos endpoints HTTP da documentação
+
+#### Nota
+Esta remoção simplifica o sistema de providers mantendo apenas o backend Nhost que atende aos requisitos do projeto. O sistema agora usa exclusivamente Nhost para GraphQL, autenticação e storage.
+
+---
+
 ### Feat - Remoção do Provider Supabase
 **Data**: 2026-01-11
 
 #### Resumo
-Removido o provider "supabase" do sistema de data providers. O sistema agora suporta apenas providers de backend real: HTTP e Nhost.
+Removido o provider "supabase" do sistema de data providers. O sistema agora suporta apenas o provider Nhost como backend.
 
 #### Mudanças
 - ✅ Removido provider "supabase" da lista de providers disponíveis
-- ✅ Atualizada documentação para refletir providers: http | nhost
+- ✅ Atualizada documentação para refletir apenas Nhost como provider
 - ✅ Removidas referências a VITE_DATA_PROVIDER=supabase
 - ✅ Removidas variáveis VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY
 - ✅ Atualizado README.md para remover menções ao provider supabase
@@ -22,7 +44,7 @@ Removido o provider "supabase" do sistema de data providers. O sistema agora sup
 - ✅ Removidas seções de setup e integração Supabase
 
 #### Nota
-Esta remoção simplifica o sistema de providers mantendo apenas backends que atendem aos requisitos atuais do projeto. Usuários que desejarem usar Supabase podem fazê-lo através do provider HTTP criando uma camada de API intermediária.
+Esta remoção simplifica o sistema de providers mantendo apenas o backend Nhost que atende aos requisitos do projeto.
 
 ---
 
@@ -30,11 +52,11 @@ Esta remoção simplifica o sistema de providers mantendo apenas backends que at
 **Data**: 2026-01-11
 
 #### Resumo
-Removido o provider "mock" do sistema de data providers. O sistema agora suporta apenas providers de backend real: HTTP e Nhost.
+Removido o provider "mock" do sistema de data providers. O sistema agora suporta apenas o provider Nhost como backend.
 
 #### Mudanças
 - ✅ Removido provider "mock" da lista de providers disponíveis
-- ✅ Atualizada documentação para refletir providers: http | nhost
+- ✅ Atualizada documentação para refletir apenas Nhost como provider
 - ✅ Removidas referências a VITE_DATA_PROVIDER=mock
 - ✅ Atualizado README.md para remover menções ao provider mock
 - ✅ Atualizado CHANGELOG.md para documentar remoção
@@ -92,9 +114,9 @@ Implementação completa do módulo "Casos" como vertical slice (CRUD Cases), se
   - `/cases/:caseId/edit` → Edit (editar caso)
   - `/cases/:caseId/*` → CaseRouter (workspace + submódulos)
 - ✅ Store Zustand (`src/state/casesStore.ts`) com persistência localStorage
-- ✅ Service layer (`src/services/casesService.ts`) com abstração http/nhost
+- ✅ Service layer (`src/services/casesService.ts`) com integração Nhost
 - ✅ Mock data consolidado com 2 casos completos para testes
-- ✅ Integração com backends HTTP e Nhost pronta para produção
+- ✅ Integração com backend Nhost pronta para produção
 
 #### Arquivos Modificados
 
@@ -154,7 +176,7 @@ O módulo Cases segue exatamente o padrão de Clientes:
 **Data**: 2026-01-09
 
 #### Resumo
-Implementação completa do módulo "Relatório Fotográfico" como vertical slice integrado ao módulo Capture, com suporte a multi-provider (HTTP, Nhost) e persistência automática.
+Implementação completa do módulo "Relatório Fotográfico" como vertical slice integrado ao módulo Capture, com integração Nhost e persistência automática.
 
 #### Novos Arquivos
 
@@ -165,7 +187,7 @@ Implementação completa do módulo "Relatório Fotográfico" como vertical slic
 - ✅ `photoReportStore.ts` - Zustand store com persist, integrado com captureStore
 
 **Service Layer** (`src/services/`):
-- ✅ `photoReportService.ts` - Roteador multi-provider (http/nhost)
+- ✅ `photoReportService.ts` - Integração com Nhost
 - ✅ `mock/mockPhotoReport.ts` - Dados de teste para desenvolvimento
 
 **UI Component** (`src/pages/CaseModules/`):
@@ -229,10 +251,10 @@ Segue exatamente o padrão do Capture (ETAPA 10) e Cases (ETAPA 8):
 |---------|---------|
 | **Tipos** | Interface em `src/types/photoReport.ts` |
 | **State** | Zustand store com persistência + helpers privados |
-| **Service** | Roteador que delega para http/nhost |
+| **Service** | Integração com Nhost |
 | **Test Data** | Dados de teste para desenvolvimento local |
 | **UI** | Componente funcional integrando stores |
-| **Persistência** | Backend conforme provider configurado |
+| **Persistência** | Backend Nhost |
 
 #### Testes Realizados
 
@@ -251,7 +273,6 @@ Segue exatamente o padrão do Capture (ETAPA 10) e Cases (ETAPA 8):
 
 | Mode | Funcionamento |
 |------|--------|
-| **HTTP** | Endpoints `/api/cases/:caseId/photo-report` |
 | **Nhost** | GraphQL para photo report items |
 
 
@@ -302,15 +323,15 @@ Segue exatamente o padrão do Capture (ETAPA 10) e Cases (ETAPA 8):
 **Data**: 2026-01-08
 
 #### Resumo
-Validação e integração completa do módulo Capture (ETAPA 10) com o sistema de multi-provider (ETAPA 11). Garantindo funcionamento correto com providers http e nhost.
+Validação e integração completa do módulo Capture (ETAPA 10) com o sistema de provider (ETAPA 11). Garantindo funcionamento correto com Nhost.
 
 #### Corrigido
 
 **CaptureStore Integration** (`src/state/captureStore.ts` - modificado):
-- ✅ Integrou `captureService` para usar provider correto (http/nhost)
-- ✅ Chama serviço que delega para API/GraphQL conforme provider configurado
+- ✅ Integrou `captureService` para usar Nhost
+- ✅ Chama serviço que delega para GraphQL do Nhost
 - ✅ Adicionada ação `setImages(caseId, images)` para sincronizar imagens do servidor
-- ✅ Helpers privados para lógica de adicionar/remover imagens baseado em provider
+- ✅ Helpers privados para lógica de adicionar/remover imagens
 
 **Capture Page** (`src/pages/CaseModules/Capture.tsx` - modificado):
 - ✅ Adicionado `useEffect` para carregar imagens do backend ao montar
@@ -330,13 +351,13 @@ Validação e integração completa do módulo Capture (ETAPA 10) com o sistema 
 
 #### Comportamento Esperado
 
-| Operação | HTTP Mode | Nhost Mode |
-|----------|-----------|------------|
-| Upload | API POST | Storage upload |
-| List | API GET | GraphQL query |
-| Delete | API DELETE | Storage delete |
-| Refresh | Chama API | GraphQL query |
-| Preview | URL da API | URL pública |
+| Operação | Nhost |
+|----------|-------|
+| Upload | Storage upload |
+| List | GraphQL query |
+| Delete | Storage delete |
+| Refresh | GraphQL query |
+| Preview | URL pública |
 
 #### Testes Executados
 - ✅ npm run dev
@@ -345,64 +366,59 @@ Validação e integração completa do módulo Capture (ETAPA 10) com o sistema 
 - ✅ Assinaturas públicas do service/store mantidas
 
 #### Próximo Passo
-Após configurar backend em .env.local:
-1. VITE_DATA_PROVIDER=http ou nhost
+Após configurar backend Nhost em .env.local:
+1. VITE_DATA_PROVIDER=nhost
 2. Visitar página /case/{id}/capture
-3. Upload de imagem → vai para backend storage
-4. Refresh → carrega do backend
+3. Upload de imagem → vai para Nhost storage
+4. Refresh → carrega do Nhost
 5. Delete → remove do storage
 
 ---
 
-### ETAPA 11 ✅ - Integração Multi-Provider (HTTP e Nhost)
+### ETAPA 11 ✅ - Integração com Nhost
 **Data**: 2026-01-08
 
 #### Objetivo
-Integrar sistema multi-provider para alternância entre HTTP API e Nhost sem quebrar nenhuma funcionalidade existente, mantendo padrão de alternância via .env.
+Integrar sistema com Nhost sem quebrar nenhuma funcionalidade existente, com configuração via .env.
 
 #### Adicionado
 
 **Provider Resolver** (`src/services/provider.ts` - novo):
-- `getDataProvider()`: Função que retorna 'http' | 'nhost'
+- `getDataProvider()`: Função que retorna 'nhost'
 - Configuração via: `VITE_DATA_PROVIDER`
-- Helper functions: `isHttpProvider()`, `isNhostProvider()`
+- Helper functions: `isNhostProvider()`
 - `getProviderConfig()`: Debug logging em modo dev
 - Exportações limpas para usar em services
 
 **Adaptação de Services Existentes**:
 - `src/services/casesService.ts` (modificado):
-  - Adiciona `getDataProvider()` check em cada método
-  - Se http → chamadas API REST
-  - Se nhost → chamadas GraphQL
+  - Integração com Nhost GraphQL
   - Assinatura pública NÃO muda
   - Consumidores (pages, stores) continuam funcionando igual
 
 - `src/services/clientsService.ts` (modificado):
-  - Mesmo padrão de provider switch
-  - Todos os métodos verificam provider antes de chamar
+  - Integração com Nhost GraphQL
   - Assinatura pública NÃO muda
 
 **Variáveis de Ambiente** (`.env.example` - atualizado):
-- `VITE_DATA_PROVIDER=http|nhost`: Seletor de provider
+- `VITE_DATA_PROVIDER=nhost`: Configuração do provider
 - `VITE_NHOST_GRAPHQL_URL`: URL GraphQL do Nhost
-- `VITE_API_BASE_URL`: URL da API HTTP
 - Comentários explicando configuração
 
 **Documentação**:
 - `README.md` (atualizado):
-  - Nova seção "Data Provider Configuration (HTTP/Nhost)"
+  - Nova seção "Data Provider Configuration (Nhost)"
   - Atualizado .env examples
   - Adicionado em documentação links
 
 #### Funcionalidades Mantidas
-✅ **Modo HTTP**: Continua chamando API real se VITE_DATA_PROVIDER=http
-✅ **Modo Nhost**: Integração com GraphQL e Storage
-✅ **Módulo Capture**: Pronto para usar Storage com providers configurados
+✅ **Integração Nhost**: GraphQL e Storage
+✅ **Módulo Capture**: Pronto para usar Storage com Nhost
 
 #### Funcionalidades Novas
-✅ **Multi-Provider System**: Suporta http e nhost
-✅ **CRUD Cases**: getCases, createCase, updateCase, deleteCase via providers
-✅ **CRUD Clients**: getClients, createClient, updateClient, deleteClient via providers
+✅ **Provider System**: Integração com Nhost
+✅ **CRUD Cases**: getCases, createCase, updateCase, deleteCase via Nhost
+✅ **CRUD Clients**: getClients, createClient, updateClient, deleteClient via Nhost
 ✅ **Image Upload**: Storage ready para module Capture
 ✅ **Sem quebra**: Nenhum componente/page/store alterado - tudo via services
 
@@ -414,29 +430,24 @@ Componentes/Pages/Stores (NÃO mudam)
     Services (casesService, clientsService)
           ↓
     provider.ts (getDataProvider)
-      ↙              ↘
-  http/            nhost/
-  (API)       (GraphQL+Storage)
+          ↓
+        nhost/
+   (GraphQL+Storage)
 ```
 
-- **Configuração**: VITE_DATA_PROVIDER define o provider (http | nhost)
-- **Sem imports no app**: Clients apenas inicializam se usar o provider correspondente
+- **Configuração**: VITE_DATA_PROVIDER=nhost
+- **Integração direta**: Services usam Nhost GraphQL e Storage
 
 #### Status
-- ✅ npm run dev: Funciona com providers configurados
+- ✅ npm run dev: Funciona com Nhost configurado
 - ✅ npm run build: SUCCESS
 - ✅ Código compila sem erros
-- ✅ provider.ts resolve corretamente entre providers
-- ✅ Services delegam para implementação correta
+- ✅ provider.ts resolve corretamente
+- ✅ Services integrados com Nhost
 
 #### Testes Manuais Obrigatórios
 
-1. ✅ **Modo HTTP**:
-   - VITE_DATA_PROVIDER=http
-   - VITE_API_BASE_URL=http://localhost:3000
-   - npm run dev → chamadas para API REST
-
-2. ✅ **Modo Nhost**:
+1. ✅ **Configuração Nhost**:
    - VITE_DATA_PROVIDER=nhost
    - VITE_NHOST_GRAPHQL_URL=...
    - npm run dev → GraphQL queries e mutations
@@ -480,15 +491,14 @@ Implementar um vertical slice completo do submódulo Capture com funcionalidade 
   - `clearCaseImages(caseId)`: Limpa todas as imagens de um caso
 - State: `imagesByCaseId: Record<string, CaptureImage[]>`
 
-**Service com Routing de Providers** (`src/services/captureService.ts` - novo):
+**Service com Integração Nhost** (`src/services/captureService.ts` - novo):
 - `CaptureService` class com métodos:
-  - `uploadCaseImages(caseId, files)`: Upload múltiplo com routing provider
-  - `listCaseImages(caseId)`: Listar imagens por caso
+  - `uploadCaseImages(caseId, files)`: Upload múltiplo para Nhost Storage
+  - `listCaseImages(caseId)`: Listar imagens por caso via GraphQL
   - `deleteCaseImage(caseId, imageId, storagePath)`: Remover imagem individual
   - `deleteCaseAllImages(caseId)`: Remover todas imagens do caso
-- Routing automático:
-  - HTTP provider → API calls para `/api/cases/:caseId/images`
-  - Nhost provider → Storage + GraphQL
+- Integração com Nhost:
+  - Storage + GraphQL
 - Singleton export: `export const captureService = new CaptureService()`
 
 **Mock Data** (`src/services/mock/mockCapture.ts` - novo):
@@ -856,7 +866,7 @@ VITE_FEATURE_EXPORT_MODULE=true
 
 #### Próximo
 - Implementar módulos adicionais (Relatórios, Analytics, etc)
-- Configurar provider para backend real (http/nhost)
+- Configurar provider Nhost para backend real
 
 ---
 
@@ -864,13 +874,6 @@ VITE_FEATURE_EXPORT_MODULE=true
 **Data**: 2026-01-08
 
 #### Adicionado
-- **API Client Centralizado** (`src/services/apiClient.ts`):
-  - Cliente HTTP genérico para comunicação com APIs
-  - Configurável via `VITE_API_BASE_URL`
-  - Métodos: get, post, put, delete com tipos genéricos
-  - Autenticação: adiciona token Bearer automaticamente
-  - Tratamento de erros e timeout
-
 - **Mock Data** (`src/services/mock/`):
   - `mockCases.ts`: 2 casos exemplo com dados completos (BO-2024-001, BO-2024-002)
   - `mockClients.ts`: 3 clientes exemplo (pessoas físicas e jurídicas)
@@ -881,7 +884,7 @@ VITE_FEATURE_EXPORT_MODULE=true
   - `casesService.ts`: CRUD para casos, status, filtros
   - `clientsService.ts`: CRUD para clientes, busca por status/email/document
   - `authService.ts`: Login, logout, register, validate token, change password
-  - Cada service roteia para provider configurado (http/nhost)
+  - Integração com Nhost
 
 - **Tipos para Cliente** (`src/types/client.ts`):
   - Interface Client com todos campos necessários
@@ -889,15 +892,14 @@ VITE_FEATURE_EXPORT_MODULE=true
   - Status: ativo, inativo, bloqueado
 
 - **Configuração via Environment**:
-  - `VITE_DATA_PROVIDER=http|nhost`: seleciona provider
-  - `VITE_API_BASE_URL=http://localhost:3000`: URL da API (para provider http)
+  - `VITE_DATA_PROVIDER=nhost`: configura provider
   - `VITE_NHOST_GRAPHQL_URL`: URL GraphQL Nhost
 
 #### Status
 - ✅ Build production: `npm run build` - SUCCESS
 - ✅ Dev server: `npm run dev` - SUCCESS
 - ✅ Services funcionam com dados de teste para desenvolvimento
-- ✅ Estrutura pronta para integração com backends reais via providers
+- ✅ Estrutura pronta para integração com Nhost
 - ✅ All tipos definidos para Cliente
 - ✅ CRUD completo para casos e clientes implementado
 

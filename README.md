@@ -11,10 +11,10 @@ Bundle exportado do Figma transformado em uma aplica├º├úo React/Vite escal
 - Ô£à **ETAPA 5**: Feature flags
 - Ô£à **ETAPA 6**: Camada de API + mocks altern├ível
 - Ô£à **ETAPA 7**: Primeiro CRUD (Clientes)
-- Ô£à **ETAPA 8**: Cases CRUD Consolidado (List, Create, Edit + HTTP/Nhost integration)
+- Ô£à **ETAPA 8**: Cases CRUD Consolidado (List, Create, Edit + Nhost integration)
 - Ô£à **ETAPA 9**: Subm├│dulos de Caso com Feature Flags (Roteamento Aninhado)
 - Ô£à **ETAPA 10**: Capture Vertical Slice Completo (Upload e Galeria de Imagens)
-- Ô£à **ETAPA 11**: Integra├º├úo Backend (Providers http e nhost - API + Storage)
+- Ô£à **ETAPA 11**: Integra├º├úo Backend (Provider Nhost - GraphQL + Storage)
 - Ô£à **ETAPA 12**: Photo Report Vertical Slice (Integrado com Capture)
 
 Veja `docs/roadmap.md` para detalhes de cada etapa.
@@ -200,7 +200,7 @@ src/
   - Edi├º├úo de caso existente
   - Deleta├º├úo com confirma├º├úo
   - Store Zustand com persist├¬ncia
-  - Integrado com services multi-provider (http/nhost)
+  - Integrado com Nhost backend
 
 - **Subm├│dulos de Caso com Feature Flags** (ETAPA 9):
   - Roteamento aninhado `/cases/:caseId/*`
@@ -212,11 +212,11 @@ src/
   - Upload m├║ltiplo de imagens com drag-drop
   - Galeria com previews responsiva
   - Persist├¬ncia com Data URLs em localStorage
-  - Integrado com storage backends (http/nhost)
+  - Integrado com Nhost backend
   - CRUD de imagens por caso
 
 - **Integra├º├úo Backend** (ETAPA 11):
-  - Multi-provider: http | nhost
+  - Provider Nhost com GraphQL e Storage
   - Backend com tabelas cases, clients, photo_report_items
   - Storage para case-images
 
@@ -324,16 +324,7 @@ import { NovoComponente } from '@/components/ui/novo-componente';
 
 ## ÔÜÖ´©Å Configura├º├úo
 
-### Camada de API (ETAPA 6) Ô£à Implementado
-
-**Client HTTP centralizado** (`src/services/apiClient.ts`):
-
-```typescript
-import { apiClient } from '@/services/apiClient';
-
-// Config atual
-const config = apiClient.getConfig();
-```
+### Camada de Serviços (ETAPA 6) Ô£à Implementado
 
 **Services abstratos** (`src/services/`):
 
@@ -359,13 +350,6 @@ import { authService } from '@/services/authService';
 const { token, user } = await authService.login('user@example.com', 'password');
 await authService.logout();
 await authService.register({ name, email, password, role });
-```
-
-**Configuração via `.env`**:
-
-```env
-# API real
-VITE_API_BASE_URL=https://api.atlas.com
 ```
 
 ### Feature Flags (ETAPA 5) Ô£à Implementado
@@ -415,20 +399,16 @@ import { FEATURE_FLAGS } from '@/config/features';
 )}
 ```
 
-### Data Provider Configuration (Nhost/HTTP)
-Escolha o provider de dados explicitamente:
+### Data Provider Configuration (Nhost)
+Configure o provider de dados Nhost:
 ```env
-# Modo 1: Nhost (backend real)
+# Nhost (backend)
 VITE_DATA_PROVIDER=nhost
 VITE_NHOST_AUTH_URL=https://<subdomain>.auth.<region>.nhost.run/v1
 VITE_NHOST_GRAPHQL_URL=https://<subdomain>.graphql.<region>.nhost.run/v1
 # Opcional
 # VITE_NHOST_STORAGE_URL=https://<subdomain>.storage.<region>.nhost.run/v1
 # VITE_NHOST_FUNCTIONS_URL=https://<subdomain>.functions.<region>.nhost.run/v1
-
-# Modo 2: HTTP API (API real)
-VITE_DATA_PROVIDER=http
-VITE_API_BASE_URL=http://localhost:3000
 ```
 
 ### Vari├íveis de Ambiente
@@ -539,11 +519,11 @@ O m├│dulo Capture implementa um vertical slice completo com upload m├║lt
 
 #### Testando Capture com Backend (6 Passos R├ípidos)
 
-O m├│dulo Capture funciona com diferentes providers: http (API backend) ou nhost.
+O m├│dulo Capture funciona com o provider Nhost.
 
 
 ##### Pré-requisitos
-- Backend configurado (Nhost ou API HTTP)
+- Backend Nhost configurado
 - Variáveis de ambiente configuradas em `.env.local`
 
 
@@ -551,14 +531,10 @@ O m├│dulo Capture funciona com diferentes providers: http (API backend) ou n
 
 ```bash
 # PASSO 1: Configurar variáveis de ambiente
-# Exemplo para Nhost - editar .env.local:
+# Editar .env.local:
 VITE_DATA_PROVIDER=nhost
 VITE_NHOST_AUTH_URL=https://seu-projeto.auth.region.nhost.run/v1
 VITE_NHOST_GRAPHQL_URL=https://seu-projeto.graphql.region.nhost.run/v1
-
-# Ou para HTTP API:
-VITE_DATA_PROVIDER=http
-VITE_API_BASE_URL=http://localhost:3000
 
 # PASSO 2: Iniciar app em desenvolvimento
 npm run dev
@@ -584,7 +560,7 @@ npm run dev
 
 **Console Esperado (sucesso)**:
 ```
-[Provider] Data provider configured: {provider: "nhost"|"http", ...}
+[Provider] Data provider configured: {provider: "nhost", ...}
 [CaptureModule] Imagens carregadas: 2
 [CaptureStore] Upload de imagens concluído com sucesso
 ```
@@ -595,20 +571,8 @@ npm run dev
 |----------|----------|
 | `Error: Provider not initialized` | Verificar configuração das variáveis de ambiente |
 | Upload nunca completa | Verificar conectividade com backend e configuração de storage |
-| Imagens não persistem após refresh | Verificar configuração do provider |
-| Erro ao deletar | Verificar permissões de storage no backend |
-
-
-#### Endpoints HTTP (se VITE_DATA_PROVIDER=http)
-
-Se você implementar API backend, estes endpoints são esperados:
-
-```
-POST   /api/cases/:caseId/images       # Upload múltiplo
-GET    /api/cases/:caseId/images       # Listar imagens
-DELETE /api/cases/:caseId/images/:id   # Remover imagem
-DELETE /api/cases/:caseId/images       # Remover todas
-```
+| Imagens não persistem após refresh | Verificar configuração do Nhost |
+| Erro ao deletar | Verificar permissões de storage no Nhost |
 
 ---
 

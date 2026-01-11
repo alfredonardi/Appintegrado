@@ -5,7 +5,6 @@ import * as providerModule from '@/services/provider';
 // Mock the provider module
 vi.mock('@/services/provider', () => ({
   getDataProvider: vi.fn(() => 'nhost'),
-  isHttpProvider: vi.fn(() => false),
 }));
 
 // Mock Nhost client
@@ -16,15 +15,6 @@ vi.mock('@/lib/nhostClient', () => ({
       delete: vi.fn(() => Promise.resolve({})),
       getPublicUrl: vi.fn(() => 'http://example.com/test.jpg'),
     },
-  },
-}));
-
-// Mock API client
-vi.mock('@/services/apiClient', () => ({
-  apiClient: {
-    post: vi.fn(() => Promise.resolve([])),
-    get: vi.fn(() => Promise.resolve([])),
-    delete: vi.fn(() => Promise.resolve(undefined)),
   },
 }));
 
@@ -80,11 +70,5 @@ describe('CaptureService', () => {
   it('should detect provider type correctly', () => {
     vi.spyOn(providerModule, 'getDataProvider').mockReturnValue('nhost');
     expect(providerModule.getDataProvider()).toBe('nhost');
-
-    vi.spyOn(providerModule, 'getDataProvider').mockReturnValue('http');
-    vi.spyOn(providerModule, 'isHttpProvider').mockReturnValue(true);
-
-    expect(providerModule.isHttpProvider()).toBe(true);
-    expect(providerModule.getDataProvider()).toBe('http');
   });
 });

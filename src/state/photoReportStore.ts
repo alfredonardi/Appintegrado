@@ -1,6 +1,6 @@
 // =============================================================================
 // Photo Report Module Store (Zustand + Persist)
-// Integrado com photoReportService para multi-provider (http, nhost)
+// Integrado com photoReportService para Nhost backend
 // =============================================================================
 
 import { create } from 'zustand';

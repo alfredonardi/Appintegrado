@@ -1,13 +1,10 @@
 /**
  * Service para Autenticação
- * Abstrai chamadas para API ou Nhost baseado no data provider
+ * Usa exclusivamente Nhost como backend
  */
 
-import { apiClient } from './apiClient';
+import { authServiceNhost } from './nhost/authServiceNhost';
 import { User } from './mock/mockUsers';
-import { getDataProvider } from './provider';
-
-const ENDPOINT = '/api/auth';
 
 export interface LoginRequest {
   email: string;
@@ -31,77 +28,84 @@ export class AuthService {
    * Login - Autenticação do usuário
    */
   async login(email: string, password: string): Promise<LoginResponse> {
-    const provider = getDataProvider();
+    const nhostUser = await authServiceNhost.login(email, password);
+    const token = authServiceNhost.getAccessToken() || '';
 
-    // HTTP provider (default)
-    return apiClient.post<LoginResponse>(`${ENDPOINT}/login`, {
-      email,
-      password,
-    });
+    // Mapear NhostUser para User
+    const user: User = {
+      id: nhostUser.id,
+      name: nhostUser.displayName || nhostUser.email || 'Usuário',
+      email: nhostUser.email || '',
+      role: nhostUser.defaultRole || 'user',
+    };
+
+    return { token, user };
   }
 
   /**
    * Logout - Limpar sessão
    */
   async logout(): Promise<void> {
-    const provider = getDataProvider();
-
-    // HTTP provider (default)
-    await apiClient.post<void>(`${ENDPOINT}/logout`, {});
+    await authServiceNhost.logout();
   }
 
   /**
    * Registrar novo usuário
    */
   async register(data: RegisterRequest): Promise<LoginResponse> {
-    const provider = getDataProvider();
+    const nhostUser = await authServiceNhost.register(data.email, data.password, data.name);
+    const token = authServiceNhost.getAccessToken() || '';
 
-    // HTTP provider (default)
-    return apiClient.post<LoginResponse>(`${ENDPOINT}/register`, data);
+    // Mapear NhostUser para User
+    const user: User = {
+      id: nhostUser.id,
+      name: nhostUser.displayName || data.name || 'Usuário',
+      email: nhostUser.email || data.email,
+      role: nhostUser.defaultRole || data.role || 'user',
+    };
+
+    return { token, user };
   }
 
   /**
    * Validar token
    */
   async validateToken(token: string): Promise<User> {
-    const provider = getDataProvider();
+    const nhostUser = authServiceNhost.getCurrentUser();
+    if (!nhostUser) {
+      throw new Error('Token inválido ou expirado');
+    }
 
-    // HTTP provider (default)
-    return apiClient.get<User>(`${ENDPOINT}/validate`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    return {
+      id: nhostUser.id,
+      name: nhostUser.displayName || nhostUser.email || 'Usuário',
+      email: nhostUser.email || '',
+      role: nhostUser.defaultRole || 'user',
+    };
   }
 
   /**
    * Obter usuário atual
    */
   async getCurrentUser(): Promise<User | null> {
-    const provider = getDataProvider();
-
-    // HTTP provider
-    const token = localStorage.getItem('casehub-auth-token');
-    if (!token) {
+    const nhostUser = authServiceNhost.getCurrentUser();
+    if (!nhostUser) {
       return null;
     }
 
-    try {
-      return await this.validateToken(token);
-    } catch {
-      return null;
-    }
+    return {
+      id: nhostUser.id,
+      name: nhostUser.displayName || nhostUser.email || 'Usuário',
+      email: nhostUser.email || '',
+      role: nhostUser.defaultRole || 'user',
+    };
   }
 
   /**
    * Alterar senha
    */
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {
-    const provider = getDataProvider();
-
-    // HTTP provider (default)
-    await apiClient.post<void>(`${ENDPOINT}/change-password`, {
-      currentPassword,
-      newPassword,
-    });
+    throw new Error('Nhost implementation not yet available for changePassword');
   }
 }
 

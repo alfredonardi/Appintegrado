@@ -1,50 +1,34 @@
 /**
  * Data Provider Configuration and Resolution
  *
- * This module handles switching between data providers (including Nhost).
- *
- * Priority:
- * 1. VITE_DATA_PROVIDER (explicit provider selection)
+ * This module handles Nhost configuration and validation.
  *
  * Default: nhost
  */
 
-export type DataProvider = 'http' | 'nhost';
+export type DataProvider = 'nhost';
 
 /**
- * Resolves the current data provider based on environment variables.
+ * Resolves the current data provider (always Nhost).
  */
 export function getDataProvider(): DataProvider {
-  // Check explicit VITE_DATA_PROVIDER first
-  const explicitProvider = import.meta.env.VITE_DATA_PROVIDER as DataProvider | undefined;
-  if (explicitProvider && ['http', 'nhost'].includes(explicitProvider)) {
-    return explicitProvider;
-  }
-
   return 'nhost';
 }
 
 /**
- * Helper functions for provider detection
+ * Helper function for provider detection
  */
-export function isHttpProvider(): boolean {
-  return getDataProvider() === 'http';
-}
-
 export function isNhostProvider(): boolean {
-  return getDataProvider() === 'nhost';
+  return true;
 }
 
 /**
  * Get provider configuration summary (for logging/debugging)
  */
 export function getProviderConfig() {
-  const provider = getDataProvider();
   const config = {
-    provider,
-    isHttp: isHttpProvider(),
-    isNhost: isNhostProvider(),
-    apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
+    provider: 'nhost' as const,
+    isNhost: true,
     nhostAuthUrl: import.meta.env.VITE_NHOST_AUTH_URL || undefined,
     nhostGraphqlUrl: import.meta.env.VITE_NHOST_GRAPHQL_URL || undefined,
     nhostStorageUrl: import.meta.env.VITE_NHOST_STORAGE_URL || undefined,
@@ -59,11 +43,7 @@ export function getProviderConfig() {
 
   // Log config in development
   if (import.meta.env.DEV) {
-    if (config.isNhost) {
-      console.info('[Provider] NHOST MODE', config);
-    } else {
-      console.info('[Provider] Data provider configured:', config);
-    }
+    console.info('[Provider] NHOST MODE', config);
   }
 
   return config;
