@@ -1,6 +1,6 @@
 /**
  * Capture Service
- * Abstrai chamadas para API ou Supabase baseado no data provider
+ * Abstrai chamadas para API ou Nhost baseado no data provider
  *
  * Responsável por:
  * - Upload de imagens múltiplas
@@ -10,7 +10,6 @@
 
 import { CaptureImage } from '@/types/capture';
 import { getDataProvider } from './provider';
-import * as captureServiceSupabase from './supabase/captureServiceSupabase';
 import { apiClient } from './apiClient';
 
 const ENDPOINT = '/api/cases';
@@ -21,11 +20,6 @@ export class CaptureService {
    */
   async uploadCaseImages(caseId: string, files: File[]): Promise<CaptureImage[]> {
     const provider = getDataProvider();
-
-    // Supabase provider
-    if (provider === 'supabase') {
-      return captureServiceSupabase.uploadCaseImages(caseId, files);
-    }
 
     // HTTP provider (default)
     const formData = new FormData();
@@ -41,11 +35,6 @@ export class CaptureService {
   async listCaseImages(caseId: string): Promise<CaptureImage[]> {
     const provider = getDataProvider();
 
-    // Supabase provider
-    if (provider === 'supabase') {
-      return captureServiceSupabase.listCaseImages(caseId);
-    }
-
     // HTTP provider (default)
     return apiClient.get<CaptureImage[]>(`${ENDPOINT}/${caseId}/images`);
   }
@@ -56,14 +45,6 @@ export class CaptureService {
   async deleteCaseImage(caseId: string, imageId: string, storagePath?: string): Promise<void> {
     const provider = getDataProvider();
 
-    // Supabase provider
-    if (provider === 'supabase') {
-      if (!storagePath) {
-        throw new Error('[CaptureService] storagePath required for Supabase provider');
-      }
-      return captureServiceSupabase.deleteCaseImage(imageId, storagePath);
-    }
-
     // HTTP provider (default)
     return apiClient.delete(`${ENDPOINT}/${caseId}/images/${imageId}`);
   }
@@ -73,11 +54,6 @@ export class CaptureService {
    */
   async deleteCaseAllImages(caseId: string): Promise<void> {
     const provider = getDataProvider();
-
-    // Supabase provider
-    if (provider === 'supabase') {
-      return captureServiceSupabase.deleteCaseAllImages(caseId);
-    }
 
     // HTTP provider (default)
     return apiClient.delete(`${ENDPOINT}/${caseId}/images`);

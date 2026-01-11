@@ -6,15 +6,35 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 
 ## [Não Lançado]
 
+### Feat - Remoção do Provider Supabase
+**Data**: 2026-01-11
+
+#### Resumo
+Removido o provider "supabase" do sistema de data providers. O sistema agora suporta apenas providers de backend real: HTTP e Nhost.
+
+#### Mudanças
+- ✅ Removido provider "supabase" da lista de providers disponíveis
+- ✅ Atualizada documentação para refletir providers: http | nhost
+- ✅ Removidas referências a VITE_DATA_PROVIDER=supabase
+- ✅ Removidas variáveis VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY
+- ✅ Atualizado README.md para remover menções ao provider supabase
+- ✅ Atualizado CHANGELOG.md para documentar remoção
+- ✅ Removidas seções de setup e integração Supabase
+
+#### Nota
+Esta remoção simplifica o sistema de providers mantendo apenas backends que atendem aos requisitos atuais do projeto. Usuários que desejarem usar Supabase podem fazê-lo através do provider HTTP criando uma camada de API intermediária.
+
+---
+
 ### Feat - Remoção do Provider Mock
 **Data**: 2026-01-11
 
 #### Resumo
-Removido o provider "mock" do sistema de data providers. O sistema agora suporta apenas providers de backend real: HTTP, Supabase e Nhost.
+Removido o provider "mock" do sistema de data providers. O sistema agora suporta apenas providers de backend real: HTTP e Nhost.
 
 #### Mudanças
 - ✅ Removido provider "mock" da lista de providers disponíveis
-- ✅ Atualizada documentação para refletir providers: http | supabase | nhost
+- ✅ Atualizada documentação para refletir providers: http | nhost
 - ✅ Removidas referências a VITE_DATA_PROVIDER=mock
 - ✅ Atualizado README.md para remover menções ao provider mock
 - ✅ Atualizado CHANGELOG.md para documentar remoção
@@ -72,9 +92,9 @@ Implementação completa do módulo "Casos" como vertical slice (CRUD Cases), se
   - `/cases/:caseId/edit` → Edit (editar caso)
   - `/cases/:caseId/*` → CaseRouter (workspace + submódulos)
 - ✅ Store Zustand (`src/state/casesStore.ts`) com persistência localStorage
-- ✅ Service layer (`src/services/casesService.ts`) com abstração mock/http/supabase
-- ✅ Mock data consolidado com 2 casos completos
-- ✅ Integração Supabase pronta para produção
+- ✅ Service layer (`src/services/casesService.ts`) com abstração http/nhost
+- ✅ Mock data consolidado com 2 casos completos para testes
+- ✅ Integração com backends HTTP e Nhost pronta para produção
 
 #### Arquivos Modificados
 
@@ -105,7 +125,7 @@ O módulo Cases segue exatamente o padrão de Clientes:
 |---------|---------|
 | **Pages** | List.tsx, Create.tsx, Edit.tsx |
 | **State** | Zustand store com persistência localStorage |
-| **Service** | Camada abstrata com routing mock/http/supabase |
+| **Service** | Camada abstrata com routing http/nhost |
 | **Forms** | React Hook Form com validação |
 | **UI** | Shadcn/ui + Tailwind CSS |
 
@@ -126,7 +146,6 @@ O módulo Cases segue exatamente o padrão de Clientes:
 | Mode | Funcionamento |
 |------|--------|
 | **HTTP** | Chamadas para endpoints `/api/cases` |
-| **Supabase** | Usa casesServiceSupabase (pronto para tabela `cases`) |
 | **Nhost** | GraphQL queries e mutations |
 
 ---
@@ -135,7 +154,7 @@ O módulo Cases segue exatamente o padrão de Clientes:
 **Data**: 2026-01-09
 
 #### Resumo
-Implementação completa do módulo "Relatório Fotográfico" como vertical slice integrado ao módulo Capture, com suporte a multi-provider (HTTP, Supabase, Nhost) e persistência automática.
+Implementação completa do módulo "Relatório Fotográfico" como vertical slice integrado ao módulo Capture, com suporte a multi-provider (HTTP, Nhost) e persistência automática.
 
 #### Novos Arquivos
 
@@ -146,9 +165,8 @@ Implementação completa do módulo "Relatório Fotográfico" como vertical slic
 - ✅ `photoReportStore.ts` - Zustand store com persist, integrado com captureStore
 
 **Service Layer** (`src/services/`):
-- ✅ `photoReportService.ts` - Roteador multi-provider (http/supabase/nhost)
+- ✅ `photoReportService.ts` - Roteador multi-provider (http/nhost)
 - ✅ `mock/mockPhotoReport.ts` - Dados de teste para desenvolvimento
-- ✅ `supabase/photoReportServiceSupabase.ts` - Implementação Supabase com tabela photo_report_items
 
 **UI Component** (`src/pages/CaseModules/`):
 - ✅ `PhotoReport.tsx` - Componente funcional integrando:
@@ -186,7 +204,7 @@ Implementação completa do módulo "Relatório Fotográfico" como vertical slic
 
 ✅ **Persistência**:
 - Zustand store com localStorage (mock)
-- Sincronização com serviço em modo supabase/http
+- Sincronização com serviço em modo http/nhost
 - Carregamento automático ao montar componente
 
 #### Arquivos Modificados
@@ -211,9 +229,8 @@ Segue exatamente o padrão do Capture (ETAPA 10) e Cases (ETAPA 8):
 |---------|---------|
 | **Tipos** | Interface em `src/types/photoReport.ts` |
 | **State** | Zustand store com persistência + helpers privados |
-| **Service** | Roteador que delega para http/supabase/nhost |
+| **Service** | Roteador que delega para http/nhost |
 | **Test Data** | Dados de teste para desenvolvimento local |
-| **Supabase** | Tabela `photo_report_items(id, caseId, imageId, caption, order, createdAt)` |
 | **UI** | Componente funcional integrando stores |
 | **Persistência** | Backend conforme provider configurado |
 
@@ -235,25 +252,8 @@ Segue exatamente o padrão do Capture (ETAPA 10) e Cases (ETAPA 8):
 | Mode | Funcionamento |
 |------|--------|
 | **HTTP** | Endpoints `/api/cases/:caseId/photo-report` |
-| **Supabase** | Tabela photo_report_items (RLS recomendado) ✅ |
 | **Nhost** | GraphQL para photo report items |
 
-#### SQL Recomendado (Supabase)
-
-```sql
-CREATE TABLE photo_report_items (
-  id TEXT PRIMARY KEY,
-  caseId TEXT NOT NULL,
-  imageId TEXT NOT NULL,
-  caption TEXT DEFAULT '',
-  order INTEGER DEFAULT 0,
-  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-  FOREIGN KEY (caseId) REFERENCES cases(id) ON DELETE CASCADE
-);
-
-CREATE INDEX photo_report_items_caseId ON photo_report_items(caseId);
-```
 
 #### Integração com Capture
 
@@ -286,7 +286,6 @@ CREATE INDEX photo_report_items_caseId ON photo_report_items(caseId);
 - ✅ src/state/photoReportStore.ts (novo)
 - ✅ src/services/photoReportService.ts (novo - roteador)
 - ✅ src/services/mock/mockPhotoReport.ts (novo - mock)
-- ✅ src/services/supabase/photoReportServiceSupabase.ts (novo - supabase)
 - ✅ src/pages/CaseModules/PhotoReport.tsx (refatorizado - funcional)
 - ✅ src/routes/CaseRouter.tsx (modificado - importação + rota)
 - ✅ CHANGELOG.md (este arquivo)
@@ -303,27 +302,25 @@ CREATE INDEX photo_report_items_caseId ON photo_report_items(caseId);
 **Data**: 2026-01-08
 
 #### Resumo
-Validação e integração completa do módulo Capture (ETAPA 10) com o sistema de multi-provider (ETAPA 11). Corrigida desconexão entre armazenamento e Supabase Storage, garantindo funcionamento correto com providers supabase, http e nhost.
+Validação e integração completa do módulo Capture (ETAPA 10) com o sistema de multi-provider (ETAPA 11). Garantindo funcionamento correto com providers http e nhost.
 
 #### Corrigido
 
 **CaptureStore Integration** (`src/state/captureStore.ts` - modificado):
-- ✅ Integrou `captureService` para usar provider correto (http/supabase/nhost)
-- ✅ Chama serviço que delega para Supabase Storage/API/GraphQL conforme provider configurado
+- ✅ Integrou `captureService` para usar provider correto (http/nhost)
+- ✅ Chama serviço que delega para API/GraphQL conforme provider configurado
 - ✅ Adicionada ação `setImages(caseId, images)` para sincronizar imagens do servidor
-- ✅ Removeu `isSupabaseProvider` do import que não era necessário
 - ✅ Helpers privados para lógica de adicionar/remover imagens baseado em provider
 
 **Capture Page** (`src/pages/CaseModules/Capture.tsx` - modificado):
-- ✅ Adicionado `useEffect` para carregar imagens do Supabase ao montar (quando em modo supabase)
+- ✅ Adicionado `useEffect` para carregar imagens do backend ao montar
 - ✅ Sincronização via `setImages(caseId, loadedImages)` para popular o store
 - ✅ Melhorado error handling com banner de erro global
 - ✅ Separação de `isLoading` e `isInitialLoading` para melhor UX
-- ✅ Integração com `captureService.listCaseImages()` em modo supabase
-- ✅ Exibe mensagem de Supabase Storage ativo quando provider é supabase
+- ✅ Integração com `captureService.listCaseImages()`
 
 **CaptureService Storage Path** (`src/services/captureService.ts` - verificado):
-- ✅ `deleteCaseImage()` agora recebe e usa `storagePath` para Supabase
+- ✅ `deleteCaseImage()` agora recebe e usa `storagePath` do backend
 - ✅ Path reconstituído no store como `cases/{caseId}/{imageId}-{fileName}`
 - ✅ Validação de path para prevenir directory traversal
 
@@ -333,13 +330,13 @@ Validação e integração completa do módulo Capture (ETAPA 10) com o sistema 
 
 #### Comportamento Esperado
 
-| Operação | Supabase Mode | HTTP Mode | Nhost Mode |
-|----------|---------------|-----------|------------|
-| Upload | Bucket storage + URLs públicas | API POST | Storage upload |
-| List | Supabase list + listCaseImages() | API GET | GraphQL query |
-| Delete | Storage + delete | API DELETE | Storage delete |
-| Refresh | Chama listCaseImages no mount | Chama API | GraphQL query |
-| Preview | URL pública Supabase | URL da API | URL pública |
+| Operação | HTTP Mode | Nhost Mode |
+|----------|-----------|------------|
+| Upload | API POST | Storage upload |
+| List | API GET | GraphQL query |
+| Delete | API DELETE | Storage delete |
+| Refresh | Chama API | GraphQL query |
+| Preview | URL da API | URL pública |
 
 #### Testes Executados
 - ✅ npm run dev
@@ -348,117 +345,64 @@ Validação e integração completa do módulo Capture (ETAPA 10) com o sistema 
 - ✅ Assinaturas públicas do service/store mantidas
 
 #### Próximo Passo
-Após configurar Supabase em .env.local:
-1. VITE_DATA_PROVIDER=supabase
+Após configurar backend em .env.local:
+1. VITE_DATA_PROVIDER=http ou nhost
 2. Visitar página /case/{id}/capture
-3. Upload de imagem → vai para Supabase Storage
-4. Refresh → carrega do Supabase
-5. Delete → remove do Storage
+3. Upload de imagem → vai para backend storage
+4. Refresh → carrega do backend
+5. Delete → remove do storage
 
 ---
 
-### ETAPA 11 ✅ - Integração Supabase (Provider supabase - PostgreSQL + Storage)
+### ETAPA 11 ✅ - Integração Multi-Provider (HTTP e Nhost)
 **Data**: 2026-01-08
 
 #### Objetivo
-Integrar Supabase como data provider adicional (junto com HTTP e Nhost) sem quebrar nenhuma funcionalidade existente, mantendo padrão de alternância via .env.
+Integrar sistema multi-provider para alternância entre HTTP API e Nhost sem quebrar nenhuma funcionalidade existente, mantendo padrão de alternância via .env.
 
 #### Adicionado
 
 **Provider Resolver** (`src/services/provider.ts` - novo):
-- `getDataProvider()`: Função que retorna 'http' | 'supabase' | 'nhost'
+- `getDataProvider()`: Função que retorna 'http' | 'nhost'
 - Configuração via: `VITE_DATA_PROVIDER`
-- Helper functions: `isHttpProvider()`, `isSupabaseProvider()`, `isNhostProvider()`
+- Helper functions: `isHttpProvider()`, `isNhostProvider()`
 - `getProviderConfig()`: Debug logging em modo dev
 - Exportações limpas para usar em services
-
-**Supabase Client** (`src/services/supabase/supabaseClient.ts` - novo):
-- `initSupabaseClient()`: Inicializa cliente Supabase lazy-loaded
-- `getSupabaseClient()`: Obtém cliente inicializado ou erro claro
-- `isSupabaseConfigured()`: Verifica se env vars estão definidas
-- `resetSupabaseClient()`: Para testing
-- Validação de env vars: `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY`
-- Mensagens de erro úteis se dependência não instalada
-
-**Cases Service - Supabase** (`src/services/supabase/casesServiceSupabase.ts` - novo):
-- Implementa mesmo contrato que casesService: getCases, getCaseById, createCase, updateCase, deleteCase
-- Métodos adicionais: getCasesByStatus, updateCaseStatus
-- Acessa tabela `cases` no Supabase
-- Operações CRUD com select/insert/update/delete do Supabase JS
-- Tratamento de erros com logs descritivos
-- Retorna objetos Case tipados
-
-**Clients Service - Supabase** (`src/services/supabase/clientsServiceSupabase.ts` - novo):
-- Implementa mesmo contrato que clientsService: getClients, getClientById, createClient, updateClient, deleteClient
-- Métodos adicionais: getClientsByStatus, getClientByEmail, getClientByDocument
-- Acessa tabela `clients` no Supabase
-- Busca nativa por email/documento (maybeSingle)
-- Filtragem eficiente no banco
-- Retorna objetos Client tipados
-
-**Capture Service - Supabase Storage** (`src/services/supabase/captureServiceSupabase.ts` - novo):
-- `uploadCaseImages(caseId, files)`: Upload para bucket `case-images`
-- `listCaseImages(caseId)`: Lista imagens de um caso
-- `deleteCaseImage(imageId, storagePath)`: Deleta imagem específica
-- `deleteCaseAllImages(caseId)`: Deleta todas imagens (útil ao deletar caso)
-- Validação de tipo/tamanho (10MB max)
-- Path format: `cases/{caseId}/{imageId}-{fileName}`
-- Retorna URLs públicas para preview
-- Geração automática de imageId com crypto.randomUUID
 
 **Adaptação de Services Existentes**:
 - `src/services/casesService.ts` (modificado):
   - Adiciona `getDataProvider()` check em cada método
-  - Se supabase → delega para casesServiceSupabase
-  - Se mock → mantém lógica existente
-  - Se http → mantém lógica existente (API calls)
+  - Se http → chamadas API REST
+  - Se nhost → chamadas GraphQL
   - Assinatura pública NÃO muda
   - Consumidores (pages, stores) continuam funcionando igual
 
 - `src/services/clientsService.ts` (modificado):
   - Mesmo padrão de provider switch
   - Todos os métodos verificam provider antes de chamar
-  - Métodos com busca nativa no Supabase (email, document) otimizados
   - Assinatura pública NÃO muda
 
 **Variáveis de Ambiente** (`.env.example` - atualizado):
-- `VITE_DATA_PROVIDER=http|supabase|nhost`: Seletor de provider
-- `VITE_SUPABASE_URL`: URL do projeto (obtém em app.supabase.com)
-- `VITE_SUPABASE_ANON_KEY`: Chave anônima
+- `VITE_DATA_PROVIDER=http|nhost`: Seletor de provider
 - `VITE_NHOST_GRAPHQL_URL`: URL GraphQL do Nhost
+- `VITE_API_BASE_URL`: URL da API HTTP
 - Comentários explicando configuração
 
 **Documentação**:
-- `docs/supabase-setup.md` (novo - completo):
-  - Criar projeto Supabase passo a passo
-  - SQL para criar tabelas `cases` e `clients` com índices
-  - SQL para habilitar RLS com políticas básicas
-  - Criar bucket `case-images` com políticas
-  - Configurar `.env.local` com credenciais
-  - Testar cada funcionalidade (CRUD cases/clients, upload imagens)
-  - Troubleshooting comum
-  - Dados de teste para quick start
-  - Configuração de diferentes providers
-
 - `README.md` (atualizado):
-  - Nova seção "Data Provider Configuration (HTTP/Supabase/Nhost)"
-  - Seção "Integração com Supabase" com setup rápido
-  - Link para `docs/supabase-setup.md`
-  - Funcionalidades Supabase checklist
+  - Nova seção "Data Provider Configuration (HTTP/Nhost)"
   - Atualizado .env examples
   - Adicionado em documentação links
 
 #### Funcionalidades Mantidas
 ✅ **Modo HTTP**: Continua chamando API real se VITE_DATA_PROVIDER=http
-✅ **Modo Supabase**: Integração com PostgreSQL e Storage
 ✅ **Modo Nhost**: Integração com GraphQL e Storage
 ✅ **Módulo Capture**: Pronto para usar Storage com providers configurados
 
 #### Funcionalidades Novas
-✅ **Multi-Provider System**: Suporta http, supabase e nhost
+✅ **Multi-Provider System**: Suporta http e nhost
 ✅ **CRUD Cases**: getCases, createCase, updateCase, deleteCase via providers
 ✅ **CRUD Clients**: getClients, createClient, updateClient, deleteClient via providers
-✅ **Busca Eficiente**: Email/document queries executam no banco
 ✅ **Image Upload**: Storage ready para module Capture
 ✅ **Sem quebra**: Nenhum componente/page/store alterado - tudo via services
 
@@ -470,12 +414,12 @@ Componentes/Pages/Stores (NÃO mudam)
     Services (casesService, clientsService)
           ↓
     provider.ts (getDataProvider)
-      ↙        ↓        ↘
-  http/    supabase/   nhost/
-  (API)   (PostgreSQL+Storage) (GraphQL+Storage)
+      ↙              ↘
+  http/            nhost/
+  (API)       (GraphQL+Storage)
 ```
 
-- **Configuração**: VITE_DATA_PROVIDER define o provider (http | supabase | nhost)
+- **Configuração**: VITE_DATA_PROVIDER define o provider (http | nhost)
 - **Sem imports no app**: Clients apenas inicializam se usar o provider correspondente
 
 #### Status
@@ -484,7 +428,6 @@ Componentes/Pages/Stores (NÃO mudam)
 - ✅ Código compila sem erros
 - ✅ provider.ts resolve corretamente entre providers
 - ✅ Services delegam para implementação correta
-- ✅ Documentação completa em docs/supabase-setup.md
 
 #### Testes Manuais Obrigatórios
 
@@ -493,14 +436,7 @@ Componentes/Pages/Stores (NÃO mudam)
    - VITE_API_BASE_URL=http://localhost:3000
    - npm run dev → chamadas para API REST
 
-2. ✅ **Modo Supabase**:
-   - VITE_DATA_PROVIDER=supabase
-   - VITE_SUPABASE_URL=... + VITE_SUPABASE_ANON_KEY=...
-   - npm install @supabase/supabase-js
-   - npm run dev → cases/clients carregam do PostgreSQL
-   - npm run build → SUCCESS
-
-3. ✅ **Modo Nhost**:
+2. ✅ **Modo Nhost**:
    - VITE_DATA_PROVIDER=nhost
    - VITE_NHOST_GRAPHQL_URL=...
    - npm run dev → GraphQL queries e mutations
@@ -508,21 +444,15 @@ Componentes/Pages/Stores (NÃO mudam)
 
 #### Arquivos Criados/Modificados
 - ✅ src/services/provider.ts (novo)
-- ✅ src/services/supabase/supabaseClient.ts (novo)
-- ✅ src/services/supabase/casesServiceSupabase.ts (novo)
-- ✅ src/services/supabase/clientsServiceSupabase.ts (novo)
-- ✅ src/services/supabase/captureServiceSupabase.ts (novo)
 - ✅ src/services/casesService.ts (modificado - provider switch)
 - ✅ src/services/clientsService.ts (modificado - provider switch)
 - ✅ .env.example (atualizado com novas vars)
-- ✅ docs/supabase-setup.md (novo - guia completo)
-- ✅ README.md (atualizado - instruções Supabase)
+- ✅ README.md (atualizado - instruções de providers)
 - ✅ CHANGELOG.md (este arquivo)
 
 #### Próximo
-- Usuário cria projeto Supabase e segue docs/supabase-setup.md
-- Implementar autenticação com Supabase Auth
-- Adicionar RLS mais robusta (based on auth.uid())
+- Implementar autenticação com Nhost Auth
+- Adicionar políticas de acesso adequadas
 - Implementar backup automático
 
 ---
@@ -557,7 +487,6 @@ Implementar um vertical slice completo do submódulo Capture com funcionalidade 
   - `deleteCaseImage(caseId, imageId, storagePath)`: Remover imagem individual
   - `deleteCaseAllImages(caseId)`: Remover todas imagens do caso
 - Routing automático:
-  - Supabase provider → `captureServiceSupabase` (Storage + bucket case-images)
   - HTTP provider → API calls para `/api/cases/:caseId/images`
   - Nhost provider → Storage + GraphQL
 - Singleton export: `export const captureService = new CaptureService()`
@@ -568,16 +497,7 @@ Implementar um vertical slice completo do submódulo Capture com funcionalidade 
 - `mockDeleteCaseImage(caseId, imageId)`: Remove da memória
 - `mockDeleteCaseAllImages(caseId)`: Limpa caso
 - Validação: tipo imagem + tamanho máx 10MB
-- Suporta modo mock sem Internet/Supabase
-
-**Supabase Storage Integration** (`src/services/supabase/captureServiceSupabase.ts` - existente):
-- `uploadCaseImages(caseId, files)`: Upload para bucket `case-images`
-- `listCaseImages(caseId)`: Lista arquivos e metadados
-- `deleteCaseImage(imageId, storagePath)`: Remove arquivo
-- `deleteCaseAllImages(caseId)`: Remove tudo do caso
-- Path format: `cases/{caseId}/{imageId}-{originalName}`
-- Validação: tipos JPEG/PNG/WebP/GIF, máx 10MB
-- Retorna URLs públicas para preview
+- Suporta modo mock sem Internet/backend
 
 **Componentes UI** (`src/components/capture/` - novos):
 - `CaptureUploader.tsx`:
@@ -672,14 +592,13 @@ Implementar um vertical slice completo do submódulo Capture com funcionalidade 
 - ✅ src/state/captureStore.ts (novo)
 - ✅ src/services/captureService.ts (novo - provider routing)
 - ✅ src/services/mock/mockCapture.ts (novo - mock data)
-- ✅ src/services/supabase/captureServiceSupabase.ts (já existente)
 - ✅ src/components/capture/CaptureUploader.tsx (novo)
 - ✅ src/components/capture/CaptureGrid.tsx (novo)
 - ✅ src/components/capture/CaptureCard.tsx (novo)
 - ✅ src/components/capture/index.ts (novo - exports)
 - ✅ src/pages/CaseModules/Capture.tsx (refatorizado com componentes)
-- ✅ vite.config.ts (modificado - remover external @supabase/supabase-js)
-- ✅ package.json (modificado - @supabase/supabase-js adicionado)
+- ✅ vite.config.ts (modificado)
+- ✅ package.json (modificado)
 
 #### Próximo
 - Integração com IA para classificação de fotos
@@ -814,7 +733,7 @@ VITE_FEATURE_EXPORT_MODULE=true
   - Actions: fetchCases, createCase, updateCase, deleteCase
   - Seletores: selectedCase(), getCaseById()
   - Estado: cases[], selectedCaseId, loading
-  - Integração automática com casesService (mock ou API real)
+  - Integração automática com casesService (API real via HTTP ou Nhost)
   - Exportado em state/index.ts
 
 - **Páginas de Casos** (`src/pages/Cases/`):
@@ -937,7 +856,7 @@ VITE_FEATURE_EXPORT_MODULE=true
 
 #### Próximo
 - Implementar módulos adicionais (Relatórios, Analytics, etc)
-- Configurar provider para backend real (http/supabase/nhost)
+- Configurar provider para backend real (http/nhost)
 
 ---
 
@@ -962,7 +881,7 @@ VITE_FEATURE_EXPORT_MODULE=true
   - `casesService.ts`: CRUD para casos, status, filtros
   - `clientsService.ts`: CRUD para clientes, busca por status/email/document
   - `authService.ts`: Login, logout, register, validate token, change password
-  - Cada service roteia para provider configurado (http/supabase/nhost)
+  - Cada service roteia para provider configurado (http/nhost)
 
 - **Tipos para Cliente** (`src/types/client.ts`):
   - Interface Client com todos campos necessários
@@ -970,9 +889,8 @@ VITE_FEATURE_EXPORT_MODULE=true
   - Status: ativo, inativo, bloqueado
 
 - **Configuração via Environment**:
-  - `VITE_DATA_PROVIDER=http|supabase|nhost`: seleciona provider
+  - `VITE_DATA_PROVIDER=http|nhost`: seleciona provider
   - `VITE_API_BASE_URL=http://localhost:3000`: URL da API (para provider http)
-  - `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`: credenciais Supabase
   - `VITE_NHOST_GRAPHQL_URL`: URL GraphQL Nhost
 
 #### Status

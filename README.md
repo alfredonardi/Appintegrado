@@ -11,10 +11,10 @@ Bundle exportado do Figma transformado em uma aplica├º├úo React/Vite escal
 - Ô£à **ETAPA 5**: Feature flags
 - Ô£à **ETAPA 6**: Camada de API + mocks altern├ível
 - Ô£à **ETAPA 7**: Primeiro CRUD (Clientes)
-- Ô£à **ETAPA 8**: Cases CRUD Consolidado (List, Create, Edit + Supabase/HTTP integration)
+- Ô£à **ETAPA 8**: Cases CRUD Consolidado (List, Create, Edit + HTTP/Nhost integration)
 - Ô£à **ETAPA 9**: Subm├│dulos de Caso com Feature Flags (Roteamento Aninhado)
 - Ô£à **ETAPA 10**: Capture Vertical Slice Completo (Upload e Galeria de Imagens)
-- Ô£à **ETAPA 11**: Integra├º├úo Supabase (Provider supabase - PostgreSQL + Storage)
+- Ô£à **ETAPA 11**: Integra├º├úo Backend (Providers http e nhost - API + Storage)
 - Ô£à **ETAPA 12**: Photo Report Vertical Slice (Integrado com Capture)
 
 Veja `docs/roadmap.md` para detalhes de cada etapa.
@@ -161,9 +161,6 @@ src/
 - **[docs/roadmap.md](docs/roadmap.md)** - Sequ├¬ncia de trabalho por ETAPA
 - **[CHANGELOG.md](CHANGELOG.md)** - Hist├│rico de mudan├ºas
 
-### Integra├º├úo Supabase
-- **[docs/supabase-setup.md](docs/supabase-setup.md)** - Guia completo de setup Supabase (PostgreSQL + Storage)
-
 ### Guias Originais (Figma)
 - **[PROJETO.md](PROJETO.md)** - Escopo e vis├úo geral
 - **[DESIGN_SYSTEM.md](DESIGN_SYSTEM.md)** - Design system e componentes
@@ -203,7 +200,7 @@ src/
   - Edi├º├úo de caso existente
   - Deleta├º├úo com confirma├º├úo
   - Store Zustand com persist├¬ncia
-  - Integrado com services multi-provider (http/supabase/nhost)
+  - Integrado com services multi-provider (http/nhost)
 
 - **Subm├│dulos de Caso com Feature Flags** (ETAPA 9):
   - Roteamento aninhado `/cases/:caseId/*`
@@ -215,12 +212,12 @@ src/
   - Upload m├║ltiplo de imagens com drag-drop
   - Galeria com previews responsiva
   - Persist├¬ncia com Data URLs em localStorage
-  - Integrado com Supabase Storage (modo supabase)
+  - Integrado com storage backends (http/nhost)
   - CRUD de imagens por caso
 
-- **Integra├º├úo Supabase** (ETAPA 11):
-  - Multi-provider: http | supabase | nhost
-  - PostgreSQL com tabelas cases, clients, photo_report_items
+- **Integra├º├úo Backend** (ETAPA 11):
+  - Multi-provider: http | nhost
+  - Backend com tabelas cases, clients, photo_report_items
   - Storage para case-images
 
 - **Photo Report Vertical Slice** (ETAPA 12):
@@ -418,7 +415,7 @@ import { FEATURE_FLAGS } from '@/config/features';
 )}
 ```
 
-### Data Provider Configuration (Nhost/HTTP/Supabase)
+### Data Provider Configuration (Nhost/HTTP)
 Escolha o provider de dados explicitamente:
 ```env
 # Modo 1: Nhost (backend real)
@@ -432,40 +429,7 @@ VITE_NHOST_GRAPHQL_URL=https://<subdomain>.graphql.<region>.nhost.run/v1
 # Modo 2: HTTP API (API real)
 VITE_DATA_PROVIDER=http
 VITE_API_BASE_URL=http://localhost:3000
-
-# Modo 3: Supabase (PostgreSQL + Storage)
-VITE_DATA_PROVIDER=supabase
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
-### Integra├º├úo com Supabase
-
-Para usar Supabase como data provider:
-
-1. **Instale a depend├¬ncia**:
-   ```bash
-   npm install @supabase/supabase-js
-   ```
-
-2. **Configure em `.env.local`**:
-   ```env
-   VITE_DATA_PROVIDER=supabase
-   VITE_SUPABASE_URL=https://your-project-id.supabase.co
-   VITE_SUPABASE_ANON_KEY=seu-anon-key-aqui
-   ```
-
-3. **Siga o setup completo**: Veja `docs/supabase-setup.md` para:
-   - Criar projeto Supabase
-   - Configurar banco de dados (tabelas cases e clients)
-   - Configurar storage para imagens
-   - Testar a integra├º├úo
-
-**Funcionalidades Supabase**:
-- Ô£à CRUD completo de casos (getCases, createCase, updateCase, deleteCase)
-- Ô£à CRUD completo de clientes (getClients, createClient, updateClient, deleteClient)
-- Ô£à Upload de imagens para Storage (m├│dulo Capture)
-- Ô£à Filtragem nativa por status
-- Ô£à Busca por email e documento
 
 ### Vari├íveis de Ambiente
 
@@ -487,9 +451,6 @@ VITE_NHOST_GRAPHQL_URL=https://<subdomain>.graphql.<region>.nhost.run/v1
 # Optional
 # VITE_NHOST_STORAGE_URL=https://<subdomain>.storage.<region>.nhost.run/v1
 # VITE_NHOST_FUNCTIONS_URL=https://<subdomain>.functions.<region>.nhost.run/v1
-# Supabase (opcional)
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Nota**: Vari├íveis com prefix `VITE_FEATURE_` fazem override dos defaults em `src/config/features.ts`.
@@ -576,89 +537,74 @@ Veja `package.json` para lista completa.
 
 O m├│dulo Capture implementa um vertical slice completo com upload m├║ltiplo, preview em grid e persist├¬ncia.
 
-#### Testando Capture com Supabase (6 Passos R├ípidos)
+#### Testando Capture com Backend (6 Passos R├ípidos)
 
-O m├│dulo Capture funciona com diferentes providers: http (API backend), supabase (Supabase Storage), ou nhost.
+O m├│dulo Capture funciona com diferentes providers: http (API backend) ou nhost.
 
-**Modo Supabase**: Imagens uploadam para bucket `case-images` e persistem com URLs p├║blicas.
 
-##### Pr├®-requisitos
-- Conta Supabase ativa (https://supabase.com)
-- Projeto criado com bucket `case-images` (ou auto-criar)
-- Vari├íveis de ambiente configuradas em `.env.local`
+##### Pré-requisitos
+- Backend configurado (Nhost ou API HTTP)
+- Variáveis de ambiente configuradas em `.env.local`
+
 
 ##### 6 Passos de Teste
 
 ```bash
-# PASSO 1: Configurar vari├íveis de ambiente
-# Editar .env.local com credenciais Supabase:
-VITE_DATA_PROVIDER=supabase
-VITE_SUPABASE_URL=https://seu-projeto.supabase.co
-VITE_SUPABASE_ANON_KEY=seu-anon-key-aqui
+# PASSO 1: Configurar variáveis de ambiente
+# Exemplo para Nhost - editar .env.local:
+VITE_DATA_PROVIDER=nhost
+VITE_NHOST_AUTH_URL=https://seu-projeto.auth.region.nhost.run/v1
+VITE_NHOST_GRAPHQL_URL=https://seu-projeto.graphql.region.nhost.run/v1
 
-# PASSO 2: Instalar depend├¬ncia Supabase (se n├úo estiver)
-npm install @supabase/supabase-js
+# Ou para HTTP API:
+VITE_DATA_PROVIDER=http
+VITE_API_BASE_URL=http://localhost:3000
 
-# PASSO 3: Iniciar app em desenvolvimento
+# PASSO 2: Iniciar app em desenvolvimento
 npm run dev
 
-# PASSO 4: Navegar para m├│dulo Capture
+# PASSO 3: Navegar para módulo Capture
 # - Ir para http://localhost:5173/cases
 # - Clicar em um caso existente
 # - Clicar em "Captura de Imagens"
 
-# PASSO 5: Testar Upload
-# - Selecionar 2-3 imagens (PNG, JPG, WebP, GIF - m├íx 10MB cada)
+# PASSO 4: Testar Upload
+# - Selecionar 2-3 imagens (PNG, JPG, WebP, GIF - máx 10MB cada)
 # - Confirmar: imagens aparecem na galeria em ~2-3 segundos
 # - Verificar console: logs [CaptureModule] e [CaptureStore]
 
-# PASSO 6: Testar Persist├¬ncia e Delete
+# PASSO 5: Testar Persistência e Delete
 # - F5 (refresh page)
-# - Confirmar: imagens persistem (carregadas do Supabase Storage)
+# - Confirmar: imagens persistem (carregadas do backend)
 # - Clicar em uma imagem para deletar
-# - F5 novamente: imagem removida n├úo reaparece
+# - F5 novamente: imagem removida não reaparece
 ```
 
-##### Verifica├º├úo T├®cnica
+##### Verificação Técnica
 
 **Console Esperado (sucesso)**:
 ```
-[Provider] Data provider configured: {provider: "supabase", ...}
-[CaptureModule] Imagens carregadas do Supabase: 2
-[CaptureStore] Erro ao fazer upload de imagens: (nenhum erro se sucesso)
-```
-
-**Supabase Storage (estrutura esperada)**:
-```
-case-images/
-ÔööÔöÇÔöÇ cases/
-    ÔööÔöÇÔöÇ {caseId}/
-        Ôö£ÔöÇÔöÇ {uuid}-photo1.jpg
-        Ôö£ÔöÇÔöÇ {uuid}-photo2.png
-        ÔööÔöÇÔöÇ {uuid}-photo3.webp
-```
-
-**URLs P├║blicas**: Clique em uma imagem - a URL na barra de endere├ºo mostrar├í:
-```
-https://seu-projeto.supabase.co/storage/v1/object/public/case-images/cases/{caseId}/{uuid}-photo.jpg
+[Provider] Data provider configured: {provider: "nhost"|"http", ...}
+[CaptureModule] Imagens carregadas: 2
+[CaptureStore] Upload de imagens concluído com sucesso
 ```
 
 ##### Troubleshooting
 
-| Problema | Solu├º├úo |
-|----------|---------|
-| `Error: Supabase client not initialized` | Verificar VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY |
-| Upload nunca completa | Bucket n├úo existe ou RLS bloqueando - ler docs/supabase-setup.md |
-| Imagens n├úo persistem ap├│s refresh | Verificar configura├º├úo do provider |
-| Erro ao deletar | Verificar path formato `cases/{caseId}/{imageId}-{name}` |
+| Problema | Solução |
+|----------|----------|
+| `Error: Provider not initialized` | Verificar configuração das variáveis de ambiente |
+| Upload nunca completa | Verificar conectividade com backend e configuração de storage |
+| Imagens não persistem após refresh | Verificar configuração do provider |
+| Erro ao deletar | Verificar permissões de storage no backend |
 
 
 #### Endpoints HTTP (se VITE_DATA_PROVIDER=http)
 
-Se voc├¬ implementar API backend, estes endpoints s├úo esperados:
+Se você implementar API backend, estes endpoints são esperados:
 
 ```
-POST   /api/cases/:caseId/images       # Upload m├║ltiplo
+POST   /api/cases/:caseId/images       # Upload múltiplo
 GET    /api/cases/:caseId/images       # Listar imagens
 DELETE /api/cases/:caseId/images/:id   # Remover imagem
 DELETE /api/cases/:caseId/images       # Remover todas

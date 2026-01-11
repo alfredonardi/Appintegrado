@@ -1,6 +1,6 @@
 // =============================================================================
 // Photo Report Module Store (Zustand + Persist)
-// Integrado com photoReportService para multi-provider (http, supabase)
+// Integrado com photoReportService para multi-provider (http, nhost)
 // =============================================================================
 
 import { create } from 'zustand';
@@ -21,8 +21,7 @@ function generateId(): string {
 
 /**
  * Store global de Photo Report items
- * - Em modo supabase: cache local + sincroniza com Supabase
- * - Em modo http: cache local
+ * - Cache local com sincronização via serviço
  */
 export const usePhotoReportStore = create<PhotoReportState>()(
   persist(
@@ -191,8 +190,6 @@ export const usePhotoReportStore = create<PhotoReportState>()(
     {
       name: 'atlas-photo-report',
       storage: createJSONStorage(() => localStorage),
-      // Em modo Supabase, o cache local persiste para disponibilidade offline
-      // Os dados reais estão no Supabase
     }
   )
 );
