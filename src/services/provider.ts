@@ -9,7 +9,7 @@
  * Default: nhost
  */
 
-export type DataProvider = 'mock' | 'http' | 'supabase' | 'nhost';
+export type DataProvider = 'http' | 'supabase' | 'nhost';
 
 /**
  * Resolves the current data provider based on environment variables.
@@ -17,7 +17,7 @@ export type DataProvider = 'mock' | 'http' | 'supabase' | 'nhost';
 export function getDataProvider(): DataProvider {
   // Check explicit VITE_DATA_PROVIDER first
   const explicitProvider = import.meta.env.VITE_DATA_PROVIDER as DataProvider | undefined;
-  if (explicitProvider && ['mock', 'http', 'supabase', 'nhost'].includes(explicitProvider)) {
+  if (explicitProvider && ['http', 'supabase', 'nhost'].includes(explicitProvider)) {
     return explicitProvider;
   }
 
@@ -27,10 +27,6 @@ export function getDataProvider(): DataProvider {
 /**
  * Helper functions for provider detection
  */
-export function isMockProvider(): boolean {
-  return getDataProvider() === 'mock';
-}
-
 export function isHttpProvider(): boolean {
   return getDataProvider() === 'http';
 }
@@ -50,7 +46,6 @@ export function getProviderConfig() {
   const provider = getDataProvider();
   const config = {
     provider,
-    isMock: isMockProvider(),
     isHttp: isHttpProvider(),
     isSupabase: isSupabaseProvider(),
     isNhost: isNhostProvider(),

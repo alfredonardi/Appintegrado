@@ -4,30 +4,9 @@ import * as providerModule from '@/services/provider';
 
 // Mock the provider module
 vi.mock('@/services/provider', () => ({
-  getDataProvider: vi.fn(() => 'mock'),
-  isMockProvider: vi.fn(() => true),
-  isSupabaseProvider: vi.fn(() => false),
+  getDataProvider: vi.fn(() => 'supabase'),
+  isSupabaseProvider: vi.fn(() => true),
   isHttpProvider: vi.fn(() => false),
-}));
-
-// Mock mock capture service
-vi.mock('@/services/mock/mockCapture', () => ({
-  getMockCaseImages: vi.fn(() => Promise.resolve([])),
-  mockUploadCaseImages: vi.fn(() =>
-    Promise.resolve([
-      {
-        id: 'mock-img-1',
-        caseId: 'case-1',
-        name: 'test.jpg',
-        size: 1024,
-        type: 'image/jpeg',
-        url: 'data:image/jpeg;base64,...',
-        createdAt: new Date().toISOString(),
-      },
-    ])
-  ),
-  mockDeleteCaseImage: vi.fn(() => Promise.resolve(undefined)),
-  mockDeleteCaseAllImages: vi.fn(() => Promise.resolve(undefined)),
 }));
 
 // Mock Supabase service
@@ -52,18 +31,18 @@ describe('CaptureService', () => {
     vi.clearAllMocks();
   });
 
-  it('should use mock provider by default', async () => {
-    // Ensure mock provider is set
-    vi.spyOn(providerModule, 'getDataProvider').mockReturnValue('mock');
-    vi.spyOn(providerModule, 'isMockProvider').mockReturnValue(true);
+  it('should use supabase provider by default', async () => {
+    // Ensure supabase provider is set
+    vi.spyOn(providerModule, 'getDataProvider').mockReturnValue('supabase');
+    vi.spyOn(providerModule, 'isSupabaseProvider').mockReturnValue(true);
 
     const images = await captureService.uploadCaseImages('case-1', []);
 
     expect(Array.isArray(images)).toBe(true);
   });
 
-  it('should handle upload with mock provider', async () => {
-    vi.spyOn(providerModule, 'getDataProvider').mockReturnValue('mock');
+  it('should handle upload with supabase provider', async () => {
+    vi.spyOn(providerModule, 'getDataProvider').mockReturnValue('supabase');
 
     const mockFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
     const images = await captureService.uploadCaseImages('case-1', [mockFile]);
@@ -71,8 +50,8 @@ describe('CaptureService', () => {
     expect(Array.isArray(images)).toBe(true);
   });
 
-  it('should call correct method based on provider - mock', async () => {
-    vi.spyOn(providerModule, 'getDataProvider').mockReturnValue('mock');
+  it('should call correct method based on provider - supabase', async () => {
+    vi.spyOn(providerModule, 'getDataProvider').mockReturnValue('supabase');
 
     const result = await captureService.listCaseImages('case-1');
     expect(Array.isArray(result)).toBe(true);
@@ -84,25 +63,25 @@ describe('CaptureService', () => {
   });
 
   it('should handle delete single image', async () => {
-    vi.spyOn(providerModule, 'getDataProvider').mockReturnValue('mock');
+    vi.spyOn(providerModule, 'getDataProvider').mockReturnValue('supabase');
 
     const result = await captureService.deleteCaseImage('case-1', 'image-1');
     expect(result).toBeUndefined();
   });
 
   it('should handle delete all images of a case', async () => {
-    vi.spyOn(providerModule, 'getDataProvider').mockReturnValue('mock');
+    vi.spyOn(providerModule, 'getDataProvider').mockReturnValue('supabase');
 
     const result = await captureService.deleteCaseAllImages('case-1');
     expect(result).toBeUndefined();
   });
 
   it('should detect provider type correctly', () => {
-    expect(providerModule.isMockProvider()).toBe(true);
-
-    vi.spyOn(providerModule, 'isMockProvider').mockReturnValue(false);
-    vi.spyOn(providerModule, 'isSupabaseProvider').mockReturnValue(true);
-
     expect(providerModule.isSupabaseProvider()).toBe(true);
+
+    vi.spyOn(providerModule, 'isSupabaseProvider').mockReturnValue(false);
+    vi.spyOn(providerModule, 'isHttpProvider').mockReturnValue(true);
+
+    expect(providerModule.isHttpProvider()).toBe(true);
   });
 });

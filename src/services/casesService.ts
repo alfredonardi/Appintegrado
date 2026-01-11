@@ -3,16 +3,9 @@
  * Abstrai chamadas para API, mock data, ou Supabase baseado no data provider
  */
 
-import { Case, CaseStatus, createEmptyCase } from '@/types/case';
+import { Case, CaseStatus } from '@/types/case';
 import { apiClient } from './apiClient';
 import { getDataProvider } from './provider';
-import {
-  getAllMockCases,
-  getMockCaseById,
-  createMockCase,
-  updateMockCase,
-  deleteMockCase,
-} from './mock/mockCases';
 import * as casesServiceSupabase from './supabase/casesServiceSupabase';
 import { casesServiceNhost } from './nhost/casesServiceNhost';
 
@@ -35,11 +28,6 @@ export class CasesService {
       return casesServiceSupabase.getCases();
     }
 
-    // Mock provider
-    if (provider === 'mock') {
-      return getAllMockCases();
-    }
-
     // HTTP provider (default)
     return apiClient.get<Case[]>(`${ENDPOINT}`);
   }
@@ -60,15 +48,6 @@ export class CasesService {
       return casesServiceSupabase.getCaseById(id);
     }
 
-    // Mock provider
-    if (provider === 'mock') {
-      const mockCase = getMockCaseById(id);
-      if (!mockCase) {
-        throw new Error(`Case ${id} not found`);
-      }
-      return mockCase;
-    }
-
     // HTTP provider (default)
     return apiClient.get<Case>(`${ENDPOINT}/${id}`);
   }
@@ -87,11 +66,6 @@ export class CasesService {
     // Supabase provider
     if (provider === 'supabase') {
       return casesServiceSupabase.createCase(bo);
-    }
-
-    // Mock provider
-    if (provider === 'mock') {
-      return createMockCase(bo);
     }
 
     // HTTP provider (default)
@@ -118,11 +92,6 @@ export class CasesService {
       return casesServiceSupabase.updateCase(id, updates);
     }
 
-    // Mock provider
-    if (provider === 'mock') {
-      return updateMockCase(id, updates);
-    }
-
     // HTTP provider (default)
     return apiClient.put<Case>(`${ENDPOINT}/${id}`, updates);
   }
@@ -143,11 +112,6 @@ export class CasesService {
       return casesServiceSupabase.deleteCase(id);
     }
 
-    // Mock provider
-    if (provider === 'mock') {
-      return deleteMockCase(id);
-    }
-
     // HTTP provider (default)
     await apiClient.delete<void>(`${ENDPOINT}/${id}`);
   }
@@ -163,7 +127,7 @@ export class CasesService {
       return casesServiceSupabase.getCasesByStatus(status);
     }
 
-    // Mock and HTTP providers: fetch all and filter
+    // HTTP provider: fetch all and filter
     const cases = await this.getCases();
     return cases.filter((c) => c.status === status);
   }

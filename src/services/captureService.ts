@@ -1,6 +1,6 @@
 /**
  * Capture Service
- * Abstrai chamadas para API, mock data, ou Supabase baseado no data provider
+ * Abstrai chamadas para API ou Supabase baseado no data provider
  *
  * Responsável por:
  * - Upload de imagens múltiplas
@@ -10,12 +10,6 @@
 
 import { CaptureImage } from '@/types/capture';
 import { getDataProvider } from './provider';
-import {
-  getMockCaseImages,
-  mockUploadCaseImages,
-  mockDeleteCaseImage,
-  mockDeleteCaseAllImages,
-} from './mock/mockCapture';
 import * as captureServiceSupabase from './supabase/captureServiceSupabase';
 import { apiClient } from './apiClient';
 
@@ -31,11 +25,6 @@ export class CaptureService {
     // Supabase provider
     if (provider === 'supabase') {
       return captureServiceSupabase.uploadCaseImages(caseId, files);
-    }
-
-    // Mock provider
-    if (provider === 'mock') {
-      return mockUploadCaseImages(caseId, files);
     }
 
     // HTTP provider (default)
@@ -57,11 +46,6 @@ export class CaptureService {
       return captureServiceSupabase.listCaseImages(caseId);
     }
 
-    // Mock provider
-    if (provider === 'mock') {
-      return getMockCaseImages(caseId);
-    }
-
     // HTTP provider (default)
     return apiClient.get<CaptureImage[]>(`${ENDPOINT}/${caseId}/images`);
   }
@@ -80,11 +64,6 @@ export class CaptureService {
       return captureServiceSupabase.deleteCaseImage(imageId, storagePath);
     }
 
-    // Mock provider
-    if (provider === 'mock') {
-      return mockDeleteCaseImage(caseId, imageId);
-    }
-
     // HTTP provider (default)
     return apiClient.delete(`${ENDPOINT}/${caseId}/images/${imageId}`);
   }
@@ -98,11 +77,6 @@ export class CaptureService {
     // Supabase provider
     if (provider === 'supabase') {
       return captureServiceSupabase.deleteCaseAllImages(caseId);
-    }
-
-    // Mock provider
-    if (provider === 'mock') {
-      return mockDeleteCaseAllImages(caseId);
     }
 
     // HTTP provider (default)

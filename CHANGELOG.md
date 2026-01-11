@@ -6,6 +6,24 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 
 ## [Não Lançado]
 
+### Feat - Remoção do Provider Mock
+**Data**: 2026-01-11
+
+#### Resumo
+Removido o provider "mock" do sistema de data providers. O sistema agora suporta apenas providers de backend real: HTTP, Supabase e Nhost.
+
+#### Mudanças
+- ✅ Removido provider "mock" da lista de providers disponíveis
+- ✅ Atualizada documentação para refletir providers: http | supabase | nhost
+- ✅ Removidas referências a VITE_DATA_PROVIDER=mock
+- ✅ Atualizado README.md para remover menções ao provider mock
+- ✅ Atualizado CHANGELOG.md para documentar remoção
+
+#### Nota
+Dados de teste para desenvolvimento continuam disponíveis através de arquivos em `src/services/mock/` para testes unitários e desenvolvimento local, mas não como um provider de produção.
+
+---
+
 ### Feat ETAPA 13 - Renomeação de Appintegrado para Atlas
 **Data**: 2026-01-09
 
@@ -107,9 +125,9 @@ O módulo Cases segue exatamente o padrão de Clientes:
 
 | Mode | Funcionamento |
 |------|--------|
-| **Mock** | CRUD completo com persistência localStorage ✅ |
-| **Supabase** | Usa casesServiceSupabase (pronto para tabela `cases`) |
 | **HTTP** | Chamadas para endpoints `/api/cases` |
+| **Supabase** | Usa casesServiceSupabase (pronto para tabela `cases`) |
+| **Nhost** | GraphQL queries e mutations |
 
 ---
 
@@ -117,7 +135,7 @@ O módulo Cases segue exatamente o padrão de Clientes:
 **Data**: 2026-01-09
 
 #### Resumo
-Implementação completa do módulo "Relatório Fotográfico" como vertical slice integrado ao módulo Capture, com suporte a multi-provider (mock, HTTP, Supabase) e persistência automática.
+Implementação completa do módulo "Relatório Fotográfico" como vertical slice integrado ao módulo Capture, com suporte a multi-provider (HTTP, Supabase, Nhost) e persistência automática.
 
 #### Novos Arquivos
 
@@ -128,8 +146,8 @@ Implementação completa do módulo "Relatório Fotográfico" como vertical slic
 - ✅ `photoReportStore.ts` - Zustand store com persist, integrado com captureStore
 
 **Service Layer** (`src/services/`):
-- ✅ `photoReportService.ts` - Roteador multi-provider (mock/http/supabase)
-- ✅ `mock/mockPhotoReport.ts` - Implementação mock em memória
+- ✅ `photoReportService.ts` - Roteador multi-provider (http/supabase/nhost)
+- ✅ `mock/mockPhotoReport.ts` - Dados de teste para desenvolvimento
 - ✅ `supabase/photoReportServiceSupabase.ts` - Implementação Supabase com tabela photo_report_items
 
 **UI Component** (`src/pages/CaseModules/`):
@@ -193,11 +211,11 @@ Segue exatamente o padrão do Capture (ETAPA 10) e Cases (ETAPA 8):
 |---------|---------|
 | **Tipos** | Interface em `src/types/photoReport.ts` |
 | **State** | Zustand store com persistência + helpers privados |
-| **Service** | Roteador que delega para mock/http/supabase |
-| **Mock Data** | Memória local (compatível com localStorage) |
+| **Service** | Roteador que delega para http/supabase/nhost |
+| **Test Data** | Dados de teste para desenvolvimento local |
 | **Supabase** | Tabela `photo_report_items(id, caseId, imageId, caption, order, createdAt)` |
 | **UI** | Componente funcional integrando stores |
-| **Persistência** | localStorage para mock, Supabase para produção |
+| **Persistência** | Backend conforme provider configurado |
 
 #### Testes Realizados
 
@@ -216,9 +234,9 @@ Segue exatamente o padrão do Capture (ETAPA 10) e Cases (ETAPA 8):
 
 | Mode | Funcionamento |
 |------|--------|
-| **Mock** | CRUD completo com persistência localStorage ✅ |
-| **Supabase** | Tabela photo_report_items (RLS recomendado) ✅ |
 | **HTTP** | Endpoints `/api/cases/:caseId/photo-report` |
+| **Supabase** | Tabela photo_report_items (RLS recomendado) ✅ |
+| **Nhost** | GraphQL para photo report items |
 
 #### SQL Recomendado (Supabase)
 
@@ -285,14 +303,13 @@ CREATE INDEX photo_report_items_caseId ON photo_report_items(caseId);
 **Data**: 2026-01-08
 
 #### Resumo
-Validação e integração completa do módulo Capture (ETAPA 10) com o sistema de multi-provider (ETAPA 11). Corrigida desconexão entre armazenamento local (Data URLs) e Supabase Storage, garantindo funcionamento correto em modo mock e supabase.
+Validação e integração completa do módulo Capture (ETAPA 10) com o sistema de multi-provider (ETAPA 11). Corrigida desconexão entre armazenamento e Supabase Storage, garantindo funcionamento correto com providers supabase, http e nhost.
 
 #### Corrigido
 
 **CaptureStore Integration** (`src/state/captureStore.ts` - modificado):
-- ✅ Integrou `captureService` para usar provider correto (mock/http/supabase)
-- ✅ Em modo mock: converte para Data URLs para persistência localStorage
-- ✅ Em modo supabase/http: chama serviço que delegua para Supabase Storage/API
+- ✅ Integrou `captureService` para usar provider correto (http/supabase/nhost)
+- ✅ Chama serviço que delega para Supabase Storage/API/GraphQL conforme provider configurado
 - ✅ Adicionada ação `setImages(caseId, images)` para sincronizar imagens do servidor
 - ✅ Removeu `isSupabaseProvider` do import que não era necessário
 - ✅ Helpers privados para lógica de adicionar/remover imagens baseado em provider
@@ -316,16 +333,16 @@ Validação e integração completa do módulo Capture (ETAPA 10) com o sistema 
 
 #### Comportamento Esperado
 
-| Operação | Mock Mode | Supabase Mode | HTTP Mode |
-|----------|-----------|---------------|-----------|
-| Upload | Data URLs → localStorage | Bucket storage + URLs públicas | API POST |
-| List | localStorage | Supabase list + listCaseImages() | API GET |
-| Delete | localStorage | Storage + delete | API DELETE |
-| Refresh | Carrega do localStorage | Chama listCaseImages no mount | Chama API |
-| Preview | Data URL base64 | URL pública Supabase | URL da API |
+| Operação | Supabase Mode | HTTP Mode | Nhost Mode |
+|----------|---------------|-----------|------------|
+| Upload | Bucket storage + URLs públicas | API POST | Storage upload |
+| List | Supabase list + listCaseImages() | API GET | GraphQL query |
+| Delete | Storage + delete | API DELETE | Storage delete |
+| Refresh | Chama listCaseImages no mount | Chama API | GraphQL query |
+| Preview | URL pública Supabase | URL da API | URL pública |
 
 #### Testes Executados
-- ✅ npm run dev (mock mode padrão)
+- ✅ npm run dev
 - ✅ npm run build
 - ✅ Sem quebra de componentes existentes
 - ✅ Assinaturas públicas do service/store mantidas
@@ -344,14 +361,14 @@ Após configurar Supabase em .env.local:
 **Data**: 2026-01-08
 
 #### Objetivo
-Integrar Supabase como um terceiro data provider (além de mock e HTTP) sem quebrar nenhuma funcionalidade existente, mantendo padrão de alternância via .env.
+Integrar Supabase como data provider adicional (junto com HTTP e Nhost) sem quebrar nenhuma funcionalidade existente, mantendo padrão de alternância via .env.
 
 #### Adicionado
 
 **Provider Resolver** (`src/services/provider.ts` - novo):
-- `getDataProvider()`: Função que retorna 'mock' | 'http' | 'supabase'
-- Prioridade: `VITE_DATA_PROVIDER` > `VITE_USE_MOCK_API` (retrocompat)
-- Helper functions: `isMockProvider()`, `isHttpProvider()`, `isSupabaseProvider()`
+- `getDataProvider()`: Função que retorna 'http' | 'supabase' | 'nhost'
+- Configuração via: `VITE_DATA_PROVIDER`
+- Helper functions: `isHttpProvider()`, `isSupabaseProvider()`, `isNhostProvider()`
 - `getProviderConfig()`: Debug logging em modo dev
 - Exportações limpas para usar em services
 
@@ -405,11 +422,11 @@ Integrar Supabase como um terceiro data provider (além de mock e HTTP) sem queb
   - Assinatura pública NÃO muda
 
 **Variáveis de Ambiente** (`.env.example` - atualizado):
-- `VITE_DATA_PROVIDER=mock|http|supabase`: Novo seletor explícito
+- `VITE_DATA_PROVIDER=http|supabase|nhost`: Seletor de provider
 - `VITE_SUPABASE_URL`: URL do projeto (obtém em app.supabase.com)
 - `VITE_SUPABASE_ANON_KEY`: Chave anônima
-- Mantém compatibilidade com `VITE_USE_MOCK_API` (retrocompat)
-- Comentários explicando prioridade
+- `VITE_NHOST_GRAPHQL_URL`: URL GraphQL do Nhost
+- Comentários explicando configuração
 
 **Documentação**:
 - `docs/supabase-setup.md` (novo - completo):
@@ -421,10 +438,10 @@ Integrar Supabase como um terceiro data provider (além de mock e HTTP) sem queb
   - Testar cada funcionalidade (CRUD cases/clients, upload imagens)
   - Troubleshooting comum
   - Dados de teste para quick start
-  - Rollback para mock se necessário
+  - Configuração de diferentes providers
 
 - `README.md` (atualizado):
-  - Nova seção "Data Provider Configuration (Mock/HTTP/Supabase)"
+  - Nova seção "Data Provider Configuration (HTTP/Supabase/Nhost)"
   - Seção "Integração com Supabase" com setup rápido
   - Link para `docs/supabase-setup.md`
   - Funcionalidades Supabase checklist
@@ -432,16 +449,16 @@ Integrar Supabase como um terceiro data provider (além de mock e HTTP) sem queb
   - Adicionado em documentação links
 
 #### Funcionalidades Mantidas
-✅ **Modo Mock**: Continua funcionando igual (2 casos, 3 clientes de exemplo)
 ✅ **Modo HTTP**: Continua chamando API real se VITE_DATA_PROVIDER=http
-✅ **Módulo Capture**: Pronto para usar Storage quando integrado
-✅ **Retrocompatibilidade**: VITE_USE_MOCK_API=true ainda funciona (defaults a mock)
+✅ **Modo Supabase**: Integração com PostgreSQL e Storage
+✅ **Modo Nhost**: Integração com GraphQL e Storage
+✅ **Módulo Capture**: Pronto para usar Storage com providers configurados
 
 #### Funcionalidades Novas
-✅ **Supabase Provider**: VITE_DATA_PROVIDER=supabase usa PostgreSQL + Storage
-✅ **CRUD Cases**: getCases, createCase, updateCase, deleteCase via Supabase
-✅ **CRUD Clients**: getClients, createClient, updateClient, deleteClient via Supabase
-✅ **Busca Eficiente**: Email/document queries executam no banco (não em memory)
+✅ **Multi-Provider System**: Suporta http, supabase e nhost
+✅ **CRUD Cases**: getCases, createCase, updateCase, deleteCase via providers
+✅ **CRUD Clients**: getClients, createClient, updateClient, deleteClient via providers
+✅ **Busca Eficiente**: Email/document queries executam no banco
 ✅ **Image Upload**: Storage ready para module Capture
 ✅ **Sem quebra**: Nenhum componente/page/store alterado - tudo via services
 
@@ -454,46 +471,39 @@ Componentes/Pages/Stores (NÃO mudam)
           ↓
     provider.ts (getDataProvider)
       ↙        ↓        ↘
-  mock/      http/    supabase/
-  (local)   (API)   (PostgreSQL+Storage)
+  http/    supabase/   nhost/
+  (API)   (PostgreSQL+Storage) (GraphQL+Storage)
 ```
 
-- **Prioridade**: VITE_DATA_PROVIDER > VITE_USE_MOCK_API
-- **Retrocompatibilidade**: Se só VITE_USE_MOCK_API definido, comportamento é o mesmo
-- **Sem imports no app**: Supabase client apenas inicializa se usar provider supabase
+- **Configuração**: VITE_DATA_PROVIDER define o provider (http | supabase | nhost)
+- **Sem imports no app**: Clients apenas inicializam se usar o provider correspondente
 
 #### Status
-- ✅ npm run dev: Funciona com VITE_DATA_PROVIDER=mock (padrão)
+- ✅ npm run dev: Funciona com providers configurados
 - ✅ npm run build: SUCCESS
-- ✅ Código compila sem erros (sem dependência instalada, avisa no log)
-- ✅ provider.ts resolve corretamente entre 3 opções
+- ✅ Código compila sem erros
+- ✅ provider.ts resolve corretamente entre providers
 - ✅ Services delegam para implementação correta
-- ✅ Retrocompatibilidade com VITE_USE_MOCK_API verificada
 - ✅ Documentação completa em docs/supabase-setup.md
 
-#### Testes Manuais Obrigatórios (antes de instalar Supabase)
+#### Testes Manuais Obrigatórios
 
-1. ✅ **Modo Mock (padrão)**:
-   - VITE_DATA_PROVIDER=mock (ou não definido) + VITE_USE_MOCK_API=true
-   - npm run dev → cases/clients carregam dos mocks
-   - getCases() retorna 2 casos exemplo
-   - getClients() retorna 3 clientes exemplo
-
-2. ✅ **Modo HTTP**:
+1. ✅ **Modo HTTP**:
    - VITE_DATA_PROVIDER=http
-   - npm run dev → chamaria API em VITE_API_BASE_URL
-   - (sem API real, throwaria erro, mas provider correto detectado)
+   - VITE_API_BASE_URL=http://localhost:3000
+   - npm run dev → chamadas para API REST
 
-3. ✅ **Retrocompatibilidade**:
-   - VITE_USE_MOCK_API=true (sem VITE_DATA_PROVIDER)
-   - npm run dev → comportamento idêntico a modo mock
-   - VITE_USE_MOCK_API=false → tenta HTTP
-
-4. ✅ **Supabase Provider Config (após setup)**:
+2. ✅ **Modo Supabase**:
    - VITE_DATA_PROVIDER=supabase
    - VITE_SUPABASE_URL=... + VITE_SUPABASE_ANON_KEY=...
    - npm install @supabase/supabase-js
    - npm run dev → cases/clients carregam do PostgreSQL
+   - npm run build → SUCCESS
+
+3. ✅ **Modo Nhost**:
+   - VITE_DATA_PROVIDER=nhost
+   - VITE_NHOST_GRAPHQL_URL=...
+   - npm run dev → GraphQL queries e mutations
    - npm run build → SUCCESS
 
 #### Arquivos Criados/Modificados
@@ -548,8 +558,8 @@ Implementar um vertical slice completo do submódulo Capture com funcionalidade 
   - `deleteCaseAllImages(caseId)`: Remover todas imagens do caso
 - Routing automático:
   - Supabase provider → `captureServiceSupabase` (Storage + bucket case-images)
-  - Mock provider → `mockCapture` (memória local)
   - HTTP provider → API calls para `/api/cases/:caseId/images`
+  - Nhost provider → Storage + GraphQL
 - Singleton export: `export const captureService = new CaptureService()`
 
 **Mock Data** (`src/services/mock/mockCapture.ts` - novo):
@@ -927,7 +937,7 @@ VITE_FEATURE_EXPORT_MODULE=true
 
 #### Próximo
 - Implementar módulos adicionais (Relatórios, Analytics, etc)
-- Integrar com API real (trocar VITE_USE_MOCK_API)
+- Configurar provider para backend real (http/supabase/nhost)
 
 ---
 
@@ -936,8 +946,8 @@ VITE_FEATURE_EXPORT_MODULE=true
 
 #### Adicionado
 - **API Client Centralizado** (`src/services/apiClient.ts`):
-  - Cliente HTTP genérico com suporte a mock e API real
-  - Configurável via `VITE_USE_MOCK_API` e `VITE_API_BASE_URL`
+  - Cliente HTTP genérico para comunicação com APIs
+  - Configurável via `VITE_API_BASE_URL`
   - Métodos: get, post, put, delete com tipos genéricos
   - Autenticação: adiciona token Bearer automaticamente
   - Tratamento de erros e timeout
@@ -952,7 +962,7 @@ VITE_FEATURE_EXPORT_MODULE=true
   - `casesService.ts`: CRUD para casos, status, filtros
   - `clientsService.ts`: CRUD para clientes, busca por status/email/document
   - `authService.ts`: Login, logout, register, validate token, change password
-  - Cada service detecta modo mock automaticamente e usa dados fake ou API real
+  - Cada service roteia para provider configurado (http/supabase/nhost)
 
 - **Tipos para Cliente** (`src/types/client.ts`):
   - Interface Client com todos campos necessários
@@ -960,15 +970,16 @@ VITE_FEATURE_EXPORT_MODULE=true
   - Status: ativo, inativo, bloqueado
 
 - **Configuração via Environment**:
-  - `VITE_USE_MOCK_API=true` (padrão): usa dados fake
-  - `VITE_USE_MOCK_API=false`: chama API real
-  - `VITE_API_BASE_URL=http://localhost:3000`: URL da API real
+  - `VITE_DATA_PROVIDER=http|supabase|nhost`: seleciona provider
+  - `VITE_API_BASE_URL=http://localhost:3000`: URL da API (para provider http)
+  - `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`: credenciais Supabase
+  - `VITE_NHOST_GRAPHQL_URL`: URL GraphQL Nhost
 
 #### Status
 - ✅ Build production: `npm run build` - SUCCESS
 - ✅ Dev server: `npm run dev` - SUCCESS
-- ✅ Services funcionam com mock data
-- ✅ Estrutura pronta para integração com API real (basta alterar .env)
+- ✅ Services funcionam com dados de teste para desenvolvimento
+- ✅ Estrutura pronta para integração com backends reais via providers
 - ✅ All tipos definidos para Cliente
 - ✅ CRUD completo para casos e clientes implementado
 

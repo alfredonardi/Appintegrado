@@ -13,9 +13,9 @@ vi.mock('@/services/captureService', () => ({
 
 // Mock provider detection
 vi.mock('@/services/provider', () => ({
-  isMockProvider: vi.fn(() => true),
-  isSupabaseProvider: vi.fn(() => false),
-  getDataProvider: vi.fn(() => 'mock'),
+  isSupabaseProvider: vi.fn(() => true),
+  isHttpProvider: vi.fn(() => false),
+  getDataProvider: vi.fn(() => 'supabase'),
 }));
 
 describe('CaptureStore (Zustand)', () => {
