@@ -111,6 +111,15 @@ export function Header() {
             <span className="text-sm text-gray-700">DPC - SP</span>
           </div>
 
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-3 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors text-sm"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="hidden sm:inline">Sair</span>
+          </button>
+
           {/* User Menu */}
           <div className="relative group">
             <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200 transition-colors">
